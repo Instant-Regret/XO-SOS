@@ -1,0 +1,164 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+    output   = "../generated/prisma"
+}
+
+datasource db {
+    provider = "mongodb"
+    url      = env("DATABASE_URL")
+}
+
+model Post {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    name      String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    createdBy   User   @relation(fields: [createdById], references: [id])
+    createdById String @db.ObjectId
+
+    @@index([name])
+}
+
+// Necessary for Next auth
+model Account {
+    id                       String  @id @default(auto()) @map("_id") @db.ObjectId
+    userId                   String  @db.ObjectId
+    type                     String
+    provider                 String
+    providerAccountId        String
+    refresh_token            String?
+    access_token             String?
+    expires_at               Int?
+    token_type               String?
+    scope                    String?
+    id_token                 String?
+    session_state            String?
+    user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    refresh_token_expires_in Int?
+
+    @@unique([provider, providerAccountId])
+}
+
+model Session {
+    id           String   @id @default(auto()) @map("_id") @db.ObjectId
+    sessionToken String   @unique
+    userId       String   @db.ObjectId
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+    id            String    @id @default(auto()) @map("_id") @db.ObjectId
+    name          String?
+    email         String?   @unique
+    emailVerified DateTime?
+    image         String?
+    accounts      Account[]
+    sessions      Session[]
+    posts         Post[]
+}
+
+model VerificationToken {
+    id         String   @id @default(auto()) @map("_id") @db.ObjectId
+    identifier String
+    token      String   @unique
+    expires    DateTime
+
+    @@unique([identifier, token])
+}
+
+// FRC data cached from The Blue Alliance + Statbotics.
+// Refreshed weekly by the sync job; persisted indefinitely.
+
+model District {
+    id           String   @id @default(auto()) @map("_id") @db.ObjectId
+    key          String   @unique // e.g. "2024chs"
+    abbreviation String
+    displayName  String
+    year         Int
+    updatedAt    DateTime @updatedAt
+
+    @@index([year])
+}
+
+model Event {
+    id              String   @id @default(auto()) @map("_id") @db.ObjectId
+    key             String   @unique // e.g. "2024chcmp"
+    name            String
+    eventType       Int // TBA event_type: 0=regional, 1=district, 2=district_cmp, ...
+    eventTypeString String
+    year            Int
+    startDate       String?
+    endDate         String?
+    districtKey     String?
+    updatedAt       DateTime @updatedAt
+
+    @@index([year])
+    @@index([eventType])
+    @@index([districtKey])
+}
+
+model Team {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    number    Int      @unique
+    key       String   @unique // "frc{number}"
+    name      String? // full team name
+    nickname  String?
+    city      String?
+    stateProv String?
+    country   String?
+    updatedAt DateTime @updatedAt
+}
+
+type EpaEntry {
+    year        Int
+    epaUnitless Float
+}
+
+// One document per team holding all historical (year, epa) entries.
+model TeamEpa {
+    id         String     @id @default(auto()) @map("_id") @db.ObjectId
+    teamNumber Int        @unique
+    epas       EpaEntry[]
+    updatedAt  DateTime   @updatedAt
+}
+
+model EventTeam {
+    id          String @id @default(auto()) @map("_id") @db.ObjectId
+    eventKey    String @unique
+    teamNumbers Int[]
+}
+
+model DistrictTeam {
+    id          String @id @default(auto()) @map("_id") @db.ObjectId
+    districtKey String @unique
+    teamNumbers Int[]
+}
+
+type AwardEntry {
+    eventKey  String
+    awardType Int
+    name      String
+    year      Int
+}
+
+model Award {
+    id         String       @id @default(auto()) @map("_id") @db.ObjectId
+    teamNumber Int          @unique
+    awards     AwardEntry[]
+}
+
+model SyncLog {
+    id         String   @id @default(auto()) @map("_id") @db.ObjectId
+    task       String
+    status     String // "success" | "error"
+    message    String?
+    startedAt  DateTime
+    finishedAt DateTime
+
+    @@index([task, startedAt])
+}
