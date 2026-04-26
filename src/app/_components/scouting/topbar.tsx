@@ -94,7 +94,7 @@ export function SearchBar({
               className="search-item"
               style={{ pointerEvents: "none", color: "var(--ink-3)" }}
             >
-              No districts for this season.
+              No regions match.
             </div>
           )}
           {suggestions.map((d) => (

@@ -42,5 +42,10 @@ export type ScheduleEvent = {
   year: number;
   startDate: string | null;
   endDate: string | null;
-  roster: { number: number; nickname: string | null; inDistrict: boolean }[];
+  roster: {
+    number: number;
+    nickname: string | null;
+    inDistrict: boolean;
+    epa: number | null;
+  }[];
 };

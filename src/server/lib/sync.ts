@@ -173,6 +173,84 @@ export async function syncTeamAwards(teamKey: string, year: number) {
   }
 }
 
+// TBA serves avatar PNGs via the media endpoint as base64 in
+// `details.base64Image`. We cache them per (team, year) so the leaderboard
+// doesn't depend on TBA at render time and missing avatars don't trigger 404
+// images for every empty cell.
+export async function syncTeamAvatar(
+  teamKey: string,
+  teamNumber: number,
+  year: number,
+  { force = false }: { force?: boolean } = {},
+) {
+  if (!force) {
+    const existing = await db.teamAvatar.findUnique({
+      where: { teamNumber },
+      select: { avatars: true },
+    });
+    if (existing?.avatars.some((a) => a.year === year)) return;
+  }
+
+  const media = await tba.teamMedia(teamKey, year);
+  const avatar = media.find((m) => m.type === "avatar");
+  const base64Raw =
+    (avatar?.details && (avatar.details as { base64Image?: unknown }).base64Image) ?? null;
+  const base64 = typeof base64Raw === "string" ? base64Raw : null;
+  if (!base64) return;
+
+  const existing = await db.teamAvatar.findUnique({
+    where: { teamNumber },
+    select: { avatars: true },
+  });
+  const others = existing?.avatars.filter((a) => a.year !== year) ?? [];
+  const next = [...others, { year, base64 }].sort((a, b) => a.year - b.year);
+  await db.teamAvatar.upsert({
+    where: { teamNumber },
+    create: { teamNumber, avatars: next },
+    update: { avatars: next },
+  });
+}
+
+// One-shot helper: walk every team in Mongo and pull their avatar for `year`
+// from TBA. Skips teams that already have an entry unless `force` is set.
+export async function seedAvatars(
+  year: number,
+  { force = false, concurrency = 4 }: { force?: boolean; concurrency?: number } = {},
+) {
+  const teams = await db.team.findMany({ select: { number: true, key: true } });
+  let saved = 0;
+  let skipped = 0;
+  let missing = 0;
+
+  await pool(teams, concurrency, async (t) => {
+    if (!force) {
+      const existing = await db.teamAvatar.findUnique({
+        where: { teamNumber: t.number },
+        select: { avatars: true },
+      });
+      if (existing?.avatars.some((a) => a.year === year)) {
+        skipped++;
+        return;
+      }
+    }
+    const before = await db.teamAvatar.findUnique({
+      where: { teamNumber: t.number },
+      select: { avatars: true },
+    });
+    await syncTeamAvatar(t.key, t.number, year, { force });
+    const after = await db.teamAvatar.findUnique({
+      where: { teamNumber: t.number },
+      select: { avatars: true },
+    });
+    const had = before?.avatars.some((a) => a.year === year) ?? false;
+    const has = after?.avatars.some((a) => a.year === year) ?? false;
+    if (!had && has) saved++;
+    else if (!has) missing++;
+  });
+
+  return { year, total: teams.length, saved, skipped, missing };
+}
+
 export async function syncTeamEpa(teamNumber: number, year: number) {
   const result = await getTeamYear(teamNumber, year);
   if (!result) return;
@@ -257,6 +335,10 @@ export async function syncAll() {
 
     await pool(teams, 6, async (t) => {
       await syncTeamEpa(t.number, year);
+    });
+
+    await pool(teams, 4, async (t) => {
+      await syncTeamAvatar(t.key, t.number, year);
     });
 
     return { year, districts: districts.length, teams: teams.length, events: events.length };

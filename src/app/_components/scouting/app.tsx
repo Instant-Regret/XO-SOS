@@ -52,7 +52,7 @@ export function ScoutingApp() {
     search: null,
   });
   const [sort, setSort] = useState<Sort>({ key: "epa", dir: "desc" });
-  const [selectedYear, setSelectedYear] = useState(2024);
+  const [selectedYear, setSelectedYear] = useState(2026);
 
   // Local-only scouting state. Keys are "{year}:{teamNumber}" so picks/stars
   // stay separate per season.
@@ -65,30 +65,36 @@ export function ScoutingApp() {
   // in both seasons.
   const [selectedAbbr, setSelectedAbbr] = useState<string | null>(null);
 
-  const districtsQ = api.frc.districts.useQuery({ year: selectedYear });
-  const districts = useMemo(
+  const allDistrictsQ = api.frc.allDistricts.useQuery();
+  const allDistricts = useMemo(
     () =>
-      (districtsQ.data ?? []).map((d) => ({
+      (allDistrictsQ.data ?? []).map((d) => ({
         key: d.key,
         abbreviation: d.abbreviation,
         displayName: d.displayName,
         year: d.year,
       })),
-    [districtsQ.data],
+    [allDistrictsQ.data],
   );
 
-  const selectedDistrict = useMemo(
-    () =>
-      selectedAbbr
-        ? (districts.find((d) => d.abbreviation === selectedAbbr) ?? null)
-        : null,
-    [districts, selectedAbbr],
-  );
-  const selectedDistrictKey = selectedDistrict?.key ?? null;
+  // Region selection is purely by abbreviation; the per-year districtKey is
+  // just "{year}{abbr}". Constructing it directly (instead of resolving via
+  // the District collection) means regions that only exist in the
+  // DistrictTeam collection for a given year still load — boardForDistrict
+  // returns empty teams if nothing matches, and the user gets the empty
+  // state instead of silently falling back to the global top-100.
+  const selectedDistrictKey = selectedAbbr
+    ? `${selectedYear}${selectedAbbr}`
+    : null;
 
   const boardQ = api.frc.boardForDistrict.useQuery(
     { districtKey: selectedDistrictKey! },
     { enabled: !!selectedDistrictKey },
+  );
+
+  const topQ = api.frc.topTeamsByYear.useQuery(
+    { year: selectedYear, limit: 100 },
+    { enabled: !selectedDistrictKey },
   );
 
   const scheduleQ = api.frc.scheduleForDistrict.useQuery(
@@ -101,11 +107,16 @@ export function ScoutingApp() {
     [selectedYear],
   );
 
-  // Auto-pick a district if the user types its abbreviation exactly.
+  // Auto-pick a district if the user types its abbreviation exactly. When the
+  // search is cleared, drop the selection so the board falls back to the
+  // global top-100 view.
   useEffect(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return;
-    const exact = districts.find(
+    if (!q) {
+      if (selectedAbbr !== null) setSelectedAbbr(null);
+      return;
+    }
+    const exact = allDistricts.find(
       (d) =>
         d.abbreviation.toLowerCase() === q ||
         d.key.toLowerCase() === q ||
@@ -114,21 +125,47 @@ export function ScoutingApp() {
     if (exact && exact.abbreviation !== selectedAbbr) {
       setSelectedAbbr(exact.abbreviation);
     }
-  }, [search, districts, selectedAbbr]);
+  }, [search, allDistricts, selectedAbbr]);
 
-  // Build the row view from the tRPC payload + local pick/star state.
+  // Build the row view from whichever tRPC payload is active (district board
+  // when one is selected, else global top-100) plus local pick/star state.
   const teamsForYear: TeamView[] = useMemo(() => {
-    const data = boardQ.data;
-    if (!data || !selectedDistrict) return [];
-    const districtChip = selectedDistrict.abbreviation.toUpperCase();
+    const buildAvatarUrl = (year: number, number: number, b64: string | null) =>
+      b64
+        ? `data:image/png;base64,${b64}`
+        : `https://www.thebluealliance.com/avatar/${year}/frc${number}.png`;
+
+    if (selectedAbbr) {
+      const data = boardQ.data;
+      if (!data) return [];
+      const districtChip = selectedAbbr.toUpperCase();
+      return data.teams.map((t) => {
+        const localKey = `${data.year}:${t.number}`;
+        return {
+          _id: t.key,
+          number: t.number,
+          name: t.nickname ?? t.name ?? `Team ${t.number}`,
+          region: districtChip,
+          avatarUrl: buildAvatarUrl(data.year, t.number, t.avatarB64),
+          xVal: 0,
+          epa: t.epa ?? 0,
+          stars: stars[localKey] ?? 0,
+          pickStatus: (picks[localKey] ?? DEFAULT_PICK).status,
+          pickedBy: (picks[localKey] ?? DEFAULT_PICK).by,
+          awardLog: bucketAwards(t.awards),
+        };
+      });
+    }
+    const data = topQ.data;
+    if (!data) return [];
     return data.teams.map((t) => {
       const localKey = `${data.year}:${t.number}`;
       return {
-        _id: t.key, // "frc{number}"
+        _id: t.key,
         number: t.number,
         name: t.nickname ?? t.name ?? `Team ${t.number}`,
-        region: districtChip,
-        avatarUrl: `https://www.thebluealliance.com/avatar/${data.year}/frc${t.number}.png`,
+        region: t.districtAbbr ? t.districtAbbr.toUpperCase() : "—",
+        avatarUrl: buildAvatarUrl(data.year, t.number, t.avatarB64),
         xVal: 0,
         epa: t.epa ?? 0,
         stars: stars[localKey] ?? 0,
@@ -137,7 +174,7 @@ export function ScoutingApp() {
         awardLog: bucketAwards(t.awards),
       };
     });
-  }, [boardQ.data, picks, stars, selectedDistrict]);
+  }, [boardQ.data, topQ.data, picks, stars, selectedAbbr]);
 
   const sorted = useMemo(() => {
     const arr = [...teamsForYear];
@@ -182,11 +219,12 @@ export function ScoutingApp() {
     return result;
   }, [sorted, filters]);
 
+  const activeYear = boardQ.data?.year ?? topQ.data?.year ?? selectedYear;
+
   const cyclePick = (id: string) => {
-    if (!boardQ.data) return;
     const number = parseInt(id.replace(/^frc/, ""), 10);
     if (!Number.isFinite(number)) return;
-    const localKey = `${boardQ.data.year}:${number}`;
+    const localKey = `${activeYear}:${number}`;
     setPicks((prev) => {
       const cur = prev[localKey] ?? DEFAULT_PICK;
       const idx = PICK_CYCLE.findIndex(
@@ -198,20 +236,21 @@ export function ScoutingApp() {
   };
 
   const setStarsFor = (id: string, value: number) => {
-    if (!boardQ.data) return;
     const number = parseInt(id.replace(/^frc/, ""), 10);
     if (!Number.isFinite(number)) return;
-    const localKey = `${boardQ.data.year}:${number}`;
+    const localKey = `${activeYear}:${number}`;
     setStars((prev) => ({ ...prev, [localKey]: value }));
   };
 
   const events = scheduleQ.data ?? [];
 
-  const boardEmpty = !selectedDistrictKey
-    ? "Search a district above to load teams."
-    : boardQ.isLoading
+  const boardEmpty = selectedDistrictKey
+    ? boardQ.isLoading
       ? "Loading teams…"
-      : "No teams in this district.";
+      : "No teams in this district."
+    : topQ.isLoading
+      ? "Loading top teams…"
+      : "No teams found for this season.";
 
   return (
     <div className="app theme-dark">
@@ -220,8 +259,8 @@ export function ScoutingApp() {
         <SearchBar
           value={search}
           onChange={setSearch}
-          districts={districts}
-          loading={districtsQ.isLoading}
+          districts={allDistricts}
+          loading={allDistrictsQ.isLoading}
           onPickDistrict={(d) => {
             setSelectedAbbr(d.abbreviation);
             setSearch(d.abbreviation.toUpperCase());
@@ -260,7 +299,7 @@ export function ScoutingApp() {
           )}
           {page === "schedule" && (
             <SchedulePage
-              districtAbbr={selectedDistrict?.abbreviation ?? null}
+              districtAbbr={selectedAbbr}
               districtKey={selectedDistrictKey}
               events={events}
               loading={scheduleQ.isLoading}

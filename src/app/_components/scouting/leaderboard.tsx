@@ -92,7 +92,7 @@ export function Leaderboard({
           </div>
           <div className="col-region">
             <ColHeader
-              label="District"
+              label="Region"
               sortKey="region"
               sortState={sort}
               onSort={toggleSort}

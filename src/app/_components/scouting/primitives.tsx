@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import type { AwardEntry, AwardLog, PickStatus } from "./data";
 import { BannerSvg, TrophySvg, WrenchSvg } from "./icons";
 
@@ -131,6 +131,18 @@ export function TeamMark({
   );
 }
 
+function groupByYear(entries: AwardEntry[]) {
+  const map = new Map<number, AwardEntry[]>();
+  for (const e of entries) {
+    const list = map.get(e.year);
+    if (list) list.push(e);
+    else map.set(e.year, [e]);
+  }
+  return [...map.entries()]
+    .sort(([a], [b]) => b - a)
+    .map(([year, items]) => ({ year, items }));
+}
+
 function AwardIcon({
   entries,
   kind,
@@ -143,8 +155,30 @@ function AwardIcon({
   label: string;
 }) {
   const [open, setOpen] = useState(false);
+  const popRef = useRef<HTMLDivElement | null>(null);
+  const [shift, setShift] = useState(0);
+  const [placement, setPlacement] = useState<"top" | "bottom">("top");
+
+  useLayoutEffect(() => {
+    if (!open) {
+      setShift(0);
+      setPlacement("top");
+      return;
+    }
+    const el = popRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const vw = window.innerWidth;
+    const margin = 8;
+    let dx = 0;
+    if (rect.right > vw - margin) dx = vw - margin - rect.right;
+    else if (rect.left < margin) dx = margin - rect.left;
+    if (dx !== 0) setShift(dx);
+    if (rect.top < margin) setPlacement("bottom");
+  }, [open]);
+
   if (!entries || entries.length === 0) return null;
-  const sorted = [...entries].sort((a, b) => b.year - a.year);
+  const groups = groupByYear(entries);
 
   const svg =
     kind === "trophy" ? <TrophySvg /> : kind === "banner" ? <BannerSvg /> : <WrenchSvg />;
@@ -158,14 +192,24 @@ function AwardIcon({
       {svg}
       <span className="banner-count">{entries.length}</span>
       {open && (
-        <div className="award-pop">
+        <div
+          ref={popRef}
+          className={`award-pop award-pop-${placement}`}
+          style={{ transform: `translateX(calc(-50% + ${shift}px))` }}
+        >
           <div className="award-pop-title">{label}</div>
           <ul className="award-pop-list">
-            {sorted.map((e, i) => (
-              <li key={i}>
-                <span className="award-pop-year">{e.year}</span>
-                <span className="award-pop-event">{e.event}</span>
-                {e.name && <span className="award-pop-sub">{e.name}</span>}
+            {groups.map((g) => (
+              <li key={g.year}>
+                <span className="award-pop-year">{g.year}</span>
+                <div className="award-pop-events">
+                  {g.items.map((e, i) => (
+                    <div key={i} className="award-pop-event-row">
+                      <span className="award-pop-event">{e.event}</span>
+                      {e.name && <span className="award-pop-sub">{e.name}</span>}
+                    </div>
+                  ))}
+                </div>
               </li>
             ))}
           </ul>

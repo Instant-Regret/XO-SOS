@@ -4,10 +4,8 @@ import { useState } from "react";
 
 import type { ScheduleEvent } from "./types";
 
-function formatDateRange(start: string | null, end: string | null) {
-  if (!start && !end) return "";
-  if (start && end && start !== end) return `${start} – ${end}`;
-  return start ?? end ?? "";
+function eventCode(key: string) {
+  return key.replace(/^\d{4}/, "").toUpperCase();
 }
 
 export function SchedulePage({
@@ -59,14 +57,16 @@ export function SchedulePage({
           {events.length} event{events.length !== 1 ? "s" : ""}
         </span>
       </div>
-      <div className="event-columns">
+      <div
+        className="event-columns"
+        style={{
+          gridTemplateColumns: `repeat(${events.length}, 1fr)`,
+        }}
+      >
         {events.map((ev) => (
           <article className="event-col" key={ev.key}>
             <header className="event-head">
-              <div className="event-name">{ev.name}</div>
-              <div className="event-date">
-                {formatDateRange(ev.startDate, ev.endDate)}
-              </div>
+              <div className="event-name">{eventCode(ev.key)}</div>
             </header>
             <div className="event-roster">
               {ev.roster.map((row) => {
@@ -84,11 +84,8 @@ export function SchedulePage({
                     onMouseLeave={() => setHoverTeam(null)}
                   >
                     <span className="roster-tag">{row.number}</span>
-                    <span className="roster-name">
-                      {row.nickname ?? `Team ${row.number}`}
-                    </span>
                     {!row.inDistrict && (
-                      <span className="roster-guest-chip">GUEST</span>
+                      <span className="roster-guest-chip">G</span>
                     )}
                     <span className="roster-pick" />
                   </div>

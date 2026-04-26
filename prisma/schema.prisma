@@ -139,6 +139,20 @@ model DistrictTeam {
     teamNumbers Int[]
 }
 
+type AvatarEntry {
+    year   Int
+    base64 String // raw base64-encoded PNG bytes, no data: prefix
+}
+
+// One document per team holding avatar bytes per year. Stored inline so the
+// leaderboard query can return rows + avatars in a single round-trip.
+model TeamAvatar {
+    id         String        @id @default(auto()) @map("_id") @db.ObjectId
+    teamNumber Int           @unique
+    avatars    AvatarEntry[]
+    updatedAt  DateTime      @updatedAt
+}
+
 type AwardEntry {
     eventKey  String
     awardType Int

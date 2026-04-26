@@ -843,7 +843,6 @@ body {
 .award-pop {
   position: absolute;
   z-index: 80;
-  bottom: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
   min-width: 220px;
@@ -855,6 +854,12 @@ body {
   padding: 8px 10px;
   text-align: left;
   pointer-events: none;
+}
+.award-pop-top {
+  bottom: calc(100% + 6px);
+}
+.award-pop-bottom {
+  top: calc(100% + 6px);
 }
 .award-pop-title {
   font-size: 10px;
@@ -886,6 +891,17 @@ body {
   font-size: 11px;
   color: var(--ink-3);
 }
+.award-pop-events {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.award-pop-event-row {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
 .award-pop-event {
   color: var(--ink);
   white-space: nowrap;
@@ -893,10 +909,12 @@ body {
   text-overflow: ellipsis;
 }
 .award-pop-sub {
-  grid-column: 2;
   font-size: 11px;
   color: var(--ink-3);
   font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .banner-count {
   font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
@@ -975,13 +993,17 @@ body {
 
 /* ============= Schedule ============= */
 .schedule {
-  padding-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 168px);
+  min-height: 0;
 }
 .schedule-head {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+  flex: 0 0 auto;
 }
 .region-block-count {
   font-size: 12px;
@@ -990,12 +1012,13 @@ body {
 
 .event-columns {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(260px, 1fr);
-  gap: 12px;
-  overflow-x: auto;
-  padding-bottom: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
   align-items: stretch;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
 }
 .event-col {
   background: var(--surface);
@@ -1003,72 +1026,75 @@ body {
   border-radius: 10px;
   display: flex;
   flex-direction: column;
-  min-height: 260px;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 .event-head {
-  padding: 12px 14px;
+  padding: 8px 10px;
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
+  flex-direction: column;
+  gap: 2px;
   border-bottom: 1px solid var(--border);
   background: var(--surface-2);
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
+  flex: 0 0 auto;
 }
 .event-name {
-  font-weight: 600;
-  font-size: 14px;
-  letter-spacing: -0.01em;
-}
-.event-date {
   font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
-  font-size: 11px;
-  color: var(--ink-3);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: visible;
+  text-align: center;
 }
 
 .event-roster {
-  padding: 4px;
-  flex: 1;
+  padding: 2px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 .roster-row {
-  display: grid;
-  grid-template-columns: 36px 1fr auto auto;
-  gap: 8px;
+  display: flex;
   align-items: center;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 13px;
+  gap: 6px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
   transition: background 100ms, opacity 160ms, transform 160ms;
   cursor: default;
+  min-height: 0;
+}
+.roster-tag {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-3);
+  letter-spacing: 0.02em;
+  flex: 0 0 auto;
 }
 .roster-row:hover {
   background: var(--surface-2);
 }
-.roster-tag {
-  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--ink-3);
-  letter-spacing: 0.04em;
-}
-.roster-name {
-  color: var(--ink);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 .roster-guest-chip {
-  padding: 1px 6px;
+  padding: 0 4px;
   border-radius: 3px;
   background: var(--surface-3);
   color: var(--ink-3);
   font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 600;
+  margin-left: auto;
+  flex: 0 0 auto;
 }
 .roster-pick {
-  width: 18px;
-  text-align: center;
+  width: 0;
+  flex: 0 0 auto;
   font-size: 12px;
   color: var(--ink-3);
 }
@@ -1087,7 +1113,6 @@ body {
   outline: 1px solid var(--accent);
   transform: translateX(2px);
 }
-.roster-hover .roster-name,
 .roster-hover .roster-tag {
   color: var(--accent-ink);
 }

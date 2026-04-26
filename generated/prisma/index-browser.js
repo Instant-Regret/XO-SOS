@@ -212,6 +212,12 @@ exports.Prisma.DistrictTeamScalarFieldEnum = {
   teamNumbers: 'teamNumbers'
 };
 
+exports.Prisma.TeamAvatarScalarFieldEnum = {
+  id: 'id',
+  teamNumber: 'teamNumber',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.AwardScalarFieldEnum = {
   id: 'id',
   teamNumber: 'teamNumber'
@@ -249,6 +255,7 @@ exports.Prisma.ModelName = {
   TeamEpa: 'TeamEpa',
   EventTeam: 'EventTeam',
   DistrictTeam: 'DistrictTeam',
+  TeamAvatar: 'TeamAvatar',
   Award: 'Award',
   SyncLog: 'SyncLog'
 };
