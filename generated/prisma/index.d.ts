@@ -98,6 +98,21 @@ export type Award = $Result.DefaultSelection<Prisma.$AwardPayload>
  * 
  */
 export type SyncLog = $Result.DefaultSelection<Prisma.$SyncLogPayload>
+/**
+ * Model Pick
+ * 
+ */
+export type Pick = $Result.DefaultSelection<Prisma.$PickPayload>
+/**
+ * Model Draft
+ * 
+ */
+export type Draft = $Result.DefaultSelection<Prisma.$DraftPayload>
+/**
+ * Model Rating
+ * 
+ */
+export type Rating = $Result.DefaultSelection<Prisma.$RatingPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -323,6 +338,36 @@ export class PrismaClient<
     * ```
     */
   get syncLog(): Prisma.SyncLogDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.pick`: Exposes CRUD operations for the **Pick** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Picks
+    * const picks = await prisma.pick.findMany()
+    * ```
+    */
+  get pick(): Prisma.PickDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.draft`: Exposes CRUD operations for the **Draft** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Drafts
+    * const drafts = await prisma.draft.findMany()
+    * ```
+    */
+  get draft(): Prisma.DraftDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.rating`: Exposes CRUD operations for the **Rating** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Ratings
+    * const ratings = await prisma.rating.findMany()
+    * ```
+    */
+  get rating(): Prisma.RatingDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -777,7 +822,10 @@ export namespace Prisma {
     DistrictTeam: 'DistrictTeam',
     TeamAvatar: 'TeamAvatar',
     Award: 'Award',
-    SyncLog: 'SyncLog'
+    SyncLog: 'SyncLog',
+    Pick: 'Pick',
+    Draft: 'Draft',
+    Rating: 'Rating'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -796,7 +844,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "post" | "account" | "session" | "user" | "verificationToken" | "district" | "event" | "team" | "teamEpa" | "eventTeam" | "districtTeam" | "teamAvatar" | "award" | "syncLog"
+      modelProps: "post" | "account" | "session" | "user" | "verificationToken" | "district" | "event" | "team" | "teamEpa" | "eventTeam" | "districtTeam" | "teamAvatar" | "award" | "syncLog" | "pick" | "draft" | "rating"
       txIsolationLevel: never
     }
     model: {
@@ -1836,6 +1884,228 @@ export namespace Prisma {
           }
         }
       }
+      Pick: {
+        payload: Prisma.$PickPayload<ExtArgs>
+        fields: Prisma.PickFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PickFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PickPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PickFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PickPayload>
+          }
+          findFirst: {
+            args: Prisma.PickFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PickPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PickFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PickPayload>
+          }
+          findMany: {
+            args: Prisma.PickFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PickPayload>[]
+          }
+          create: {
+            args: Prisma.PickCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PickPayload>
+          }
+          createMany: {
+            args: Prisma.PickCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.PickDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PickPayload>
+          }
+          update: {
+            args: Prisma.PickUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PickPayload>
+          }
+          deleteMany: {
+            args: Prisma.PickDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PickUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.PickUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PickPayload>
+          }
+          aggregate: {
+            args: Prisma.PickAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePick>
+          }
+          groupBy: {
+            args: Prisma.PickGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PickGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.PickFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.PickAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.PickCountArgs<ExtArgs>
+            result: $Utils.Optional<PickCountAggregateOutputType> | number
+          }
+        }
+      }
+      Draft: {
+        payload: Prisma.$DraftPayload<ExtArgs>
+        fields: Prisma.DraftFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DraftFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DraftPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DraftFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DraftPayload>
+          }
+          findFirst: {
+            args: Prisma.DraftFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DraftPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DraftFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DraftPayload>
+          }
+          findMany: {
+            args: Prisma.DraftFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DraftPayload>[]
+          }
+          create: {
+            args: Prisma.DraftCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DraftPayload>
+          }
+          createMany: {
+            args: Prisma.DraftCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.DraftDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DraftPayload>
+          }
+          update: {
+            args: Prisma.DraftUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DraftPayload>
+          }
+          deleteMany: {
+            args: Prisma.DraftDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DraftUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.DraftUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DraftPayload>
+          }
+          aggregate: {
+            args: Prisma.DraftAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDraft>
+          }
+          groupBy: {
+            args: Prisma.DraftGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DraftGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.DraftFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.DraftAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.DraftCountArgs<ExtArgs>
+            result: $Utils.Optional<DraftCountAggregateOutputType> | number
+          }
+        }
+      }
+      Rating: {
+        payload: Prisma.$RatingPayload<ExtArgs>
+        fields: Prisma.RatingFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.RatingFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RatingPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.RatingFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RatingPayload>
+          }
+          findFirst: {
+            args: Prisma.RatingFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RatingPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.RatingFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RatingPayload>
+          }
+          findMany: {
+            args: Prisma.RatingFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RatingPayload>[]
+          }
+          create: {
+            args: Prisma.RatingCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RatingPayload>
+          }
+          createMany: {
+            args: Prisma.RatingCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.RatingDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RatingPayload>
+          }
+          update: {
+            args: Prisma.RatingUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RatingPayload>
+          }
+          deleteMany: {
+            args: Prisma.RatingDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.RatingUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.RatingUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RatingPayload>
+          }
+          aggregate: {
+            args: Prisma.RatingAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateRating>
+          }
+          groupBy: {
+            args: Prisma.RatingGroupByArgs<ExtArgs>
+            result: $Utils.Optional<RatingGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.RatingFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.RatingAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.RatingCountArgs<ExtArgs>
+            result: $Utils.Optional<RatingCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1929,6 +2199,9 @@ export namespace Prisma {
     teamAvatar?: TeamAvatarOmit
     award?: AwardOmit
     syncLog?: SyncLogOmit
+    pick?: PickOmit
+    draft?: DraftOmit
+    rating?: RatingOmit
   }
 
   /* Types for Logging */
@@ -8280,11 +8553,13 @@ export namespace Prisma {
   export type EventAvgAggregateOutputType = {
     eventType: number | null
     year: number | null
+    week: number | null
   }
 
   export type EventSumAggregateOutputType = {
     eventType: number | null
     year: number | null
+    week: number | null
   }
 
   export type EventMinAggregateOutputType = {
@@ -8294,6 +8569,7 @@ export namespace Prisma {
     eventType: number | null
     eventTypeString: string | null
     year: number | null
+    week: number | null
     startDate: string | null
     endDate: string | null
     districtKey: string | null
@@ -8307,6 +8583,7 @@ export namespace Prisma {
     eventType: number | null
     eventTypeString: string | null
     year: number | null
+    week: number | null
     startDate: string | null
     endDate: string | null
     districtKey: string | null
@@ -8320,6 +8597,7 @@ export namespace Prisma {
     eventType: number
     eventTypeString: number
     year: number
+    week: number
     startDate: number
     endDate: number
     districtKey: number
@@ -8331,11 +8609,13 @@ export namespace Prisma {
   export type EventAvgAggregateInputType = {
     eventType?: true
     year?: true
+    week?: true
   }
 
   export type EventSumAggregateInputType = {
     eventType?: true
     year?: true
+    week?: true
   }
 
   export type EventMinAggregateInputType = {
@@ -8345,6 +8625,7 @@ export namespace Prisma {
     eventType?: true
     eventTypeString?: true
     year?: true
+    week?: true
     startDate?: true
     endDate?: true
     districtKey?: true
@@ -8358,6 +8639,7 @@ export namespace Prisma {
     eventType?: true
     eventTypeString?: true
     year?: true
+    week?: true
     startDate?: true
     endDate?: true
     districtKey?: true
@@ -8371,6 +8653,7 @@ export namespace Prisma {
     eventType?: true
     eventTypeString?: true
     year?: true
+    week?: true
     startDate?: true
     endDate?: true
     districtKey?: true
@@ -8471,6 +8754,7 @@ export namespace Prisma {
     eventType: number
     eventTypeString: string
     year: number
+    week: number | null
     startDate: string | null
     endDate: string | null
     districtKey: string | null
@@ -8503,6 +8787,7 @@ export namespace Prisma {
     eventType?: boolean
     eventTypeString?: boolean
     year?: boolean
+    week?: boolean
     startDate?: boolean
     endDate?: boolean
     districtKey?: boolean
@@ -8518,13 +8803,14 @@ export namespace Prisma {
     eventType?: boolean
     eventTypeString?: boolean
     year?: boolean
+    week?: boolean
     startDate?: boolean
     endDate?: boolean
     districtKey?: boolean
     updatedAt?: boolean
   }
 
-  export type EventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "key" | "name" | "eventType" | "eventTypeString" | "year" | "startDate" | "endDate" | "districtKey" | "updatedAt", ExtArgs["result"]["event"]>
+  export type EventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "key" | "name" | "eventType" | "eventTypeString" | "year" | "week" | "startDate" | "endDate" | "districtKey" | "updatedAt", ExtArgs["result"]["event"]>
 
   export type $EventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Event"
@@ -8536,6 +8822,7 @@ export namespace Prisma {
       eventType: number
       eventTypeString: string
       year: number
+      week: number | null
       startDate: string | null
       endDate: string | null
       districtKey: string | null
@@ -8938,6 +9225,7 @@ export namespace Prisma {
     readonly eventType: FieldRef<"Event", 'Int'>
     readonly eventTypeString: FieldRef<"Event", 'String'>
     readonly year: FieldRef<"Event", 'Int'>
+    readonly week: FieldRef<"Event", 'Int'>
     readonly startDate: FieldRef<"Event", 'String'>
     readonly endDate: FieldRef<"Event", 'String'>
     readonly districtKey: FieldRef<"Event", 'String'>
@@ -16077,6 +16365,2945 @@ export namespace Prisma {
 
 
   /**
+   * Model Pick
+   */
+
+  export type AggregatePick = {
+    _count: PickCountAggregateOutputType | null
+    _avg: PickAvgAggregateOutputType | null
+    _sum: PickSumAggregateOutputType | null
+    _min: PickMinAggregateOutputType | null
+    _max: PickMaxAggregateOutputType | null
+  }
+
+  export type PickAvgAggregateOutputType = {
+    year: number | null
+    teamNumber: number | null
+  }
+
+  export type PickSumAggregateOutputType = {
+    year: number | null
+    teamNumber: number | null
+  }
+
+  export type PickMinAggregateOutputType = {
+    id: string | null
+    scopeKey: string | null
+    year: number | null
+    teamNumber: number | null
+    status: string | null
+    by: string | null
+    updatedBy: string | null
+    updatedAt: Date | null
+  }
+
+  export type PickMaxAggregateOutputType = {
+    id: string | null
+    scopeKey: string | null
+    year: number | null
+    teamNumber: number | null
+    status: string | null
+    by: string | null
+    updatedBy: string | null
+    updatedAt: Date | null
+  }
+
+  export type PickCountAggregateOutputType = {
+    id: number
+    scopeKey: number
+    year: number
+    teamNumber: number
+    status: number
+    by: number
+    updatedBy: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type PickAvgAggregateInputType = {
+    year?: true
+    teamNumber?: true
+  }
+
+  export type PickSumAggregateInputType = {
+    year?: true
+    teamNumber?: true
+  }
+
+  export type PickMinAggregateInputType = {
+    id?: true
+    scopeKey?: true
+    year?: true
+    teamNumber?: true
+    status?: true
+    by?: true
+    updatedBy?: true
+    updatedAt?: true
+  }
+
+  export type PickMaxAggregateInputType = {
+    id?: true
+    scopeKey?: true
+    year?: true
+    teamNumber?: true
+    status?: true
+    by?: true
+    updatedBy?: true
+    updatedAt?: true
+  }
+
+  export type PickCountAggregateInputType = {
+    id?: true
+    scopeKey?: true
+    year?: true
+    teamNumber?: true
+    status?: true
+    by?: true
+    updatedBy?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type PickAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Pick to aggregate.
+     */
+    where?: PickWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Picks to fetch.
+     */
+    orderBy?: PickOrderByWithRelationInput | PickOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PickWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Picks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Picks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Picks
+    **/
+    _count?: true | PickCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PickAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PickSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PickMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PickMaxAggregateInputType
+  }
+
+  export type GetPickAggregateType<T extends PickAggregateArgs> = {
+        [P in keyof T & keyof AggregatePick]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePick[P]>
+      : GetScalarType<T[P], AggregatePick[P]>
+  }
+
+
+
+
+  export type PickGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PickWhereInput
+    orderBy?: PickOrderByWithAggregationInput | PickOrderByWithAggregationInput[]
+    by: PickScalarFieldEnum[] | PickScalarFieldEnum
+    having?: PickScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PickCountAggregateInputType | true
+    _avg?: PickAvgAggregateInputType
+    _sum?: PickSumAggregateInputType
+    _min?: PickMinAggregateInputType
+    _max?: PickMaxAggregateInputType
+  }
+
+  export type PickGroupByOutputType = {
+    id: string
+    scopeKey: string
+    year: number
+    teamNumber: number
+    status: string
+    by: string | null
+    updatedBy: string | null
+    updatedAt: Date
+    _count: PickCountAggregateOutputType | null
+    _avg: PickAvgAggregateOutputType | null
+    _sum: PickSumAggregateOutputType | null
+    _min: PickMinAggregateOutputType | null
+    _max: PickMaxAggregateOutputType | null
+  }
+
+  type GetPickGroupByPayload<T extends PickGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PickGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PickGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PickGroupByOutputType[P]>
+            : GetScalarType<T[P], PickGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PickSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    scopeKey?: boolean
+    year?: boolean
+    teamNumber?: boolean
+    status?: boolean
+    by?: boolean
+    updatedBy?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["pick"]>
+
+
+
+  export type PickSelectScalar = {
+    id?: boolean
+    scopeKey?: boolean
+    year?: boolean
+    teamNumber?: boolean
+    status?: boolean
+    by?: boolean
+    updatedBy?: boolean
+    updatedAt?: boolean
+  }
+
+  export type PickOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "scopeKey" | "year" | "teamNumber" | "status" | "by" | "updatedBy" | "updatedAt", ExtArgs["result"]["pick"]>
+
+  export type $PickPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Pick"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      scopeKey: string
+      year: number
+      teamNumber: number
+      status: string
+      by: string | null
+      updatedBy: string | null
+      updatedAt: Date
+    }, ExtArgs["result"]["pick"]>
+    composites: {}
+  }
+
+  type PickGetPayload<S extends boolean | null | undefined | PickDefaultArgs> = $Result.GetResult<Prisma.$PickPayload, S>
+
+  type PickCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PickFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PickCountAggregateInputType | true
+    }
+
+  export interface PickDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Pick'], meta: { name: 'Pick' } }
+    /**
+     * Find zero or one Pick that matches the filter.
+     * @param {PickFindUniqueArgs} args - Arguments to find a Pick
+     * @example
+     * // Get one Pick
+     * const pick = await prisma.pick.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PickFindUniqueArgs>(args: SelectSubset<T, PickFindUniqueArgs<ExtArgs>>): Prisma__PickClient<$Result.GetResult<Prisma.$PickPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Pick that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PickFindUniqueOrThrowArgs} args - Arguments to find a Pick
+     * @example
+     * // Get one Pick
+     * const pick = await prisma.pick.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PickFindUniqueOrThrowArgs>(args: SelectSubset<T, PickFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PickClient<$Result.GetResult<Prisma.$PickPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Pick that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PickFindFirstArgs} args - Arguments to find a Pick
+     * @example
+     * // Get one Pick
+     * const pick = await prisma.pick.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PickFindFirstArgs>(args?: SelectSubset<T, PickFindFirstArgs<ExtArgs>>): Prisma__PickClient<$Result.GetResult<Prisma.$PickPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Pick that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PickFindFirstOrThrowArgs} args - Arguments to find a Pick
+     * @example
+     * // Get one Pick
+     * const pick = await prisma.pick.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PickFindFirstOrThrowArgs>(args?: SelectSubset<T, PickFindFirstOrThrowArgs<ExtArgs>>): Prisma__PickClient<$Result.GetResult<Prisma.$PickPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Picks that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PickFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Picks
+     * const picks = await prisma.pick.findMany()
+     * 
+     * // Get first 10 Picks
+     * const picks = await prisma.pick.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const pickWithIdOnly = await prisma.pick.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PickFindManyArgs>(args?: SelectSubset<T, PickFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PickPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Pick.
+     * @param {PickCreateArgs} args - Arguments to create a Pick.
+     * @example
+     * // Create one Pick
+     * const Pick = await prisma.pick.create({
+     *   data: {
+     *     // ... data to create a Pick
+     *   }
+     * })
+     * 
+     */
+    create<T extends PickCreateArgs>(args: SelectSubset<T, PickCreateArgs<ExtArgs>>): Prisma__PickClient<$Result.GetResult<Prisma.$PickPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Picks.
+     * @param {PickCreateManyArgs} args - Arguments to create many Picks.
+     * @example
+     * // Create many Picks
+     * const pick = await prisma.pick.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PickCreateManyArgs>(args?: SelectSubset<T, PickCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Pick.
+     * @param {PickDeleteArgs} args - Arguments to delete one Pick.
+     * @example
+     * // Delete one Pick
+     * const Pick = await prisma.pick.delete({
+     *   where: {
+     *     // ... filter to delete one Pick
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PickDeleteArgs>(args: SelectSubset<T, PickDeleteArgs<ExtArgs>>): Prisma__PickClient<$Result.GetResult<Prisma.$PickPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Pick.
+     * @param {PickUpdateArgs} args - Arguments to update one Pick.
+     * @example
+     * // Update one Pick
+     * const pick = await prisma.pick.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PickUpdateArgs>(args: SelectSubset<T, PickUpdateArgs<ExtArgs>>): Prisma__PickClient<$Result.GetResult<Prisma.$PickPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Picks.
+     * @param {PickDeleteManyArgs} args - Arguments to filter Picks to delete.
+     * @example
+     * // Delete a few Picks
+     * const { count } = await prisma.pick.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PickDeleteManyArgs>(args?: SelectSubset<T, PickDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Picks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PickUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Picks
+     * const pick = await prisma.pick.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PickUpdateManyArgs>(args: SelectSubset<T, PickUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Pick.
+     * @param {PickUpsertArgs} args - Arguments to update or create a Pick.
+     * @example
+     * // Update or create a Pick
+     * const pick = await prisma.pick.upsert({
+     *   create: {
+     *     // ... data to create a Pick
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Pick we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PickUpsertArgs>(args: SelectSubset<T, PickUpsertArgs<ExtArgs>>): Prisma__PickClient<$Result.GetResult<Prisma.$PickPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Picks that matches the filter.
+     * @param {PickFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const pick = await prisma.pick.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: PickFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a Pick.
+     * @param {PickAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const pick = await prisma.pick.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: PickAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of Picks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PickCountArgs} args - Arguments to filter Picks to count.
+     * @example
+     * // Count the number of Picks
+     * const count = await prisma.pick.count({
+     *   where: {
+     *     // ... the filter for the Picks we want to count
+     *   }
+     * })
+    **/
+    count<T extends PickCountArgs>(
+      args?: Subset<T, PickCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PickCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Pick.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PickAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PickAggregateArgs>(args: Subset<T, PickAggregateArgs>): Prisma.PrismaPromise<GetPickAggregateType<T>>
+
+    /**
+     * Group by Pick.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PickGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PickGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PickGroupByArgs['orderBy'] }
+        : { orderBy?: PickGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PickGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPickGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Pick model
+   */
+  readonly fields: PickFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Pick.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PickClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Pick model
+   */
+  interface PickFieldRefs {
+    readonly id: FieldRef<"Pick", 'String'>
+    readonly scopeKey: FieldRef<"Pick", 'String'>
+    readonly year: FieldRef<"Pick", 'Int'>
+    readonly teamNumber: FieldRef<"Pick", 'Int'>
+    readonly status: FieldRef<"Pick", 'String'>
+    readonly by: FieldRef<"Pick", 'String'>
+    readonly updatedBy: FieldRef<"Pick", 'String'>
+    readonly updatedAt: FieldRef<"Pick", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Pick findUnique
+   */
+  export type PickFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Pick
+     */
+    select?: PickSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Pick
+     */
+    omit?: PickOmit<ExtArgs> | null
+    /**
+     * Filter, which Pick to fetch.
+     */
+    where: PickWhereUniqueInput
+  }
+
+  /**
+   * Pick findUniqueOrThrow
+   */
+  export type PickFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Pick
+     */
+    select?: PickSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Pick
+     */
+    omit?: PickOmit<ExtArgs> | null
+    /**
+     * Filter, which Pick to fetch.
+     */
+    where: PickWhereUniqueInput
+  }
+
+  /**
+   * Pick findFirst
+   */
+  export type PickFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Pick
+     */
+    select?: PickSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Pick
+     */
+    omit?: PickOmit<ExtArgs> | null
+    /**
+     * Filter, which Pick to fetch.
+     */
+    where?: PickWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Picks to fetch.
+     */
+    orderBy?: PickOrderByWithRelationInput | PickOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Picks.
+     */
+    cursor?: PickWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Picks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Picks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Picks.
+     */
+    distinct?: PickScalarFieldEnum | PickScalarFieldEnum[]
+  }
+
+  /**
+   * Pick findFirstOrThrow
+   */
+  export type PickFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Pick
+     */
+    select?: PickSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Pick
+     */
+    omit?: PickOmit<ExtArgs> | null
+    /**
+     * Filter, which Pick to fetch.
+     */
+    where?: PickWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Picks to fetch.
+     */
+    orderBy?: PickOrderByWithRelationInput | PickOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Picks.
+     */
+    cursor?: PickWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Picks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Picks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Picks.
+     */
+    distinct?: PickScalarFieldEnum | PickScalarFieldEnum[]
+  }
+
+  /**
+   * Pick findMany
+   */
+  export type PickFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Pick
+     */
+    select?: PickSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Pick
+     */
+    omit?: PickOmit<ExtArgs> | null
+    /**
+     * Filter, which Picks to fetch.
+     */
+    where?: PickWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Picks to fetch.
+     */
+    orderBy?: PickOrderByWithRelationInput | PickOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Picks.
+     */
+    cursor?: PickWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Picks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Picks.
+     */
+    skip?: number
+    distinct?: PickScalarFieldEnum | PickScalarFieldEnum[]
+  }
+
+  /**
+   * Pick create
+   */
+  export type PickCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Pick
+     */
+    select?: PickSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Pick
+     */
+    omit?: PickOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Pick.
+     */
+    data: XOR<PickCreateInput, PickUncheckedCreateInput>
+  }
+
+  /**
+   * Pick createMany
+   */
+  export type PickCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Picks.
+     */
+    data: PickCreateManyInput | PickCreateManyInput[]
+  }
+
+  /**
+   * Pick update
+   */
+  export type PickUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Pick
+     */
+    select?: PickSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Pick
+     */
+    omit?: PickOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Pick.
+     */
+    data: XOR<PickUpdateInput, PickUncheckedUpdateInput>
+    /**
+     * Choose, which Pick to update.
+     */
+    where: PickWhereUniqueInput
+  }
+
+  /**
+   * Pick updateMany
+   */
+  export type PickUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Picks.
+     */
+    data: XOR<PickUpdateManyMutationInput, PickUncheckedUpdateManyInput>
+    /**
+     * Filter which Picks to update
+     */
+    where?: PickWhereInput
+    /**
+     * Limit how many Picks to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Pick upsert
+   */
+  export type PickUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Pick
+     */
+    select?: PickSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Pick
+     */
+    omit?: PickOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Pick to update in case it exists.
+     */
+    where: PickWhereUniqueInput
+    /**
+     * In case the Pick found by the `where` argument doesn't exist, create a new Pick with this data.
+     */
+    create: XOR<PickCreateInput, PickUncheckedCreateInput>
+    /**
+     * In case the Pick was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PickUpdateInput, PickUncheckedUpdateInput>
+  }
+
+  /**
+   * Pick delete
+   */
+  export type PickDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Pick
+     */
+    select?: PickSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Pick
+     */
+    omit?: PickOmit<ExtArgs> | null
+    /**
+     * Filter which Pick to delete.
+     */
+    where: PickWhereUniqueInput
+  }
+
+  /**
+   * Pick deleteMany
+   */
+  export type PickDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Picks to delete
+     */
+    where?: PickWhereInput
+    /**
+     * Limit how many Picks to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Pick findRaw
+   */
+  export type PickFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Pick aggregateRaw
+   */
+  export type PickAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Pick without action
+   */
+  export type PickDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Pick
+     */
+    select?: PickSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Pick
+     */
+    omit?: PickOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Draft
+   */
+
+  export type AggregateDraft = {
+    _count: DraftCountAggregateOutputType | null
+    _avg: DraftAvgAggregateOutputType | null
+    _sum: DraftSumAggregateOutputType | null
+    _min: DraftMinAggregateOutputType | null
+    _max: DraftMaxAggregateOutputType | null
+  }
+
+  export type DraftAvgAggregateOutputType = {
+    year: number | null
+  }
+
+  export type DraftSumAggregateOutputType = {
+    year: number | null
+  }
+
+  export type DraftMinAggregateOutputType = {
+    id: string | null
+    year: number | null
+    updatedAt: Date | null
+  }
+
+  export type DraftMaxAggregateOutputType = {
+    id: string | null
+    year: number | null
+    updatedAt: Date | null
+  }
+
+  export type DraftCountAggregateOutputType = {
+    id: number
+    year: number
+    drafters: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type DraftAvgAggregateInputType = {
+    year?: true
+  }
+
+  export type DraftSumAggregateInputType = {
+    year?: true
+  }
+
+  export type DraftMinAggregateInputType = {
+    id?: true
+    year?: true
+    updatedAt?: true
+  }
+
+  export type DraftMaxAggregateInputType = {
+    id?: true
+    year?: true
+    updatedAt?: true
+  }
+
+  export type DraftCountAggregateInputType = {
+    id?: true
+    year?: true
+    drafters?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type DraftAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Draft to aggregate.
+     */
+    where?: DraftWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Drafts to fetch.
+     */
+    orderBy?: DraftOrderByWithRelationInput | DraftOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DraftWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Drafts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Drafts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Drafts
+    **/
+    _count?: true | DraftCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DraftAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DraftSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DraftMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DraftMaxAggregateInputType
+  }
+
+  export type GetDraftAggregateType<T extends DraftAggregateArgs> = {
+        [P in keyof T & keyof AggregateDraft]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDraft[P]>
+      : GetScalarType<T[P], AggregateDraft[P]>
+  }
+
+
+
+
+  export type DraftGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DraftWhereInput
+    orderBy?: DraftOrderByWithAggregationInput | DraftOrderByWithAggregationInput[]
+    by: DraftScalarFieldEnum[] | DraftScalarFieldEnum
+    having?: DraftScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DraftCountAggregateInputType | true
+    _avg?: DraftAvgAggregateInputType
+    _sum?: DraftSumAggregateInputType
+    _min?: DraftMinAggregateInputType
+    _max?: DraftMaxAggregateInputType
+  }
+
+  export type DraftGroupByOutputType = {
+    id: string
+    year: number
+    drafters: string[]
+    updatedAt: Date
+    _count: DraftCountAggregateOutputType | null
+    _avg: DraftAvgAggregateOutputType | null
+    _sum: DraftSumAggregateOutputType | null
+    _min: DraftMinAggregateOutputType | null
+    _max: DraftMaxAggregateOutputType | null
+  }
+
+  type GetDraftGroupByPayload<T extends DraftGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DraftGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DraftGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DraftGroupByOutputType[P]>
+            : GetScalarType<T[P], DraftGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DraftSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    year?: boolean
+    drafters?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["draft"]>
+
+
+
+  export type DraftSelectScalar = {
+    id?: boolean
+    year?: boolean
+    drafters?: boolean
+    updatedAt?: boolean
+  }
+
+  export type DraftOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "year" | "drafters" | "updatedAt", ExtArgs["result"]["draft"]>
+
+  export type $DraftPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Draft"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      year: number
+      drafters: string[]
+      updatedAt: Date
+    }, ExtArgs["result"]["draft"]>
+    composites: {}
+  }
+
+  type DraftGetPayload<S extends boolean | null | undefined | DraftDefaultArgs> = $Result.GetResult<Prisma.$DraftPayload, S>
+
+  type DraftCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DraftFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DraftCountAggregateInputType | true
+    }
+
+  export interface DraftDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Draft'], meta: { name: 'Draft' } }
+    /**
+     * Find zero or one Draft that matches the filter.
+     * @param {DraftFindUniqueArgs} args - Arguments to find a Draft
+     * @example
+     * // Get one Draft
+     * const draft = await prisma.draft.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DraftFindUniqueArgs>(args: SelectSubset<T, DraftFindUniqueArgs<ExtArgs>>): Prisma__DraftClient<$Result.GetResult<Prisma.$DraftPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Draft that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DraftFindUniqueOrThrowArgs} args - Arguments to find a Draft
+     * @example
+     * // Get one Draft
+     * const draft = await prisma.draft.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DraftFindUniqueOrThrowArgs>(args: SelectSubset<T, DraftFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DraftClient<$Result.GetResult<Prisma.$DraftPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Draft that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DraftFindFirstArgs} args - Arguments to find a Draft
+     * @example
+     * // Get one Draft
+     * const draft = await prisma.draft.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DraftFindFirstArgs>(args?: SelectSubset<T, DraftFindFirstArgs<ExtArgs>>): Prisma__DraftClient<$Result.GetResult<Prisma.$DraftPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Draft that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DraftFindFirstOrThrowArgs} args - Arguments to find a Draft
+     * @example
+     * // Get one Draft
+     * const draft = await prisma.draft.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DraftFindFirstOrThrowArgs>(args?: SelectSubset<T, DraftFindFirstOrThrowArgs<ExtArgs>>): Prisma__DraftClient<$Result.GetResult<Prisma.$DraftPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Drafts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DraftFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Drafts
+     * const drafts = await prisma.draft.findMany()
+     * 
+     * // Get first 10 Drafts
+     * const drafts = await prisma.draft.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const draftWithIdOnly = await prisma.draft.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DraftFindManyArgs>(args?: SelectSubset<T, DraftFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DraftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Draft.
+     * @param {DraftCreateArgs} args - Arguments to create a Draft.
+     * @example
+     * // Create one Draft
+     * const Draft = await prisma.draft.create({
+     *   data: {
+     *     // ... data to create a Draft
+     *   }
+     * })
+     * 
+     */
+    create<T extends DraftCreateArgs>(args: SelectSubset<T, DraftCreateArgs<ExtArgs>>): Prisma__DraftClient<$Result.GetResult<Prisma.$DraftPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Drafts.
+     * @param {DraftCreateManyArgs} args - Arguments to create many Drafts.
+     * @example
+     * // Create many Drafts
+     * const draft = await prisma.draft.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DraftCreateManyArgs>(args?: SelectSubset<T, DraftCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Draft.
+     * @param {DraftDeleteArgs} args - Arguments to delete one Draft.
+     * @example
+     * // Delete one Draft
+     * const Draft = await prisma.draft.delete({
+     *   where: {
+     *     // ... filter to delete one Draft
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DraftDeleteArgs>(args: SelectSubset<T, DraftDeleteArgs<ExtArgs>>): Prisma__DraftClient<$Result.GetResult<Prisma.$DraftPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Draft.
+     * @param {DraftUpdateArgs} args - Arguments to update one Draft.
+     * @example
+     * // Update one Draft
+     * const draft = await prisma.draft.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DraftUpdateArgs>(args: SelectSubset<T, DraftUpdateArgs<ExtArgs>>): Prisma__DraftClient<$Result.GetResult<Prisma.$DraftPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Drafts.
+     * @param {DraftDeleteManyArgs} args - Arguments to filter Drafts to delete.
+     * @example
+     * // Delete a few Drafts
+     * const { count } = await prisma.draft.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DraftDeleteManyArgs>(args?: SelectSubset<T, DraftDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Drafts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DraftUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Drafts
+     * const draft = await prisma.draft.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DraftUpdateManyArgs>(args: SelectSubset<T, DraftUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Draft.
+     * @param {DraftUpsertArgs} args - Arguments to update or create a Draft.
+     * @example
+     * // Update or create a Draft
+     * const draft = await prisma.draft.upsert({
+     *   create: {
+     *     // ... data to create a Draft
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Draft we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DraftUpsertArgs>(args: SelectSubset<T, DraftUpsertArgs<ExtArgs>>): Prisma__DraftClient<$Result.GetResult<Prisma.$DraftPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Drafts that matches the filter.
+     * @param {DraftFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const draft = await prisma.draft.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: DraftFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a Draft.
+     * @param {DraftAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const draft = await prisma.draft.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: DraftAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of Drafts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DraftCountArgs} args - Arguments to filter Drafts to count.
+     * @example
+     * // Count the number of Drafts
+     * const count = await prisma.draft.count({
+     *   where: {
+     *     // ... the filter for the Drafts we want to count
+     *   }
+     * })
+    **/
+    count<T extends DraftCountArgs>(
+      args?: Subset<T, DraftCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DraftCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Draft.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DraftAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DraftAggregateArgs>(args: Subset<T, DraftAggregateArgs>): Prisma.PrismaPromise<GetDraftAggregateType<T>>
+
+    /**
+     * Group by Draft.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DraftGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DraftGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DraftGroupByArgs['orderBy'] }
+        : { orderBy?: DraftGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DraftGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDraftGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Draft model
+   */
+  readonly fields: DraftFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Draft.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DraftClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Draft model
+   */
+  interface DraftFieldRefs {
+    readonly id: FieldRef<"Draft", 'String'>
+    readonly year: FieldRef<"Draft", 'Int'>
+    readonly drafters: FieldRef<"Draft", 'String[]'>
+    readonly updatedAt: FieldRef<"Draft", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Draft findUnique
+   */
+  export type DraftFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Draft
+     */
+    select?: DraftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Draft
+     */
+    omit?: DraftOmit<ExtArgs> | null
+    /**
+     * Filter, which Draft to fetch.
+     */
+    where: DraftWhereUniqueInput
+  }
+
+  /**
+   * Draft findUniqueOrThrow
+   */
+  export type DraftFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Draft
+     */
+    select?: DraftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Draft
+     */
+    omit?: DraftOmit<ExtArgs> | null
+    /**
+     * Filter, which Draft to fetch.
+     */
+    where: DraftWhereUniqueInput
+  }
+
+  /**
+   * Draft findFirst
+   */
+  export type DraftFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Draft
+     */
+    select?: DraftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Draft
+     */
+    omit?: DraftOmit<ExtArgs> | null
+    /**
+     * Filter, which Draft to fetch.
+     */
+    where?: DraftWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Drafts to fetch.
+     */
+    orderBy?: DraftOrderByWithRelationInput | DraftOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Drafts.
+     */
+    cursor?: DraftWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Drafts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Drafts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Drafts.
+     */
+    distinct?: DraftScalarFieldEnum | DraftScalarFieldEnum[]
+  }
+
+  /**
+   * Draft findFirstOrThrow
+   */
+  export type DraftFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Draft
+     */
+    select?: DraftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Draft
+     */
+    omit?: DraftOmit<ExtArgs> | null
+    /**
+     * Filter, which Draft to fetch.
+     */
+    where?: DraftWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Drafts to fetch.
+     */
+    orderBy?: DraftOrderByWithRelationInput | DraftOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Drafts.
+     */
+    cursor?: DraftWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Drafts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Drafts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Drafts.
+     */
+    distinct?: DraftScalarFieldEnum | DraftScalarFieldEnum[]
+  }
+
+  /**
+   * Draft findMany
+   */
+  export type DraftFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Draft
+     */
+    select?: DraftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Draft
+     */
+    omit?: DraftOmit<ExtArgs> | null
+    /**
+     * Filter, which Drafts to fetch.
+     */
+    where?: DraftWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Drafts to fetch.
+     */
+    orderBy?: DraftOrderByWithRelationInput | DraftOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Drafts.
+     */
+    cursor?: DraftWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Drafts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Drafts.
+     */
+    skip?: number
+    distinct?: DraftScalarFieldEnum | DraftScalarFieldEnum[]
+  }
+
+  /**
+   * Draft create
+   */
+  export type DraftCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Draft
+     */
+    select?: DraftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Draft
+     */
+    omit?: DraftOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Draft.
+     */
+    data: XOR<DraftCreateInput, DraftUncheckedCreateInput>
+  }
+
+  /**
+   * Draft createMany
+   */
+  export type DraftCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Drafts.
+     */
+    data: DraftCreateManyInput | DraftCreateManyInput[]
+  }
+
+  /**
+   * Draft update
+   */
+  export type DraftUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Draft
+     */
+    select?: DraftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Draft
+     */
+    omit?: DraftOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Draft.
+     */
+    data: XOR<DraftUpdateInput, DraftUncheckedUpdateInput>
+    /**
+     * Choose, which Draft to update.
+     */
+    where: DraftWhereUniqueInput
+  }
+
+  /**
+   * Draft updateMany
+   */
+  export type DraftUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Drafts.
+     */
+    data: XOR<DraftUpdateManyMutationInput, DraftUncheckedUpdateManyInput>
+    /**
+     * Filter which Drafts to update
+     */
+    where?: DraftWhereInput
+    /**
+     * Limit how many Drafts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Draft upsert
+   */
+  export type DraftUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Draft
+     */
+    select?: DraftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Draft
+     */
+    omit?: DraftOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Draft to update in case it exists.
+     */
+    where: DraftWhereUniqueInput
+    /**
+     * In case the Draft found by the `where` argument doesn't exist, create a new Draft with this data.
+     */
+    create: XOR<DraftCreateInput, DraftUncheckedCreateInput>
+    /**
+     * In case the Draft was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DraftUpdateInput, DraftUncheckedUpdateInput>
+  }
+
+  /**
+   * Draft delete
+   */
+  export type DraftDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Draft
+     */
+    select?: DraftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Draft
+     */
+    omit?: DraftOmit<ExtArgs> | null
+    /**
+     * Filter which Draft to delete.
+     */
+    where: DraftWhereUniqueInput
+  }
+
+  /**
+   * Draft deleteMany
+   */
+  export type DraftDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Drafts to delete
+     */
+    where?: DraftWhereInput
+    /**
+     * Limit how many Drafts to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Draft findRaw
+   */
+  export type DraftFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Draft aggregateRaw
+   */
+  export type DraftAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Draft without action
+   */
+  export type DraftDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Draft
+     */
+    select?: DraftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Draft
+     */
+    omit?: DraftOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Rating
+   */
+
+  export type AggregateRating = {
+    _count: RatingCountAggregateOutputType | null
+    _avg: RatingAvgAggregateOutputType | null
+    _sum: RatingSumAggregateOutputType | null
+    _min: RatingMinAggregateOutputType | null
+    _max: RatingMaxAggregateOutputType | null
+  }
+
+  export type RatingAvgAggregateOutputType = {
+    year: number | null
+    teamNumber: number | null
+    stars: number | null
+  }
+
+  export type RatingSumAggregateOutputType = {
+    year: number | null
+    teamNumber: number | null
+    stars: number | null
+  }
+
+  export type RatingMinAggregateOutputType = {
+    id: string | null
+    year: number | null
+    teamNumber: number | null
+    stars: number | null
+    updatedBy: string | null
+    updatedAt: Date | null
+  }
+
+  export type RatingMaxAggregateOutputType = {
+    id: string | null
+    year: number | null
+    teamNumber: number | null
+    stars: number | null
+    updatedBy: string | null
+    updatedAt: Date | null
+  }
+
+  export type RatingCountAggregateOutputType = {
+    id: number
+    year: number
+    teamNumber: number
+    stars: number
+    updatedBy: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type RatingAvgAggregateInputType = {
+    year?: true
+    teamNumber?: true
+    stars?: true
+  }
+
+  export type RatingSumAggregateInputType = {
+    year?: true
+    teamNumber?: true
+    stars?: true
+  }
+
+  export type RatingMinAggregateInputType = {
+    id?: true
+    year?: true
+    teamNumber?: true
+    stars?: true
+    updatedBy?: true
+    updatedAt?: true
+  }
+
+  export type RatingMaxAggregateInputType = {
+    id?: true
+    year?: true
+    teamNumber?: true
+    stars?: true
+    updatedBy?: true
+    updatedAt?: true
+  }
+
+  export type RatingCountAggregateInputType = {
+    id?: true
+    year?: true
+    teamNumber?: true
+    stars?: true
+    updatedBy?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type RatingAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Rating to aggregate.
+     */
+    where?: RatingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Ratings to fetch.
+     */
+    orderBy?: RatingOrderByWithRelationInput | RatingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: RatingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Ratings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Ratings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Ratings
+    **/
+    _count?: true | RatingCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: RatingAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: RatingSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: RatingMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: RatingMaxAggregateInputType
+  }
+
+  export type GetRatingAggregateType<T extends RatingAggregateArgs> = {
+        [P in keyof T & keyof AggregateRating]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateRating[P]>
+      : GetScalarType<T[P], AggregateRating[P]>
+  }
+
+
+
+
+  export type RatingGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RatingWhereInput
+    orderBy?: RatingOrderByWithAggregationInput | RatingOrderByWithAggregationInput[]
+    by: RatingScalarFieldEnum[] | RatingScalarFieldEnum
+    having?: RatingScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: RatingCountAggregateInputType | true
+    _avg?: RatingAvgAggregateInputType
+    _sum?: RatingSumAggregateInputType
+    _min?: RatingMinAggregateInputType
+    _max?: RatingMaxAggregateInputType
+  }
+
+  export type RatingGroupByOutputType = {
+    id: string
+    year: number
+    teamNumber: number
+    stars: number
+    updatedBy: string | null
+    updatedAt: Date
+    _count: RatingCountAggregateOutputType | null
+    _avg: RatingAvgAggregateOutputType | null
+    _sum: RatingSumAggregateOutputType | null
+    _min: RatingMinAggregateOutputType | null
+    _max: RatingMaxAggregateOutputType | null
+  }
+
+  type GetRatingGroupByPayload<T extends RatingGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<RatingGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof RatingGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], RatingGroupByOutputType[P]>
+            : GetScalarType<T[P], RatingGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type RatingSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    year?: boolean
+    teamNumber?: boolean
+    stars?: boolean
+    updatedBy?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["rating"]>
+
+
+
+  export type RatingSelectScalar = {
+    id?: boolean
+    year?: boolean
+    teamNumber?: boolean
+    stars?: boolean
+    updatedBy?: boolean
+    updatedAt?: boolean
+  }
+
+  export type RatingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "year" | "teamNumber" | "stars" | "updatedBy" | "updatedAt", ExtArgs["result"]["rating"]>
+
+  export type $RatingPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Rating"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      year: number
+      teamNumber: number
+      stars: number
+      updatedBy: string | null
+      updatedAt: Date
+    }, ExtArgs["result"]["rating"]>
+    composites: {}
+  }
+
+  type RatingGetPayload<S extends boolean | null | undefined | RatingDefaultArgs> = $Result.GetResult<Prisma.$RatingPayload, S>
+
+  type RatingCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<RatingFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: RatingCountAggregateInputType | true
+    }
+
+  export interface RatingDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Rating'], meta: { name: 'Rating' } }
+    /**
+     * Find zero or one Rating that matches the filter.
+     * @param {RatingFindUniqueArgs} args - Arguments to find a Rating
+     * @example
+     * // Get one Rating
+     * const rating = await prisma.rating.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends RatingFindUniqueArgs>(args: SelectSubset<T, RatingFindUniqueArgs<ExtArgs>>): Prisma__RatingClient<$Result.GetResult<Prisma.$RatingPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Rating that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {RatingFindUniqueOrThrowArgs} args - Arguments to find a Rating
+     * @example
+     * // Get one Rating
+     * const rating = await prisma.rating.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends RatingFindUniqueOrThrowArgs>(args: SelectSubset<T, RatingFindUniqueOrThrowArgs<ExtArgs>>): Prisma__RatingClient<$Result.GetResult<Prisma.$RatingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Rating that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RatingFindFirstArgs} args - Arguments to find a Rating
+     * @example
+     * // Get one Rating
+     * const rating = await prisma.rating.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends RatingFindFirstArgs>(args?: SelectSubset<T, RatingFindFirstArgs<ExtArgs>>): Prisma__RatingClient<$Result.GetResult<Prisma.$RatingPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Rating that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RatingFindFirstOrThrowArgs} args - Arguments to find a Rating
+     * @example
+     * // Get one Rating
+     * const rating = await prisma.rating.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends RatingFindFirstOrThrowArgs>(args?: SelectSubset<T, RatingFindFirstOrThrowArgs<ExtArgs>>): Prisma__RatingClient<$Result.GetResult<Prisma.$RatingPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Ratings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RatingFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Ratings
+     * const ratings = await prisma.rating.findMany()
+     * 
+     * // Get first 10 Ratings
+     * const ratings = await prisma.rating.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const ratingWithIdOnly = await prisma.rating.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends RatingFindManyArgs>(args?: SelectSubset<T, RatingFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RatingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Rating.
+     * @param {RatingCreateArgs} args - Arguments to create a Rating.
+     * @example
+     * // Create one Rating
+     * const Rating = await prisma.rating.create({
+     *   data: {
+     *     // ... data to create a Rating
+     *   }
+     * })
+     * 
+     */
+    create<T extends RatingCreateArgs>(args: SelectSubset<T, RatingCreateArgs<ExtArgs>>): Prisma__RatingClient<$Result.GetResult<Prisma.$RatingPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Ratings.
+     * @param {RatingCreateManyArgs} args - Arguments to create many Ratings.
+     * @example
+     * // Create many Ratings
+     * const rating = await prisma.rating.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends RatingCreateManyArgs>(args?: SelectSubset<T, RatingCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Rating.
+     * @param {RatingDeleteArgs} args - Arguments to delete one Rating.
+     * @example
+     * // Delete one Rating
+     * const Rating = await prisma.rating.delete({
+     *   where: {
+     *     // ... filter to delete one Rating
+     *   }
+     * })
+     * 
+     */
+    delete<T extends RatingDeleteArgs>(args: SelectSubset<T, RatingDeleteArgs<ExtArgs>>): Prisma__RatingClient<$Result.GetResult<Prisma.$RatingPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Rating.
+     * @param {RatingUpdateArgs} args - Arguments to update one Rating.
+     * @example
+     * // Update one Rating
+     * const rating = await prisma.rating.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends RatingUpdateArgs>(args: SelectSubset<T, RatingUpdateArgs<ExtArgs>>): Prisma__RatingClient<$Result.GetResult<Prisma.$RatingPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Ratings.
+     * @param {RatingDeleteManyArgs} args - Arguments to filter Ratings to delete.
+     * @example
+     * // Delete a few Ratings
+     * const { count } = await prisma.rating.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends RatingDeleteManyArgs>(args?: SelectSubset<T, RatingDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Ratings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RatingUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Ratings
+     * const rating = await prisma.rating.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends RatingUpdateManyArgs>(args: SelectSubset<T, RatingUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Rating.
+     * @param {RatingUpsertArgs} args - Arguments to update or create a Rating.
+     * @example
+     * // Update or create a Rating
+     * const rating = await prisma.rating.upsert({
+     *   create: {
+     *     // ... data to create a Rating
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Rating we want to update
+     *   }
+     * })
+     */
+    upsert<T extends RatingUpsertArgs>(args: SelectSubset<T, RatingUpsertArgs<ExtArgs>>): Prisma__RatingClient<$Result.GetResult<Prisma.$RatingPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Ratings that matches the filter.
+     * @param {RatingFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const rating = await prisma.rating.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: RatingFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a Rating.
+     * @param {RatingAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const rating = await prisma.rating.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: RatingAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of Ratings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RatingCountArgs} args - Arguments to filter Ratings to count.
+     * @example
+     * // Count the number of Ratings
+     * const count = await prisma.rating.count({
+     *   where: {
+     *     // ... the filter for the Ratings we want to count
+     *   }
+     * })
+    **/
+    count<T extends RatingCountArgs>(
+      args?: Subset<T, RatingCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], RatingCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Rating.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RatingAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends RatingAggregateArgs>(args: Subset<T, RatingAggregateArgs>): Prisma.PrismaPromise<GetRatingAggregateType<T>>
+
+    /**
+     * Group by Rating.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RatingGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends RatingGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: RatingGroupByArgs['orderBy'] }
+        : { orderBy?: RatingGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, RatingGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetRatingGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Rating model
+   */
+  readonly fields: RatingFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Rating.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__RatingClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Rating model
+   */
+  interface RatingFieldRefs {
+    readonly id: FieldRef<"Rating", 'String'>
+    readonly year: FieldRef<"Rating", 'Int'>
+    readonly teamNumber: FieldRef<"Rating", 'Int'>
+    readonly stars: FieldRef<"Rating", 'Int'>
+    readonly updatedBy: FieldRef<"Rating", 'String'>
+    readonly updatedAt: FieldRef<"Rating", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Rating findUnique
+   */
+  export type RatingFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Rating
+     */
+    select?: RatingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Rating
+     */
+    omit?: RatingOmit<ExtArgs> | null
+    /**
+     * Filter, which Rating to fetch.
+     */
+    where: RatingWhereUniqueInput
+  }
+
+  /**
+   * Rating findUniqueOrThrow
+   */
+  export type RatingFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Rating
+     */
+    select?: RatingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Rating
+     */
+    omit?: RatingOmit<ExtArgs> | null
+    /**
+     * Filter, which Rating to fetch.
+     */
+    where: RatingWhereUniqueInput
+  }
+
+  /**
+   * Rating findFirst
+   */
+  export type RatingFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Rating
+     */
+    select?: RatingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Rating
+     */
+    omit?: RatingOmit<ExtArgs> | null
+    /**
+     * Filter, which Rating to fetch.
+     */
+    where?: RatingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Ratings to fetch.
+     */
+    orderBy?: RatingOrderByWithRelationInput | RatingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Ratings.
+     */
+    cursor?: RatingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Ratings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Ratings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Ratings.
+     */
+    distinct?: RatingScalarFieldEnum | RatingScalarFieldEnum[]
+  }
+
+  /**
+   * Rating findFirstOrThrow
+   */
+  export type RatingFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Rating
+     */
+    select?: RatingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Rating
+     */
+    omit?: RatingOmit<ExtArgs> | null
+    /**
+     * Filter, which Rating to fetch.
+     */
+    where?: RatingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Ratings to fetch.
+     */
+    orderBy?: RatingOrderByWithRelationInput | RatingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Ratings.
+     */
+    cursor?: RatingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Ratings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Ratings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Ratings.
+     */
+    distinct?: RatingScalarFieldEnum | RatingScalarFieldEnum[]
+  }
+
+  /**
+   * Rating findMany
+   */
+  export type RatingFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Rating
+     */
+    select?: RatingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Rating
+     */
+    omit?: RatingOmit<ExtArgs> | null
+    /**
+     * Filter, which Ratings to fetch.
+     */
+    where?: RatingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Ratings to fetch.
+     */
+    orderBy?: RatingOrderByWithRelationInput | RatingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Ratings.
+     */
+    cursor?: RatingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Ratings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Ratings.
+     */
+    skip?: number
+    distinct?: RatingScalarFieldEnum | RatingScalarFieldEnum[]
+  }
+
+  /**
+   * Rating create
+   */
+  export type RatingCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Rating
+     */
+    select?: RatingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Rating
+     */
+    omit?: RatingOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Rating.
+     */
+    data: XOR<RatingCreateInput, RatingUncheckedCreateInput>
+  }
+
+  /**
+   * Rating createMany
+   */
+  export type RatingCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Ratings.
+     */
+    data: RatingCreateManyInput | RatingCreateManyInput[]
+  }
+
+  /**
+   * Rating update
+   */
+  export type RatingUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Rating
+     */
+    select?: RatingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Rating
+     */
+    omit?: RatingOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Rating.
+     */
+    data: XOR<RatingUpdateInput, RatingUncheckedUpdateInput>
+    /**
+     * Choose, which Rating to update.
+     */
+    where: RatingWhereUniqueInput
+  }
+
+  /**
+   * Rating updateMany
+   */
+  export type RatingUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Ratings.
+     */
+    data: XOR<RatingUpdateManyMutationInput, RatingUncheckedUpdateManyInput>
+    /**
+     * Filter which Ratings to update
+     */
+    where?: RatingWhereInput
+    /**
+     * Limit how many Ratings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Rating upsert
+   */
+  export type RatingUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Rating
+     */
+    select?: RatingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Rating
+     */
+    omit?: RatingOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Rating to update in case it exists.
+     */
+    where: RatingWhereUniqueInput
+    /**
+     * In case the Rating found by the `where` argument doesn't exist, create a new Rating with this data.
+     */
+    create: XOR<RatingCreateInput, RatingUncheckedCreateInput>
+    /**
+     * In case the Rating was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<RatingUpdateInput, RatingUncheckedUpdateInput>
+  }
+
+  /**
+   * Rating delete
+   */
+  export type RatingDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Rating
+     */
+    select?: RatingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Rating
+     */
+    omit?: RatingOmit<ExtArgs> | null
+    /**
+     * Filter which Rating to delete.
+     */
+    where: RatingWhereUniqueInput
+  }
+
+  /**
+   * Rating deleteMany
+   */
+  export type RatingDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Ratings to delete
+     */
+    where?: RatingWhereInput
+    /**
+     * Limit how many Ratings to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Rating findRaw
+   */
+  export type RatingFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Rating aggregateRaw
+   */
+  export type RatingAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Rating without action
+   */
+  export type RatingDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Rating
+     */
+    select?: RatingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Rating
+     */
+    omit?: RatingOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -16160,6 +19387,7 @@ export namespace Prisma {
     eventType: 'eventType',
     eventTypeString: 'eventTypeString',
     year: 'year',
+    week: 'week',
     startDate: 'startDate',
     endDate: 'endDate',
     districtKey: 'districtKey',
@@ -16238,6 +19466,42 @@ export namespace Prisma {
   };
 
   export type SyncLogScalarFieldEnum = (typeof SyncLogScalarFieldEnum)[keyof typeof SyncLogScalarFieldEnum]
+
+
+  export const PickScalarFieldEnum: {
+    id: 'id',
+    scopeKey: 'scopeKey',
+    year: 'year',
+    teamNumber: 'teamNumber',
+    status: 'status',
+    by: 'by',
+    updatedBy: 'updatedBy',
+    updatedAt: 'updatedAt'
+  };
+
+  export type PickScalarFieldEnum = (typeof PickScalarFieldEnum)[keyof typeof PickScalarFieldEnum]
+
+
+  export const DraftScalarFieldEnum: {
+    id: 'id',
+    year: 'year',
+    drafters: 'drafters',
+    updatedAt: 'updatedAt'
+  };
+
+  export type DraftScalarFieldEnum = (typeof DraftScalarFieldEnum)[keyof typeof DraftScalarFieldEnum]
+
+
+  export const RatingScalarFieldEnum: {
+    id: 'id',
+    year: 'year',
+    teamNumber: 'teamNumber',
+    stars: 'stars',
+    updatedBy: 'updatedBy',
+    updatedAt: 'updatedAt'
+  };
+
+  export type RatingScalarFieldEnum = (typeof RatingScalarFieldEnum)[keyof typeof RatingScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -16701,6 +19965,7 @@ export namespace Prisma {
     eventType?: IntFilter<"Event"> | number
     eventTypeString?: StringFilter<"Event"> | string
     year?: IntFilter<"Event"> | number
+    week?: IntNullableFilter<"Event"> | number | null
     startDate?: StringNullableFilter<"Event"> | string | null
     endDate?: StringNullableFilter<"Event"> | string | null
     districtKey?: StringNullableFilter<"Event"> | string | null
@@ -16714,6 +19979,7 @@ export namespace Prisma {
     eventType?: SortOrder
     eventTypeString?: SortOrder
     year?: SortOrder
+    week?: SortOrder
     startDate?: SortOrder
     endDate?: SortOrder
     districtKey?: SortOrder
@@ -16730,6 +19996,7 @@ export namespace Prisma {
     eventType?: IntFilter<"Event"> | number
     eventTypeString?: StringFilter<"Event"> | string
     year?: IntFilter<"Event"> | number
+    week?: IntNullableFilter<"Event"> | number | null
     startDate?: StringNullableFilter<"Event"> | string | null
     endDate?: StringNullableFilter<"Event"> | string | null
     districtKey?: StringNullableFilter<"Event"> | string | null
@@ -16743,6 +20010,7 @@ export namespace Prisma {
     eventType?: SortOrder
     eventTypeString?: SortOrder
     year?: SortOrder
+    week?: SortOrder
     startDate?: SortOrder
     endDate?: SortOrder
     districtKey?: SortOrder
@@ -16764,6 +20032,7 @@ export namespace Prisma {
     eventType?: IntWithAggregatesFilter<"Event"> | number
     eventTypeString?: StringWithAggregatesFilter<"Event"> | string
     year?: IntWithAggregatesFilter<"Event"> | number
+    week?: IntNullableWithAggregatesFilter<"Event"> | number | null
     startDate?: StringNullableWithAggregatesFilter<"Event"> | string | null
     endDate?: StringNullableWithAggregatesFilter<"Event"> | string | null
     districtKey?: StringNullableWithAggregatesFilter<"Event"> | string | null
@@ -17123,6 +20392,185 @@ export namespace Prisma {
     message?: StringNullableWithAggregatesFilter<"SyncLog"> | string | null
     startedAt?: DateTimeWithAggregatesFilter<"SyncLog"> | Date | string
     finishedAt?: DateTimeWithAggregatesFilter<"SyncLog"> | Date | string
+  }
+
+  export type PickWhereInput = {
+    AND?: PickWhereInput | PickWhereInput[]
+    OR?: PickWhereInput[]
+    NOT?: PickWhereInput | PickWhereInput[]
+    id?: StringFilter<"Pick"> | string
+    scopeKey?: StringFilter<"Pick"> | string
+    year?: IntFilter<"Pick"> | number
+    teamNumber?: IntFilter<"Pick"> | number
+    status?: StringFilter<"Pick"> | string
+    by?: StringNullableFilter<"Pick"> | string | null
+    updatedBy?: StringNullableFilter<"Pick"> | string | null
+    updatedAt?: DateTimeFilter<"Pick"> | Date | string
+  }
+
+  export type PickOrderByWithRelationInput = {
+    id?: SortOrder
+    scopeKey?: SortOrder
+    year?: SortOrder
+    teamNumber?: SortOrder
+    status?: SortOrder
+    by?: SortOrder
+    updatedBy?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PickWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    scopeKey_teamNumber?: PickScopeKeyTeamNumberCompoundUniqueInput
+    AND?: PickWhereInput | PickWhereInput[]
+    OR?: PickWhereInput[]
+    NOT?: PickWhereInput | PickWhereInput[]
+    scopeKey?: StringFilter<"Pick"> | string
+    year?: IntFilter<"Pick"> | number
+    teamNumber?: IntFilter<"Pick"> | number
+    status?: StringFilter<"Pick"> | string
+    by?: StringNullableFilter<"Pick"> | string | null
+    updatedBy?: StringNullableFilter<"Pick"> | string | null
+    updatedAt?: DateTimeFilter<"Pick"> | Date | string
+  }, "id" | "scopeKey_teamNumber">
+
+  export type PickOrderByWithAggregationInput = {
+    id?: SortOrder
+    scopeKey?: SortOrder
+    year?: SortOrder
+    teamNumber?: SortOrder
+    status?: SortOrder
+    by?: SortOrder
+    updatedBy?: SortOrder
+    updatedAt?: SortOrder
+    _count?: PickCountOrderByAggregateInput
+    _avg?: PickAvgOrderByAggregateInput
+    _max?: PickMaxOrderByAggregateInput
+    _min?: PickMinOrderByAggregateInput
+    _sum?: PickSumOrderByAggregateInput
+  }
+
+  export type PickScalarWhereWithAggregatesInput = {
+    AND?: PickScalarWhereWithAggregatesInput | PickScalarWhereWithAggregatesInput[]
+    OR?: PickScalarWhereWithAggregatesInput[]
+    NOT?: PickScalarWhereWithAggregatesInput | PickScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Pick"> | string
+    scopeKey?: StringWithAggregatesFilter<"Pick"> | string
+    year?: IntWithAggregatesFilter<"Pick"> | number
+    teamNumber?: IntWithAggregatesFilter<"Pick"> | number
+    status?: StringWithAggregatesFilter<"Pick"> | string
+    by?: StringNullableWithAggregatesFilter<"Pick"> | string | null
+    updatedBy?: StringNullableWithAggregatesFilter<"Pick"> | string | null
+    updatedAt?: DateTimeWithAggregatesFilter<"Pick"> | Date | string
+  }
+
+  export type DraftWhereInput = {
+    AND?: DraftWhereInput | DraftWhereInput[]
+    OR?: DraftWhereInput[]
+    NOT?: DraftWhereInput | DraftWhereInput[]
+    id?: StringFilter<"Draft"> | string
+    year?: IntFilter<"Draft"> | number
+    drafters?: StringNullableListFilter<"Draft">
+    updatedAt?: DateTimeFilter<"Draft"> | Date | string
+  }
+
+  export type DraftOrderByWithRelationInput = {
+    id?: SortOrder
+    year?: SortOrder
+    drafters?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DraftWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    year?: number
+    AND?: DraftWhereInput | DraftWhereInput[]
+    OR?: DraftWhereInput[]
+    NOT?: DraftWhereInput | DraftWhereInput[]
+    drafters?: StringNullableListFilter<"Draft">
+    updatedAt?: DateTimeFilter<"Draft"> | Date | string
+  }, "id" | "year">
+
+  export type DraftOrderByWithAggregationInput = {
+    id?: SortOrder
+    year?: SortOrder
+    drafters?: SortOrder
+    updatedAt?: SortOrder
+    _count?: DraftCountOrderByAggregateInput
+    _avg?: DraftAvgOrderByAggregateInput
+    _max?: DraftMaxOrderByAggregateInput
+    _min?: DraftMinOrderByAggregateInput
+    _sum?: DraftSumOrderByAggregateInput
+  }
+
+  export type DraftScalarWhereWithAggregatesInput = {
+    AND?: DraftScalarWhereWithAggregatesInput | DraftScalarWhereWithAggregatesInput[]
+    OR?: DraftScalarWhereWithAggregatesInput[]
+    NOT?: DraftScalarWhereWithAggregatesInput | DraftScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Draft"> | string
+    year?: IntWithAggregatesFilter<"Draft"> | number
+    drafters?: StringNullableListFilter<"Draft">
+    updatedAt?: DateTimeWithAggregatesFilter<"Draft"> | Date | string
+  }
+
+  export type RatingWhereInput = {
+    AND?: RatingWhereInput | RatingWhereInput[]
+    OR?: RatingWhereInput[]
+    NOT?: RatingWhereInput | RatingWhereInput[]
+    id?: StringFilter<"Rating"> | string
+    year?: IntFilter<"Rating"> | number
+    teamNumber?: IntFilter<"Rating"> | number
+    stars?: IntFilter<"Rating"> | number
+    updatedBy?: StringNullableFilter<"Rating"> | string | null
+    updatedAt?: DateTimeFilter<"Rating"> | Date | string
+  }
+
+  export type RatingOrderByWithRelationInput = {
+    id?: SortOrder
+    year?: SortOrder
+    teamNumber?: SortOrder
+    stars?: SortOrder
+    updatedBy?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type RatingWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    year_teamNumber?: RatingYearTeamNumberCompoundUniqueInput
+    AND?: RatingWhereInput | RatingWhereInput[]
+    OR?: RatingWhereInput[]
+    NOT?: RatingWhereInput | RatingWhereInput[]
+    year?: IntFilter<"Rating"> | number
+    teamNumber?: IntFilter<"Rating"> | number
+    stars?: IntFilter<"Rating"> | number
+    updatedBy?: StringNullableFilter<"Rating"> | string | null
+    updatedAt?: DateTimeFilter<"Rating"> | Date | string
+  }, "id" | "year_teamNumber">
+
+  export type RatingOrderByWithAggregationInput = {
+    id?: SortOrder
+    year?: SortOrder
+    teamNumber?: SortOrder
+    stars?: SortOrder
+    updatedBy?: SortOrder
+    updatedAt?: SortOrder
+    _count?: RatingCountOrderByAggregateInput
+    _avg?: RatingAvgOrderByAggregateInput
+    _max?: RatingMaxOrderByAggregateInput
+    _min?: RatingMinOrderByAggregateInput
+    _sum?: RatingSumOrderByAggregateInput
+  }
+
+  export type RatingScalarWhereWithAggregatesInput = {
+    AND?: RatingScalarWhereWithAggregatesInput | RatingScalarWhereWithAggregatesInput[]
+    OR?: RatingScalarWhereWithAggregatesInput[]
+    NOT?: RatingScalarWhereWithAggregatesInput | RatingScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Rating"> | string
+    year?: IntWithAggregatesFilter<"Rating"> | number
+    teamNumber?: IntWithAggregatesFilter<"Rating"> | number
+    stars?: IntWithAggregatesFilter<"Rating"> | number
+    updatedBy?: StringNullableWithAggregatesFilter<"Rating"> | string | null
+    updatedAt?: DateTimeWithAggregatesFilter<"Rating"> | Date | string
   }
 
   export type PostCreateInput = {
@@ -17502,6 +20950,7 @@ export namespace Prisma {
     eventType: number
     eventTypeString: string
     year: number
+    week?: number | null
     startDate?: string | null
     endDate?: string | null
     districtKey?: string | null
@@ -17515,6 +20964,7 @@ export namespace Prisma {
     eventType: number
     eventTypeString: string
     year: number
+    week?: number | null
     startDate?: string | null
     endDate?: string | null
     districtKey?: string | null
@@ -17527,6 +20977,7 @@ export namespace Prisma {
     eventType?: IntFieldUpdateOperationsInput | number
     eventTypeString?: StringFieldUpdateOperationsInput | string
     year?: IntFieldUpdateOperationsInput | number
+    week?: NullableIntFieldUpdateOperationsInput | number | null
     startDate?: NullableStringFieldUpdateOperationsInput | string | null
     endDate?: NullableStringFieldUpdateOperationsInput | string | null
     districtKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -17539,6 +20990,7 @@ export namespace Prisma {
     eventType?: IntFieldUpdateOperationsInput | number
     eventTypeString?: StringFieldUpdateOperationsInput | string
     year?: IntFieldUpdateOperationsInput | number
+    week?: NullableIntFieldUpdateOperationsInput | number | null
     startDate?: NullableStringFieldUpdateOperationsInput | string | null
     endDate?: NullableStringFieldUpdateOperationsInput | string | null
     districtKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -17552,6 +21004,7 @@ export namespace Prisma {
     eventType: number
     eventTypeString: string
     year: number
+    week?: number | null
     startDate?: string | null
     endDate?: string | null
     districtKey?: string | null
@@ -17564,6 +21017,7 @@ export namespace Prisma {
     eventType?: IntFieldUpdateOperationsInput | number
     eventTypeString?: StringFieldUpdateOperationsInput | string
     year?: IntFieldUpdateOperationsInput | number
+    week?: NullableIntFieldUpdateOperationsInput | number | null
     startDate?: NullableStringFieldUpdateOperationsInput | string | null
     endDate?: NullableStringFieldUpdateOperationsInput | string | null
     districtKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -17576,6 +21030,7 @@ export namespace Prisma {
     eventType?: IntFieldUpdateOperationsInput | number
     eventTypeString?: StringFieldUpdateOperationsInput | string
     year?: IntFieldUpdateOperationsInput | number
+    week?: NullableIntFieldUpdateOperationsInput | number | null
     startDate?: NullableStringFieldUpdateOperationsInput | string | null
     endDate?: NullableStringFieldUpdateOperationsInput | string | null
     districtKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -17923,6 +21378,183 @@ export namespace Prisma {
     message?: NullableStringFieldUpdateOperationsInput | string | null
     startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     finishedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PickCreateInput = {
+    id?: string
+    scopeKey: string
+    year: number
+    teamNumber: number
+    status: string
+    by?: string | null
+    updatedBy?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type PickUncheckedCreateInput = {
+    id?: string
+    scopeKey: string
+    year: number
+    teamNumber: number
+    status: string
+    by?: string | null
+    updatedBy?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type PickUpdateInput = {
+    scopeKey?: StringFieldUpdateOperationsInput | string
+    year?: IntFieldUpdateOperationsInput | number
+    teamNumber?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    by?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PickUncheckedUpdateInput = {
+    scopeKey?: StringFieldUpdateOperationsInput | string
+    year?: IntFieldUpdateOperationsInput | number
+    teamNumber?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    by?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PickCreateManyInput = {
+    id?: string
+    scopeKey: string
+    year: number
+    teamNumber: number
+    status: string
+    by?: string | null
+    updatedBy?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type PickUpdateManyMutationInput = {
+    scopeKey?: StringFieldUpdateOperationsInput | string
+    year?: IntFieldUpdateOperationsInput | number
+    teamNumber?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    by?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PickUncheckedUpdateManyInput = {
+    scopeKey?: StringFieldUpdateOperationsInput | string
+    year?: IntFieldUpdateOperationsInput | number
+    teamNumber?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    by?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DraftCreateInput = {
+    id?: string
+    year: number
+    drafters?: DraftCreatedraftersInput | string[]
+    updatedAt?: Date | string
+  }
+
+  export type DraftUncheckedCreateInput = {
+    id?: string
+    year: number
+    drafters?: DraftCreatedraftersInput | string[]
+    updatedAt?: Date | string
+  }
+
+  export type DraftUpdateInput = {
+    year?: IntFieldUpdateOperationsInput | number
+    drafters?: DraftUpdatedraftersInput | string[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DraftUncheckedUpdateInput = {
+    year?: IntFieldUpdateOperationsInput | number
+    drafters?: DraftUpdatedraftersInput | string[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DraftCreateManyInput = {
+    id?: string
+    year: number
+    drafters?: DraftCreatedraftersInput | string[]
+    updatedAt?: Date | string
+  }
+
+  export type DraftUpdateManyMutationInput = {
+    year?: IntFieldUpdateOperationsInput | number
+    drafters?: DraftUpdatedraftersInput | string[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DraftUncheckedUpdateManyInput = {
+    year?: IntFieldUpdateOperationsInput | number
+    drafters?: DraftUpdatedraftersInput | string[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RatingCreateInput = {
+    id?: string
+    year: number
+    teamNumber: number
+    stars: number
+    updatedBy?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type RatingUncheckedCreateInput = {
+    id?: string
+    year: number
+    teamNumber: number
+    stars: number
+    updatedBy?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type RatingUpdateInput = {
+    year?: IntFieldUpdateOperationsInput | number
+    teamNumber?: IntFieldUpdateOperationsInput | number
+    stars?: IntFieldUpdateOperationsInput | number
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RatingUncheckedUpdateInput = {
+    year?: IntFieldUpdateOperationsInput | number
+    teamNumber?: IntFieldUpdateOperationsInput | number
+    stars?: IntFieldUpdateOperationsInput | number
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RatingCreateManyInput = {
+    id?: string
+    year: number
+    teamNumber: number
+    stars: number
+    updatedBy?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type RatingUpdateManyMutationInput = {
+    year?: IntFieldUpdateOperationsInput | number
+    teamNumber?: IntFieldUpdateOperationsInput | number
+    stars?: IntFieldUpdateOperationsInput | number
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RatingUncheckedUpdateManyInput = {
+    year?: IntFieldUpdateOperationsInput | number
+    teamNumber?: IntFieldUpdateOperationsInput | number
+    stars?: IntFieldUpdateOperationsInput | number
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -18336,6 +21968,7 @@ export namespace Prisma {
     eventType?: SortOrder
     eventTypeString?: SortOrder
     year?: SortOrder
+    week?: SortOrder
     startDate?: SortOrder
     endDate?: SortOrder
     districtKey?: SortOrder
@@ -18345,6 +21978,7 @@ export namespace Prisma {
   export type EventAvgOrderByAggregateInput = {
     eventType?: SortOrder
     year?: SortOrder
+    week?: SortOrder
   }
 
   export type EventMaxOrderByAggregateInput = {
@@ -18354,6 +21988,7 @@ export namespace Prisma {
     eventType?: SortOrder
     eventTypeString?: SortOrder
     year?: SortOrder
+    week?: SortOrder
     startDate?: SortOrder
     endDate?: SortOrder
     districtKey?: SortOrder
@@ -18367,6 +22002,7 @@ export namespace Prisma {
     eventType?: SortOrder
     eventTypeString?: SortOrder
     year?: SortOrder
+    week?: SortOrder
     startDate?: SortOrder
     endDate?: SortOrder
     districtKey?: SortOrder
@@ -18376,6 +22012,7 @@ export namespace Prisma {
   export type EventSumOrderByAggregateInput = {
     eventType?: SortOrder
     year?: SortOrder
+    week?: SortOrder
   }
 
   export type TeamCountOrderByAggregateInput = {
@@ -18634,6 +22271,133 @@ export namespace Prisma {
     message?: SortOrder
     startedAt?: SortOrder
     finishedAt?: SortOrder
+  }
+
+  export type PickScopeKeyTeamNumberCompoundUniqueInput = {
+    scopeKey: string
+    teamNumber: number
+  }
+
+  export type PickCountOrderByAggregateInput = {
+    id?: SortOrder
+    scopeKey?: SortOrder
+    year?: SortOrder
+    teamNumber?: SortOrder
+    status?: SortOrder
+    by?: SortOrder
+    updatedBy?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PickAvgOrderByAggregateInput = {
+    year?: SortOrder
+    teamNumber?: SortOrder
+  }
+
+  export type PickMaxOrderByAggregateInput = {
+    id?: SortOrder
+    scopeKey?: SortOrder
+    year?: SortOrder
+    teamNumber?: SortOrder
+    status?: SortOrder
+    by?: SortOrder
+    updatedBy?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PickMinOrderByAggregateInput = {
+    id?: SortOrder
+    scopeKey?: SortOrder
+    year?: SortOrder
+    teamNumber?: SortOrder
+    status?: SortOrder
+    by?: SortOrder
+    updatedBy?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PickSumOrderByAggregateInput = {
+    year?: SortOrder
+    teamNumber?: SortOrder
+  }
+
+  export type StringNullableListFilter<$PrismaModel = never> = {
+    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    has?: string | StringFieldRefInput<$PrismaModel> | null
+    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
+    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
+  export type DraftCountOrderByAggregateInput = {
+    id?: SortOrder
+    year?: SortOrder
+    drafters?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DraftAvgOrderByAggregateInput = {
+    year?: SortOrder
+  }
+
+  export type DraftMaxOrderByAggregateInput = {
+    id?: SortOrder
+    year?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DraftMinOrderByAggregateInput = {
+    id?: SortOrder
+    year?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DraftSumOrderByAggregateInput = {
+    year?: SortOrder
+  }
+
+  export type RatingYearTeamNumberCompoundUniqueInput = {
+    year: number
+    teamNumber: number
+  }
+
+  export type RatingCountOrderByAggregateInput = {
+    id?: SortOrder
+    year?: SortOrder
+    teamNumber?: SortOrder
+    stars?: SortOrder
+    updatedBy?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type RatingAvgOrderByAggregateInput = {
+    year?: SortOrder
+    teamNumber?: SortOrder
+    stars?: SortOrder
+  }
+
+  export type RatingMaxOrderByAggregateInput = {
+    id?: SortOrder
+    year?: SortOrder
+    teamNumber?: SortOrder
+    stars?: SortOrder
+    updatedBy?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type RatingMinOrderByAggregateInput = {
+    id?: SortOrder
+    year?: SortOrder
+    teamNumber?: SortOrder
+    stars?: SortOrder
+    updatedBy?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type RatingSumOrderByAggregateInput = {
+    year?: SortOrder
+    teamNumber?: SortOrder
+    stars?: SortOrder
   }
 
   export type UserCreateNestedOneWithoutPostsInput = {
@@ -18905,6 +22669,15 @@ export namespace Prisma {
     push?: AwardEntryCreateInput | AwardEntryCreateInput[]
     updateMany?: AwardEntryUpdateManyInput
     deleteMany?: AwardEntryDeleteManyInput
+  }
+
+  export type DraftCreatedraftersInput = {
+    set: string[]
+  }
+
+  export type DraftUpdatedraftersInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
