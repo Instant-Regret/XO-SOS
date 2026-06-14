@@ -22,6 +22,15 @@ export type DistrictLite = {
   year: number;
 };
 
+export type EventLite = {
+  key: string;
+  name: string;
+  year: number;
+  week: number | null;
+  eventTypeString: string;
+  districtKey: string | null;
+};
+
 export type TeamView = {
   _id: string; // team key e.g. "frc254"
   number: number;
@@ -40,6 +49,7 @@ export type ScheduleEvent = {
   key: string;
   name: string;
   year: number;
+  week: number | null;
   startDate: string | null;
   endDate: string | null;
   roster: {

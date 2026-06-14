@@ -1,11 +1,19 @@
 import { z } from "zod";
 
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 
 const yearInput = z.object({ year: z.number().int() });
 const districtInput = z.object({ districtKey: z.string().min(1) });
 const eventInput = z.object({ eventKey: z.string().min(1) });
 const teamInput = z.object({ teamNumber: z.number().int() });
+const scopeInput = z.object({ scopeKey: z.string().min(1) });
+
+// Default drafter handles used when a year has no Draft document yet.
+const DEFAULT_DRAFTERS = ["@kai", "@rho", "@mira", "@vex", "@juno", "@pax"];
 
 export const frcRouter = createTRPCRouter({
   districts: publicProcedure
@@ -309,6 +317,99 @@ export const frcRouter = createTRPCRouter({
       };
     }),
 
+  // Every event we know about, minimal fields, for the search bar. Newest
+  // first so the current season surfaces at the top of the suggestions.
+  allEvents: publicProcedure.query(async ({ ctx }) => {
+    const events = await ctx.db.event.findMany({
+      orderBy: [{ year: "desc" }, { startDate: "asc" }],
+      select: {
+        key: true,
+        name: true,
+        year: true,
+        week: true,
+        eventTypeString: true,
+        districtKey: true,
+      },
+    });
+    return events;
+  }),
+
+  // Bulk fetch for the leaderboard, scoped to a single event's roster. Mirrors
+  // boardForDistrict but resolves teams through the EventTeam link.
+  boardForEvent: publicProcedure
+    .input(eventInput)
+    .query(async ({ ctx, input }) => {
+      const year = parseInt(input.eventKey.slice(0, 4), 10);
+      const link = await ctx.db.eventTeam.findUnique({
+        where: { eventKey: input.eventKey },
+        select: { teamNumbers: true },
+      });
+      if (!link || link.teamNumbers.length === 0) {
+        return { year, eventKey: input.eventKey, teams: [] };
+      }
+      const numbers = link.teamNumbers;
+
+      const [teams, epaDocs, awardDocs, avatarDocs] = await Promise.all([
+        ctx.db.team.findMany({
+          where: { number: { in: numbers } },
+          orderBy: { number: "asc" },
+        }),
+        ctx.db.teamEpa.findMany({
+          where: { teamNumber: { in: numbers } },
+          select: { teamNumber: true, epas: true },
+        }),
+        ctx.db.award.findMany({
+          where: { teamNumber: { in: numbers } },
+          select: { teamNumber: true, awards: true },
+        }),
+        ctx.db.teamAvatar.findMany({
+          where: { teamNumber: { in: numbers } },
+          select: { teamNumber: true, avatars: true },
+        }),
+      ]);
+
+      const epaByTeam = new Map<number, number | null>();
+      for (const row of epaDocs) {
+        const entry = row.epas.find((e) => e.year === year);
+        epaByTeam.set(row.teamNumber, entry?.epaUnitless ?? null);
+      }
+      const awardsByTeam = new Map<
+        number,
+        { eventKey: string; awardType: number; name: string; year: number }[]
+      >();
+      for (const row of awardDocs) {
+        awardsByTeam.set(row.teamNumber, row.awards);
+      }
+      const avatarByTeam = new Map<number, string | null>();
+      for (const row of avatarDocs) {
+        const exact = row.avatars.find((a) => a.year === year);
+        const fallback =
+          exact ??
+          [...row.avatars]
+            .sort((a, b) => b.year - a.year)
+            .find((a) => a.year <= year) ??
+          null;
+        avatarByTeam.set(row.teamNumber, fallback?.base64 ?? null);
+      }
+
+      return {
+        year,
+        eventKey: input.eventKey,
+        teams: teams.map((t) => ({
+          number: t.number,
+          key: t.key,
+          nickname: t.nickname,
+          name: t.name,
+          city: t.city,
+          stateProv: t.stateProv,
+          country: t.country,
+          epa: epaByTeam.get(t.number) ?? null,
+          avatarB64: avatarByTeam.get(t.number) ?? null,
+          awards: awardsByTeam.get(t.number) ?? [],
+        })),
+      };
+    }),
+
   // Schedule: every event where at least one team in this district is on the
   // roster, restricted to the district's year. Returns full rosters with an
   // inDistrict flag so the UI can highlight or chip the visiting teams.
@@ -379,10 +480,113 @@ export const frcRouter = createTRPCRouter({
           key: ev.key,
           name: ev.name,
           year: ev.year,
+          week: ev.week,
           startDate: ev.startDate,
           endDate: ev.endDate,
           roster,
         };
+      });
+    }),
+
+  // ---- Collaborative draft state ----
+
+  // All picks for a board (district/event/global). The client polls this so
+  // every signed-in scout converges on the same draft state.
+  picksForScope: publicProcedure
+    .input(scopeInput)
+    .query(({ ctx, input }) =>
+      ctx.db.pick.findMany({
+        where: { scopeKey: input.scopeKey },
+        select: { teamNumber: true, status: true, by: true },
+      }),
+    ),
+
+  // Per-year drafter handles; falls back to the defaults until one is saved.
+  drafters: publicProcedure
+    .input(yearInput)
+    .query(async ({ ctx, input }) => {
+      const doc = await ctx.db.draft.findUnique({
+        where: { year: input.year },
+        select: { drafters: true },
+      });
+      return doc?.drafters ?? DEFAULT_DRAFTERS;
+    }),
+
+  setPick: protectedProcedure
+    .input(
+      z.object({
+        scopeKey: z.string().min(1),
+        year: z.number().int(),
+        teamNumber: z.number().int(),
+        status: z.enum(["available", "ours", "taken"]),
+        by: z.string().nullish(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const updatedBy =
+        ctx.session.user.name ?? ctx.session.user.email ?? ctx.session.user.id;
+      const by = input.status === "taken" ? (input.by ?? null) : null;
+      return ctx.db.pick.upsert({
+        where: {
+          scopeKey_teamNumber: {
+            scopeKey: input.scopeKey,
+            teamNumber: input.teamNumber,
+          },
+        },
+        create: {
+          scopeKey: input.scopeKey,
+          year: input.year,
+          teamNumber: input.teamNumber,
+          status: input.status,
+          by,
+          updatedBy,
+        },
+        update: { status: input.status, by, updatedBy },
+      });
+    }),
+
+  setDrafters: protectedProcedure
+    .input(z.object({ year: z.number().int(), drafters: z.array(z.string()) }))
+    .mutation(({ ctx, input }) =>
+      ctx.db.draft.upsert({
+        where: { year: input.year },
+        create: { year: input.year, drafters: input.drafters },
+        update: { drafters: input.drafters },
+      }),
+    ),
+
+  // All star ratings for a season, polled like picks so ratings stay shared.
+  ratingsForYear: publicProcedure
+    .input(yearInput)
+    .query(({ ctx, input }) =>
+      ctx.db.rating.findMany({
+        where: { year: input.year },
+        select: { teamNumber: true, stars: true },
+      }),
+    ),
+
+  setRating: protectedProcedure
+    .input(
+      z.object({
+        year: z.number().int(),
+        teamNumber: z.number().int(),
+        stars: z.number().int().min(0).max(5),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const updatedBy =
+        ctx.session.user.name ?? ctx.session.user.email ?? ctx.session.user.id;
+      return ctx.db.rating.upsert({
+        where: {
+          year_teamNumber: { year: input.year, teamNumber: input.teamNumber },
+        },
+        create: {
+          year: input.year,
+          teamNumber: input.teamNumber,
+          stars: input.stars,
+          updatedBy,
+        },
+        update: { stars: input.stars, updatedBy },
       });
     }),
 });

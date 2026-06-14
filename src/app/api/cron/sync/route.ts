@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { env } from "~/env";
-import { syncAll } from "~/server/lib/sync";
+import { syncAll, syncAllEpas } from "~/server/lib/sync";
 
 export const runtime = "nodejs";
 export const maxDuration = 300; // 5 min — Vercel hobby caps at 60s; pro/enterprise can extend.
@@ -13,8 +13,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
+  // `?task=epa` re-pulls only EPA values (repair stale data); default = full sync.
+  const task = new URL(req.url).searchParams.get("task");
+
   try {
-    const result = await syncAll();
+    const result = task === "epa" ? await syncAllEpas() : await syncAll();
     return NextResponse.json({ ok: true, result });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

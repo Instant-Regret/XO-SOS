@@ -208,6 +208,14 @@ body {
   background: var(--surface-2);
   color: var(--ink);
 }
+.search-item-meta {
+  margin-left: auto;
+  padding-left: 8px;
+  font-size: 11px;
+  color: var(--ink-3);
+  white-space: nowrap;
+  flex: none;
+}
 
 .btn {
   display: inline-flex;
@@ -486,29 +494,29 @@ body {
   background: var(--surface);
 }
 .board {
-  min-width: 1980px;
+  min-width: 1100px;
 }
 .board-head,
 .row {
   display: grid;
   grid-template-columns:
-    48px
-    minmax(190px, 1.4fr)
-    80px
-    110px
+    34px
+    minmax(140px, 1fr)
     72px
-    100px
-    140px
-    repeat(8, minmax(78px, 1fr))
-    minmax(180px, 1.2fr);
-  gap: 8px;
+    80px
+    60px
+    74px
+    96px
+    repeat(8, minmax(42px, 0.7fr))
+    minmax(132px, 1.1fr);
+  gap: 6px;
   align-items: center;
-  padding: 10px 14px;
+  padding: 8px 12px;
 }
 .board-head {
   background: var(--surface-2);
   border-bottom: 1px solid var(--border);
-  padding: 0 16px;
+  padding: 0 12px;
   height: 42px;
   position: sticky;
   top: 0;
@@ -539,8 +547,8 @@ body {
 .col-head-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px;
+  gap: 4px;
+  padding: 6px 4px;
   border-radius: 4px;
   font-size: 11px;
   font-weight: 600;
@@ -930,6 +938,11 @@ body {
   display: inline-flex;
   gap: 2px;
 }
+/* Header label is indented by the sort-button padding; match it so the row
+   stars line up under the "Rating" text. */
+.col-stars .stars {
+  padding-left: 6px;
+}
 
 .pick {
   display: inline-flex;
@@ -963,12 +976,11 @@ body {
 }
 .pick-available {
   color: var(--ink);
+  padding: 5px 7px;
 }
 .pick-taken {
   background: var(--surface-2);
-  color: var(--ink-3);
-  text-decoration: line-through;
-  text-decoration-color: color-mix(in oklch, var(--ink-3) 50%, transparent);
+  color: var(--ink-2);
 }
 
 .col-extra {
@@ -1018,7 +1030,8 @@ body {
   width: 100%;
   flex: 1 1 auto;
   min-height: 0;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 .event-col {
   background: var(--surface);
@@ -1050,6 +1063,20 @@ body {
   overflow: visible;
   text-align: center;
 }
+.event-week {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  text-align: center;
+}
+.event-col-pinned {
+  border-color: var(--accent);
+}
+.event-col-pinned .event-head {
+  background: var(--accent-soft);
+}
 
 .event-roster {
   padding: 2px;
@@ -1067,7 +1094,7 @@ body {
   border-radius: 4px;
   font-size: 12px;
   transition: background 100ms, opacity 160ms, transform 160ms;
-  cursor: default;
+  cursor: pointer;
   min-height: 0;
 }
 .roster-tag {
@@ -1115,6 +1142,123 @@ body {
 }
 .roster-hover .roster-tag {
   color: var(--accent-ink);
+}
+.roster-pinned {
+  outline: 1px solid var(--accent);
+}
+
+.schedule-clear {
+  margin-left: auto;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+.schedule-clear:hover {
+  background: color-mix(in oklch, var(--accent) 22%, transparent);
+}
+
+/* ============= Auth gate ============= */
+.auth-gate {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  color: var(--ink);
+  padding: 24px;
+}
+.auth-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 48px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  text-align: center;
+}
+.auth-logo {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 8px;
+}
+.auth-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.auth-sub {
+  font-size: 13px;
+  color: var(--ink-3);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.auth-signin {
+  margin-top: 20px;
+}
+.auth-loading {
+  margin-top: 20px;
+  color: var(--ink-3);
+  font-size: 13px;
+}
+
+/* ============= Modal ============= */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 24px;
+}
+.modal {
+  width: 100%;
+  max-width: 380px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.modal-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+.modal-sub {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.drafters-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.drafter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.drafter-row .pop-input {
+  flex: 1 1 auto;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 /* ============= Responsive ============= */

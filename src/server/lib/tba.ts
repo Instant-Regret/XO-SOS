@@ -36,6 +36,8 @@ const eventSchema = z.object({
   event_type: z.number().int(),
   event_type_string: z.string(),
   year: z.number().int(),
+  // 0-indexed competition week; null for championships/offseason events.
+  week: z.number().int().nullish(),
   start_date: z.string().nullish(),
   end_date: z.string().nullish(),
   district: z.object({ key: z.string() }).nullish(),

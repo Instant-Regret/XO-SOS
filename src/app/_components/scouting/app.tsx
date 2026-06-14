@@ -1,10 +1,12 @@
 "use client";
 
+import { signIn, useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
 
 import { api } from "~/trpc/react";
 
-import { OTHER_PICKERS, bucketAwards, type Pick } from "./data";
+import { bucketAwards, type Pick } from "./data";
+import { DiscordIcon } from "./icons";
 import { Leaderboard } from "./leaderboard";
 import { SchedulePage } from "./schedule";
 import { Sidebar } from "./sidebar";
@@ -16,12 +18,6 @@ import type {
   Sort,
   TeamView,
 } from "./types";
-
-const PICK_CYCLE: Pick[] = [
-  { status: "available", by: null },
-  { status: "ours", by: null },
-  ...OTHER_PICKERS.map((p) => ({ status: "taken" as const, by: p })),
-];
 
 function buildExtraColumns(selectedYear: number): ExtraColumn[] {
   const years = [0, 1, 2, 3, 4].map((n) => selectedYear - n);
@@ -42,7 +38,40 @@ function buildExtraColumns(selectedYear: number): ExtraColumn[] {
 
 const DEFAULT_PICK: Pick = { status: "available", by: null };
 
+// Auth gate: until a session exists, hide the entire board and show only a
+// sign-in prompt. Keeping the board in a separate component means none of its
+// tRPC queries fire while signed out.
 export function ScoutingApp() {
+  const { status } = useSession();
+
+  if (status === "authenticated") return <ScoutingBoard />;
+
+  return (
+    <div className="auth-gate theme-dark">
+      <div className="auth-card">
+        <div className="logo-mark auth-logo">
+          <span>X</span>
+          <span>O</span>
+        </div>
+        <div className="auth-title">XO Sauce</div>
+        <div className="auth-sub">Scouting Board</div>
+        {status === "loading" ? (
+          <div className="auth-loading">Loading…</div>
+        ) : (
+          <button
+            className="btn btn-primary auth-signin"
+            onClick={() => void signIn("discord")}
+          >
+            <DiscordIcon />
+            Sign in with Discord
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ScoutingBoard() {
   const [page, setPage] = useState<PageId>("board");
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<Filters>({
@@ -54,10 +83,6 @@ export function ScoutingApp() {
   const [sort, setSort] = useState<Sort>({ key: "epa", dir: "desc" });
   const [selectedYear, setSelectedYear] = useState(2026);
 
-  // Local-only scouting state. Keys are "{year}:{teamNumber}" so picks/stars
-  // stay separate per season.
-  const [picks, setPicks] = useState<Record<string, Pick>>({});
-  const [stars, setStars] = useState<Record<string, number>>({});
 
   // The user picks a district by abbreviation; we resolve to the year-specific
   // districtKey from the districts list. That way the selection follows you
@@ -65,7 +90,12 @@ export function ScoutingApp() {
   // in both seasons.
   const [selectedAbbr, setSelectedAbbr] = useState<string | null>(null);
 
+  // A specific event picked from the search bar. Takes precedence over the
+  // region selection for the board view.
+  const [selectedEventKey, setSelectedEventKey] = useState<string | null>(null);
+
   const allDistrictsQ = api.frc.allDistricts.useQuery();
+  const allEventsQ = api.frc.allEvents.useQuery();
   const allDistricts = useMemo(
     () =>
       (allDistrictsQ.data ?? []).map((d) => ({
@@ -87,20 +117,135 @@ export function ScoutingApp() {
     ? `${selectedYear}${selectedAbbr}`
     : null;
 
+  const boardForEventQ = api.frc.boardForEvent.useQuery(
+    { eventKey: selectedEventKey! },
+    { enabled: !!selectedEventKey },
+  );
+
   const boardQ = api.frc.boardForDistrict.useQuery(
     { districtKey: selectedDistrictKey! },
-    { enabled: !!selectedDistrictKey },
+    { enabled: !!selectedDistrictKey && !selectedEventKey },
   );
 
   const topQ = api.frc.topTeamsByYear.useQuery(
     { year: selectedYear, limit: 100 },
-    { enabled: !selectedDistrictKey },
+    { enabled: !selectedDistrictKey && !selectedEventKey },
   );
 
   const scheduleQ = api.frc.scheduleForDistrict.useQuery(
     { districtKey: selectedDistrictKey! },
     { enabled: !!selectedDistrictKey && page === "schedule" },
   );
+
+  // Board identity for collaborative picks. scopeKey is the board itself (so a
+  // team's pick state is independent per district / event / global view), and
+  // scopeYear is the season it belongs to.
+  const scopeKey = selectedEventKey
+    ? selectedEventKey
+    : selectedDistrictKey
+      ? selectedDistrictKey
+      : `global-${selectedYear}`;
+  const scopeYear = selectedEventKey
+    ? parseInt(selectedEventKey.slice(0, 4), 10)
+    : selectedDistrictKey
+      ? parseInt(selectedDistrictKey.slice(0, 4), 10)
+      : selectedYear;
+
+  const draftersQ = api.frc.drafters.useQuery({ year: scopeYear });
+  const drafters = useMemo(() => draftersQ.data ?? [], [draftersQ.data]);
+
+  // Shared draft state, polled so every scout converges on the same picks.
+  const picksQ = api.frc.picksForScope.useQuery(
+    { scopeKey },
+    { refetchInterval: 8000, refetchOnWindowFocus: true },
+  );
+  const picksByTeam = useMemo(() => {
+    const m = new Map<number, Pick>();
+    for (const p of picksQ.data ?? []) {
+      m.set(p.teamNumber, {
+        status: p.status as Pick["status"],
+        by: p.by ?? null,
+      });
+    }
+    return m;
+  }, [picksQ.data]);
+
+  // Pick cycle: available → ours → taken by each drafter, built from the
+  // per-year drafter list.
+  const pickCycle = useMemo<Pick[]>(
+    () => [
+      { status: "available", by: null },
+      { status: "ours", by: null },
+      ...drafters.map((d) => ({ status: "taken" as const, by: d })),
+    ],
+    [drafters],
+  );
+
+  const utils = api.useUtils();
+  const setPickM = api.frc.setPick.useMutation({
+    // Optimistic update so the clicking scout sees the change instantly; other
+    // scouts pick it up on the next poll.
+    onMutate: async (vars) => {
+      await utils.frc.picksForScope.cancel({ scopeKey: vars.scopeKey });
+      const prev = utils.frc.picksForScope.getData({ scopeKey: vars.scopeKey });
+      utils.frc.picksForScope.setData({ scopeKey: vars.scopeKey }, (old) => {
+        const list = old ? [...old] : [];
+        const next = {
+          teamNumber: vars.teamNumber,
+          status: vars.status,
+          by: vars.status === "taken" ? (vars.by ?? null) : null,
+        };
+        const idx = list.findIndex((p) => p.teamNumber === vars.teamNumber);
+        if (idx >= 0) list[idx] = next;
+        else list.push(next);
+        return list;
+      });
+      return { prev };
+    },
+    onError: (_err, vars, ctx) => {
+      if (ctx?.prev) {
+        utils.frc.picksForScope.setData({ scopeKey: vars.scopeKey }, ctx.prev);
+      }
+    },
+    onSettled: (_data, _err, vars) => {
+      void utils.frc.picksForScope.invalidate({ scopeKey: vars.scopeKey });
+    },
+  });
+
+  // Shared star ratings, keyed by season and polled like picks.
+  const ratingsQ = api.frc.ratingsForYear.useQuery(
+    { year: scopeYear },
+    { refetchInterval: 8000, refetchOnWindowFocus: true },
+  );
+  const ratingsByTeam = useMemo(() => {
+    const m = new Map<number, number>();
+    for (const r of ratingsQ.data ?? []) m.set(r.teamNumber, r.stars);
+    return m;
+  }, [ratingsQ.data]);
+
+  const setRatingM = api.frc.setRating.useMutation({
+    onMutate: async (vars) => {
+      await utils.frc.ratingsForYear.cancel({ year: vars.year });
+      const prev = utils.frc.ratingsForYear.getData({ year: vars.year });
+      utils.frc.ratingsForYear.setData({ year: vars.year }, (old) => {
+        const list = old ? [...old] : [];
+        const idx = list.findIndex((r) => r.teamNumber === vars.teamNumber);
+        const next = { teamNumber: vars.teamNumber, stars: vars.stars };
+        if (idx >= 0) list[idx] = next;
+        else list.push(next);
+        return list;
+      });
+      return { prev };
+    },
+    onError: (_err, vars, ctx) => {
+      if (ctx?.prev) {
+        utils.frc.ratingsForYear.setData({ year: vars.year }, ctx.prev);
+      }
+    },
+    onSettled: (_data, _err, vars) => {
+      void utils.frc.ratingsForYear.invalidate({ year: vars.year });
+    },
+  });
 
   const extraColumns = useMemo(
     () => buildExtraColumns(selectedYear),
@@ -114,6 +259,7 @@ export function ScoutingApp() {
     const q = search.trim().toLowerCase();
     if (!q) {
       if (selectedAbbr !== null) setSelectedAbbr(null);
+      if (selectedEventKey !== null) setSelectedEventKey(null);
       return;
     }
     const exact = allDistricts.find(
@@ -124,8 +270,9 @@ export function ScoutingApp() {
     );
     if (exact && exact.abbreviation !== selectedAbbr) {
       setSelectedAbbr(exact.abbreviation);
+      setSelectedEventKey(null);
     }
-  }, [search, allDistricts, selectedAbbr]);
+  }, [search, allDistricts, selectedAbbr, selectedEventKey]);
 
   // Build the row view from whichever tRPC payload is active (district board
   // when one is selected, else global top-100) plus local pick/star state.
@@ -135,12 +282,32 @@ export function ScoutingApp() {
         ? `data:image/png;base64,${b64}`
         : `https://www.thebluealliance.com/avatar/${year}/frc${number}.png`;
 
+    if (selectedEventKey) {
+      const data = boardForEventQ.data;
+      if (!data) return [];
+      const eventChip = selectedEventKey.replace(/^\d{4}/, "").toUpperCase();
+      return data.teams.map((t) => {
+        return {
+          _id: t.key,
+          number: t.number,
+          name: t.nickname ?? t.name ?? `Team ${t.number}`,
+          region: eventChip,
+          avatarUrl: buildAvatarUrl(data.year, t.number, t.avatarB64),
+          xVal: 0,
+          epa: t.epa ?? 0,
+          stars: ratingsByTeam.get(t.number) ?? 0,
+          pickStatus: (picksByTeam.get(t.number) ?? DEFAULT_PICK).status,
+          pickedBy: (picksByTeam.get(t.number) ?? DEFAULT_PICK).by,
+          awardLog: bucketAwards(t.awards),
+        };
+      });
+    }
+
     if (selectedAbbr) {
       const data = boardQ.data;
       if (!data) return [];
       const districtChip = selectedAbbr.toUpperCase();
       return data.teams.map((t) => {
-        const localKey = `${data.year}:${t.number}`;
         return {
           _id: t.key,
           number: t.number,
@@ -149,9 +316,9 @@ export function ScoutingApp() {
           avatarUrl: buildAvatarUrl(data.year, t.number, t.avatarB64),
           xVal: 0,
           epa: t.epa ?? 0,
-          stars: stars[localKey] ?? 0,
-          pickStatus: (picks[localKey] ?? DEFAULT_PICK).status,
-          pickedBy: (picks[localKey] ?? DEFAULT_PICK).by,
+          stars: ratingsByTeam.get(t.number) ?? 0,
+          pickStatus: (picksByTeam.get(t.number) ?? DEFAULT_PICK).status,
+          pickedBy: (picksByTeam.get(t.number) ?? DEFAULT_PICK).by,
           awardLog: bucketAwards(t.awards),
         };
       });
@@ -159,7 +326,6 @@ export function ScoutingApp() {
     const data = topQ.data;
     if (!data) return [];
     return data.teams.map((t) => {
-      const localKey = `${data.year}:${t.number}`;
       return {
         _id: t.key,
         number: t.number,
@@ -168,13 +334,21 @@ export function ScoutingApp() {
         avatarUrl: buildAvatarUrl(data.year, t.number, t.avatarB64),
         xVal: 0,
         epa: t.epa ?? 0,
-        stars: stars[localKey] ?? 0,
-        pickStatus: (picks[localKey] ?? DEFAULT_PICK).status,
-        pickedBy: (picks[localKey] ?? DEFAULT_PICK).by,
+        stars: ratingsByTeam.get(t.number) ?? 0,
+        pickStatus: (picksByTeam.get(t.number) ?? DEFAULT_PICK).status,
+        pickedBy: (picksByTeam.get(t.number) ?? DEFAULT_PICK).by,
         awardLog: bucketAwards(t.awards),
       };
     });
-  }, [boardQ.data, topQ.data, picks, stars, selectedAbbr]);
+  }, [
+    boardForEventQ.data,
+    boardQ.data,
+    topQ.data,
+    picksByTeam,
+    ratingsByTeam,
+    selectedAbbr,
+    selectedEventKey,
+  ]);
 
   const sorted = useMemo(() => {
     const arr = [...teamsForYear];
@@ -219,38 +393,42 @@ export function ScoutingApp() {
     return result;
   }, [sorted, filters]);
 
-  const activeYear = boardQ.data?.year ?? topQ.data?.year ?? selectedYear;
-
   const cyclePick = (id: string) => {
     const number = parseInt(id.replace(/^frc/, ""), 10);
     if (!Number.isFinite(number)) return;
-    const localKey = `${activeYear}:${number}`;
-    setPicks((prev) => {
-      const cur = prev[localKey] ?? DEFAULT_PICK;
-      const idx = PICK_CYCLE.findIndex(
-        (p) => p.status === cur.status && p.by === (cur.by ?? null),
-      );
-      const next = PICK_CYCLE[(Math.max(0, idx) + 1) % PICK_CYCLE.length]!;
-      return { ...prev, [localKey]: { status: next.status, by: next.by } };
+    const cur = picksByTeam.get(number) ?? DEFAULT_PICK;
+    const idx = pickCycle.findIndex(
+      (p) => p.status === cur.status && (p.by ?? null) === (cur.by ?? null),
+    );
+    const next = pickCycle[(Math.max(0, idx) + 1) % pickCycle.length]!;
+    setPickM.mutate({
+      scopeKey,
+      year: scopeYear,
+      teamNumber: number,
+      status: next.status,
+      by: next.by,
     });
   };
 
   const setStarsFor = (id: string, value: number) => {
     const number = parseInt(id.replace(/^frc/, ""), 10);
     if (!Number.isFinite(number)) return;
-    const localKey = `${activeYear}:${number}`;
-    setStars((prev) => ({ ...prev, [localKey]: value }));
+    setRatingM.mutate({ year: scopeYear, teamNumber: number, stars: value });
   };
 
   const events = scheduleQ.data ?? [];
 
-  const boardEmpty = selectedDistrictKey
-    ? boardQ.isLoading
+  const boardEmpty = selectedEventKey
+    ? boardForEventQ.isLoading
       ? "Loading teams…"
-      : "No teams in this district."
-    : topQ.isLoading
-      ? "Loading top teams…"
-      : "No teams found for this season.";
+      : "No teams for this event."
+    : selectedDistrictKey
+      ? boardQ.isLoading
+        ? "Loading teams…"
+        : "No teams in this district."
+      : topQ.isLoading
+        ? "Loading top teams…"
+        : "No teams found for this season.";
 
   return (
     <div className="app theme-dark">
@@ -260,15 +438,22 @@ export function ScoutingApp() {
           value={search}
           onChange={setSearch}
           districts={allDistricts}
+          events={allEventsQ.data ?? []}
           loading={allDistrictsQ.isLoading}
           onPickDistrict={(d) => {
+            setSelectedEventKey(null);
             setSelectedAbbr(d.abbreviation);
             setSearch(d.abbreviation.toUpperCase());
+          }}
+          onPickEvent={(e) => {
+            setSelectedAbbr(null);
+            setSelectedEventKey(e.key);
+            setSearch(e.key.replace(/^\d{4}/, "").toUpperCase());
           }}
         />
         <div className="topbar-right">
           <YearPicker value={selectedYear} onChange={setSelectedYear} />
-          <AccountMenu />
+          <AccountMenu year={selectedYear} />
         </div>
       </header>
 

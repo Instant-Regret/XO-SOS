@@ -34,6 +34,10 @@ export function Leaderboard({
   onSetStars: (id: string, stars: number) => void;
   emptyMessage?: string;
 }) {
+  // Statbotics "unitless" EPA runs on a ~1500-avg, ~2000-top scale, so a raw
+  // percentage bar would peg every team at 100%. Scale each bar against the
+  // strongest team in view instead so the bars are actually comparable.
+  const maxEpa = Math.max(1, ...allTeams.map((t) => t.epa));
   const toggleSort = (key: string) => {
     setSort((s) =>
       s.key === key
@@ -163,6 +167,7 @@ export function Leaderboard({
                       onChange={(v) =>
                         setFilters((f) => ({ ...f, minStars: v }))
                       }
+                      max={3}
                       size={18}
                     />
                     <div className="pop-actions">
@@ -183,7 +188,7 @@ export function Leaderboard({
           </div>
           <div className="col-pick">
             <ColHeader
-              label="Pick status"
+              label="Pick"
               sortKey="pickStatus"
               sortState={sort}
               onSort={toggleSort}
@@ -274,7 +279,9 @@ export function Leaderboard({
                 <div className="xval-bar">
                   <div
                     className="xval-fill epa-fill"
-                    style={{ width: `${Math.min(100, t.epa)}%` }}
+                    style={{
+                      width: `${Math.max(0, Math.min(100, (t.epa / maxEpa) * 100))}%`,
+                    }}
                   />
                 </div>
               </div>
@@ -282,6 +289,7 @@ export function Leaderboard({
                 <StarRating
                   value={t.stars}
                   onChange={(v) => onSetStars(t._id, v)}
+                  max={3}
                 />
               </div>
               <div className="col-pick">

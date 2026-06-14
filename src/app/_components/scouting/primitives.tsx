@@ -6,13 +6,14 @@ import { BannerSvg, TrophySvg, WrenchSvg } from "./icons";
 
 export function pickLabel(status: PickStatus, by: string | null) {
   if (status === "available") return "Available";
-  if (status === "ours") return "Our pick";
-  return `Taken · ${by ?? ""}`;
+  if (status === "ours") return "Ours";
+  // Taken: show only who has the team (the dot already signals "taken").
+  return by ?? "";
 }
 
 export function pickDotColor(status: PickStatus) {
   if (status === "ours") return "var(--accent)";
-  if (status === "taken") return "var(--ink-3)";
+  if (status === "taken") return "var(--bad)";
   return "var(--ok)";
 }
 
@@ -52,17 +53,19 @@ export function StarRating({
   onChange,
   readOnly,
   size = 14,
+  max = 5,
 }: {
   value: number;
   onChange?: (v: number) => void;
   readOnly?: boolean;
   size?: number;
+  max?: number;
 }) {
   const [hover, setHover] = useState(0);
   const eff = hover || value;
   return (
     <div className="stars" onMouseLeave={() => setHover(0)}>
-      {[1, 2, 3, 4, 5].map((n) => (
+      {Array.from({ length: max }, (_, i) => i + 1).map((n) => (
         <Star
           key={n}
           size={size}
@@ -93,7 +96,7 @@ export function PickPill({
       title="Click to cycle pickers"
     >
       <span className="pick-dot" style={{ background: pickDotColor(status) }} />
-      {pickLabel(status, pickedBy)}
+      {status !== "available" && pickLabel(status, pickedBy)}
     </button>
   );
 }

@@ -3,6 +3,8 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 
+import { api } from "~/trpc/react";
+
 import { AVAILABLE_YEARS } from "./data";
 import {
   DiscordIcon,
@@ -13,7 +15,12 @@ import {
   IconSearch,
   IconUser,
 } from "./icons";
-import type { DistrictLite } from "./types";
+import type { DistrictLite, EventLite } from "./types";
+
+// "2026chcmp" → "CHCMP" — drop the leading 4-digit year for display.
+function eventCode(key: string) {
+  return key.replace(/^\d{4}/, "").toUpperCase();
+}
 
 export function Logo({ onClick }: { onClick: () => void }) {
   return (
@@ -34,13 +41,17 @@ export function SearchBar({
   value,
   onChange,
   districts,
+  events,
   onPickDistrict,
+  onPickEvent,
   loading,
 }: {
   value: string;
   onChange: (v: string) => void;
   districts: DistrictLite[];
+  events: EventLite[];
   onPickDistrict: (d: DistrictLite) => void;
+  onPickEvent: (e: EventLite) => void;
   loading?: boolean;
 }) {
   const [open, setOpen] = useState(false);
@@ -53,7 +64,7 @@ export function SearchBar({
     return () => document.removeEventListener("mousedown", h);
   }, []);
   const q = value.trim().toLowerCase();
-  const suggestions = !q
+  const regionMatches = !q
     ? districts
     : districts.filter(
         (d) =>
@@ -61,6 +72,17 @@ export function SearchBar({
           d.displayName.toLowerCase().includes(q) ||
           d.key.toLowerCase().includes(q),
       );
+  // Only suggest events once the user has typed something — the full list is
+  // thousands of rows. Cap the visible matches so the menu stays usable.
+  const eventMatches = !q
+    ? []
+    : events
+        .filter(
+          (e) =>
+            e.key.toLowerCase().includes(q) ||
+            e.name.toLowerCase().includes(q),
+        )
+        .slice(0, 30);
   return (
     <div className="search" ref={wrapRef}>
       <IconSearch />
@@ -71,7 +93,7 @@ export function SearchBar({
           onChange(e.target.value);
           setOpen(true);
         }}
-        placeholder="Search districts…"
+        placeholder="Search regions & events…"
       />
       {value && (
         <button className="search-clear" onClick={() => onChange("")}>
@@ -80,7 +102,7 @@ export function SearchBar({
       )}
       {open && (
         <div className="search-menu">
-          <div className="search-menu-label">Districts</div>
+          <div className="search-menu-label">Regions</div>
           {loading && (
             <div
               className="search-item"
@@ -89,7 +111,7 @@ export function SearchBar({
               Loading…
             </div>
           )}
-          {!loading && suggestions.length === 0 && (
+          {!loading && regionMatches.length === 0 && (
             <div
               className="search-item"
               style={{ pointerEvents: "none", color: "var(--ink-3)" }}
@@ -97,7 +119,7 @@ export function SearchBar({
               No regions match.
             </div>
           )}
-          {suggestions.map((d) => (
+          {regionMatches.map((d) => (
             <button
               key={d.key}
               className="search-item"
@@ -112,6 +134,29 @@ export function SearchBar({
               <span style={{ color: "var(--ink)" }}>{d.displayName}</span>
             </button>
           ))}
+
+          {q && eventMatches.length > 0 && (
+            <>
+              <div className="search-menu-label">Events</div>
+              {eventMatches.map((e) => (
+                <button
+                  key={e.key}
+                  className="search-item"
+                  onClick={() => {
+                    onPickEvent(e);
+                    setOpen(false);
+                  }}
+                >
+                  <span className="region-chip">{eventCode(e.key)}</span>
+                  <span style={{ color: "var(--ink)" }}>{e.name}</span>
+                  <span className="search-item-meta">
+                    {e.year}
+                    {e.week != null ? ` · Wk ${e.week + 1}` : ""}
+                  </span>
+                </button>
+              ))}
+            </>
+          )}
         </div>
       )}
     </div>
@@ -178,9 +223,94 @@ function initials(name: string) {
   return name.trim().charAt(0).toUpperCase() || "?";
 }
 
-export function AccountMenu() {
+// Editor for the per-year drafter handles, opened from the account menu.
+function DraftersModal({
+  year,
+  open,
+  onClose,
+}: {
+  year: number;
+  open: boolean;
+  onClose: () => void;
+}) {
+  const utils = api.useUtils();
+  const draftersQ = api.frc.drafters.useQuery({ year }, { enabled: open });
+  const [list, setList] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (open && draftersQ.data) setList(draftersQ.data);
+  }, [open, draftersQ.data]);
+
+  const save = api.frc.setDrafters.useMutation({
+    onSuccess: async () => {
+      await utils.frc.drafters.invalidate({ year });
+      onClose();
+    },
+  });
+
+  if (!open) return null;
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-title">Drafting teams · {year}</div>
+        <div className="modal-sub">
+          These handles fill the “taken by” options when cycling a pick.
+        </div>
+        <div className="drafters-list">
+          {list.map((d, i) => (
+            <div className="drafter-row" key={i}>
+              <input
+                className="pop-input"
+                value={d}
+                placeholder="@handle"
+                onChange={(e) =>
+                  setList((l) =>
+                    l.map((x, j) => (j === i ? e.target.value : x)),
+                  )
+                }
+              />
+              <button
+                className="link"
+                onClick={() => setList((l) => l.filter((_, j) => j !== i))}
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+        <button
+          className="link"
+          onClick={() => setList((l) => [...l, ""])}
+        >
+          + Add drafter
+        </button>
+        <div className="modal-actions">
+          <button className="btn" onClick={onClose}>
+            Cancel
+          </button>
+          <button
+            className="btn btn-primary"
+            disabled={save.isPending}
+            onClick={() =>
+              save.mutate({
+                year,
+                drafters: list.map((s) => s.trim()).filter(Boolean),
+              })
+            }
+          >
+            {save.isPending ? "Saving…" : "Save"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function AccountMenu({ year }: { year: number }) {
   const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
+  const [draftersOpen, setDraftersOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     const h = (e: MouseEvent) => {
@@ -248,6 +378,15 @@ export function AccountMenu() {
           <button className="menu-item">
             <IconList /> My short list
           </button>
+          <button
+            className="menu-item"
+            onClick={() => {
+              setDraftersOpen(true);
+              setOpen(false);
+            }}
+          >
+            <IconList /> Drafting teams
+          </button>
           <button className="menu-item">
             <IconGear /> Preferences
           </button>
@@ -260,6 +399,11 @@ export function AccountMenu() {
           </button>
         </div>
       )}
+      <DraftersModal
+        year={year}
+        open={draftersOpen}
+        onClose={() => setDraftersOpen(false)}
+      />
     </div>
   );
 }
