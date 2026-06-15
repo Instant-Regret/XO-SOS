@@ -317,6 +317,18 @@ export const frcRouter = createTRPCRouter({
       };
     }),
 
+  // Timestamp of the last successful full data sync, for the freshness
+  // indicator. Data is refreshed by a daily cron, so this drives a
+  // "synced Nh ago" badge.
+  lastSync: publicProcedure.query(async ({ ctx }) => {
+    const log = await ctx.db.syncLog.findFirst({
+      where: { status: "success" },
+      orderBy: { finishedAt: "desc" },
+      select: { finishedAt: true },
+    });
+    return { finishedAt: log?.finishedAt ?? null };
+  }),
+
   // Every event we know about, minimal fields, for the search bar. Newest
   // first so the current season surfaces at the top of the suggestions.
   allEvents: publicProcedure.query(async ({ ctx }) => {

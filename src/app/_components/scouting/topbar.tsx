@@ -163,6 +163,45 @@ export function SearchBar({
   );
 }
 
+function relativeTime(date: Date): string {
+  const mins = Math.round((Date.now() - date.getTime()) / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.round(hrs / 24);
+  return `${days}d ago`;
+}
+
+// Shows when the data was last refreshed. Data syncs once a day via cron, so
+// this surfaces staleness (amber if it's been more than ~26h, or unknown).
+export function SyncIndicator() {
+  const q = api.frc.lastSync.useQuery(undefined, {
+    refetchInterval: 5 * 60 * 1000,
+  });
+  const finishedAt = q.data?.finishedAt ?? null;
+  const ageHrs = finishedAt
+    ? (Date.now() - finishedAt.getTime()) / 3_600_000
+    : null;
+  const status =
+    ageHrs == null ? "unknown" : ageHrs > 26 ? "stale" : "fresh";
+  const label = finishedAt ? `Synced ${relativeTime(finishedAt)}` : "No sync yet";
+
+  return (
+    <div
+      className={`sync-indicator sync-${status}`}
+      title={
+        finishedAt
+          ? `Data last synced ${finishedAt.toLocaleString()}`
+          : "No successful sync recorded yet"
+      }
+    >
+      <span className="sync-dot" />
+      <span className="sync-label">{label}</span>
+    </div>
+  );
+}
+
 export function YearPicker({
   value,
   onChange,

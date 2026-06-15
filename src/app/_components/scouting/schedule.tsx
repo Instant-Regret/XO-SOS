@@ -29,6 +29,7 @@ export function SchedulePage({
   pinnedTeams,
   colorByTeam,
   onTogglePin,
+  onClearPins,
 }: {
   districtAbbr: string | null;
   districtKey: string | null;
@@ -39,6 +40,7 @@ export function SchedulePage({
   pinnedTeams: Set<number>;
   colorByTeam: Map<number, string>;
   onTogglePin: (n: number) => void;
+  onClearPins: () => void;
 }) {
   const [hoverTeam, setHoverTeam] = useState<number | null>(null);
 
@@ -111,6 +113,9 @@ export function SchedulePage({
                   {n} ×
                 </button>
               ))}
+            <button className="clear-pins-btn" onClick={onClearPins}>
+              Clear pins
+            </button>
           </div>
         )}
       </div>

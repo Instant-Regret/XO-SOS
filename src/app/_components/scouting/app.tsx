@@ -10,7 +10,13 @@ import { DiscordIcon } from "./icons";
 import { Leaderboard } from "./leaderboard";
 import { SchedulePage } from "./schedule";
 import { Sidebar } from "./sidebar";
-import { AccountMenu, Logo, SearchBar, YearPicker } from "./topbar";
+import {
+  AccountMenu,
+  Logo,
+  SearchBar,
+  SyncIndicator,
+  YearPicker,
+} from "./topbar";
 import type {
   ExtraColumn,
   Filters,
@@ -507,15 +513,7 @@ function ScoutingBoard() {
           }}
         />
         <div className="topbar-right">
-          {pinnedTeams.size > 0 && (
-            <button
-              className="clear-pins-btn"
-              onClick={() => setPinnedTeams(new Set())}
-              title="Clear pinned teams (Space)"
-            >
-              Clear {pinnedTeams.size} pin{pinnedTeams.size !== 1 ? "s" : ""}
-            </button>
-          )}
+          <SyncIndicator />
           <YearPicker value={selectedYear} onChange={setSelectedYear} />
           <AccountMenu year={selectedYear} />
         </div>
@@ -558,6 +556,7 @@ function ScoutingBoard() {
               pinnedTeams={pinnedTeams}
               colorByTeam={colorByTeam}
               onTogglePin={togglePin}
+              onClearPins={() => setPinnedTeams(new Set())}
             />
           )}
         </main>
