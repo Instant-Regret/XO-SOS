@@ -26,28 +26,38 @@ export function SchedulePage({
   districtKey,
   events,
   loading,
+  pinnedTeams,
+  colorByTeam,
+  onTogglePin,
 }: {
   districtAbbr: string | null;
   districtKey: string | null;
   events: ScheduleEvent[];
   loading?: boolean;
+  // Pin state is lifted to the app so it's shared with the board and persists
+  // across tab switches.
+  pinnedTeams: Set<number>;
+  colorByTeam: Map<number, string>;
+  onTogglePin: (n: number) => void;
 }) {
   const [hoverTeam, setHoverTeam] = useState<number | null>(null);
-  // A pinned team (set by click) highlights its rows across every column and
-  // pulls the events it appears in to the front of the list.
-  const [pinnedTeam, setPinnedTeam] = useState<number | null>(null);
-
-  // Pinning takes precedence over hover for highlighting.
-  const activeTeam = pinnedTeam ?? hoverTeam;
 
   const orderedEvents = useMemo(() => {
-    if (pinnedTeam == null) return events;
-    const has = (ev: ScheduleEvent) =>
-      ev.roster.some((r) => r.number === pinnedTeam);
-    // Array.prototype.sort is stable, so events keep their original
-    // (date) order within the "has team" / "doesn't" groups.
-    return [...events].sort((a, b) => Number(has(b)) - Number(has(a)));
-  }, [events, pinnedTeam]);
+    // Three tiers, each kept in week order (stable sort):
+    //   0 — events containing a pinned team (pulled to the left)
+    //   1 — regular district events
+    //   2 — "away" events (mostly out-of-district guests), floated right
+    // So pinning a team brings its events left, even away events, while
+    // un-pinned away events stay on the right.
+    const isHighGuest = (ev: ScheduleEvent) =>
+      ev.roster.length > 0 &&
+      ev.roster.filter((r) => !r.inDistrict).length / ev.roster.length > 0.5;
+    const tier = (ev: ScheduleEvent) => {
+      if (ev.roster.some((r) => pinnedTeams.has(r.number))) return 0;
+      return isHighGuest(ev) ? 2 : 1;
+    };
+    return [...events].sort((a, b) => tier(a) - tier(b));
+  }, [events, pinnedTeams]);
 
   if (!districtKey) {
     return (
@@ -84,13 +94,24 @@ export function SchedulePage({
         <span className="region-block-count">
           {events.length} event{events.length !== 1 ? "s" : ""}
         </span>
-        {pinnedTeam != null && (
-          <button
-            className="schedule-clear"
-            onClick={() => setPinnedTeam(null)}
-          >
-            Pinned {pinnedTeam} · clear
-          </button>
+        {pinnedTeams.size > 0 && (
+          <div className="schedule-pins">
+            {[...pinnedTeams]
+              .sort((a, b) => a - b)
+              .map((n) => (
+                <button
+                  key={n}
+                  className="schedule-pin-chip"
+                  style={
+                    { "--pin": colorByTeam.get(n) } as React.CSSProperties
+                  }
+                  onClick={() => onTogglePin(n)}
+                  title="Unpin"
+                >
+                  {n} ×
+                </button>
+              ))}
+          </div>
         )}
       </div>
       <div
@@ -100,9 +121,7 @@ export function SchedulePage({
         }}
       >
         {orderedEvents.map((ev) => {
-          const hasPinned =
-            pinnedTeam != null &&
-            ev.roster.some((r) => r.number === pinnedTeam);
+          const hasPinned = ev.roster.some((r) => pinnedTeams.has(r.number));
           const week = weekLabel(ev);
           return (
             <article
@@ -114,12 +133,16 @@ export function SchedulePage({
                 {week && <div className="event-week">{week}</div>}
               </header>
               <div className="event-roster">
-                {ev.roster.map((row) => {
-                  const isActive = activeTeam !== null && activeTeam === row.number;
-                  const dim = activeTeam !== null && !isActive;
-                  const isPinned = pinnedTeam !== null && pinnedTeam === row.number;
+                {ev.roster.map((row, i) => {
+                  const isPinned = pinnedTeams.has(row.number);
+                  const pinColor = colorByTeam.get(row.number);
+                  const isHover = !isPinned && hoverTeam === row.number;
+                  const dim =
+                    (pinnedTeams.size > 0 || hoverTeam !== null) &&
+                    !isPinned &&
+                    !isHover;
                   const classes = ["roster-row"];
-                  if (isActive) classes.push("roster-hover");
+                  if (isHover) classes.push("roster-hover");
                   if (isPinned) classes.push("roster-pinned");
                   if (dim) classes.push("roster-dim");
                   if (!row.inDistrict) classes.push("roster-guest");
@@ -127,14 +150,16 @@ export function SchedulePage({
                     <div
                       key={row.number}
                       className={classes.join(" ")}
+                      style={
+                        isPinned
+                          ? ({ "--pin": pinColor } as React.CSSProperties)
+                          : undefined
+                      }
                       onMouseEnter={() => setHoverTeam(row.number)}
                       onMouseLeave={() => setHoverTeam(null)}
-                      onClick={() =>
-                        setPinnedTeam((prev) =>
-                          prev === row.number ? null : row.number,
-                        )
-                      }
+                      onClick={() => onTogglePin(row.number)}
                     >
+                      <span className="roster-rank">{i + 1}</span>
                       <span className="roster-tag">{row.number}</span>
                       {!row.inDistrict && (
                         <span className="roster-guest-chip">G</span>
