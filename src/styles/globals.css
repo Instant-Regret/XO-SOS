@@ -1211,6 +1211,33 @@ body {
   font-weight: 700;
 }
 
+.sync-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.sync-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ink-3);
+  flex: none;
+}
+.sync-fresh .sync-dot {
+  background: var(--ok);
+  box-shadow: 0 0 6px color-mix(in oklch, var(--ok) 70%, transparent);
+}
+.sync-stale .sync-dot {
+  background: var(--star, #f6c453);
+}
+.sync-fresh .sync-label {
+  color: var(--ink-2);
+}
+
 .clear-pins-btn {
   padding: 7px 12px;
   border-radius: 8px;
