@@ -22,6 +22,9 @@ export function Leaderboard({
   onCyclePick,
   onSetStars,
   emptyMessage,
+  pinnedTeams,
+  colorByTeam,
+  onTogglePin,
 }: {
   teams: TeamView[];
   allTeams: TeamView[];
@@ -33,6 +36,10 @@ export function Leaderboard({
   onCyclePick: (id: string) => void;
   onSetStars: (id: string, stars: number) => void;
   emptyMessage?: string;
+  // Pinning teams here drives the schedule's per-team highlight/colors.
+  pinnedTeams: Set<number>;
+  colorByTeam: Map<number, string>;
+  onTogglePin: (n: number) => void;
 }) {
   // Statbotics "unitless" EPA runs on a ~1500-avg, ~2000-top scale, so a raw
   // percentage bar would peg every team at 100%. Scale each bar against the
@@ -253,12 +260,26 @@ export function Leaderboard({
 
         {teams.map((t) => {
           const rank = allTeams.findIndex((x) => x._id === t._id) + 1;
+          const isPinned = pinnedTeams.has(t.number);
+          const pinColor = colorByTeam.get(t.number);
           return (
-            <div key={t._id} className="row">
+            <div
+              key={t._id}
+              className={`row${isPinned ? " row-pinned" : ""}`}
+              style={
+                isPinned
+                  ? ({ "--pin": pinColor } as React.CSSProperties)
+                  : undefined
+              }
+            >
               <div className="col-rank">
                 <span className="rank">{String(rank).padStart(2, "0")}</span>
               </div>
-              <div className="col-team">
+              <div
+                className="col-team col-team-pin"
+                onClick={() => onTogglePin(t.number)}
+                title={isPinned ? "Unpin from schedule" : "Pin to schedule"}
+              >
                 <TeamMark team={t} />
                 <div className="team-info">
                   <div className="team-name">{t.number}</div>

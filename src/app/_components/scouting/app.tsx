@@ -38,6 +38,19 @@ function buildExtraColumns(selectedYear: number): ExtraColumn[] {
 
 const DEFAULT_PICK: Pick = { status: "available", by: null };
 
+// Distinct colors for pinned teams, shared by the board and the schedule so a
+// team reads the same color in both views.
+const PIN_COLORS = [
+  "#4f8cff", // blue
+  "#ff7a59", // orange
+  "#3ecf8e", // green
+  "#c084fc", // purple
+  "#f6c453", // yellow
+  "#ff6b9d", // pink
+  "#22d3ee", // cyan
+  "#a3e635", // lime
+];
+
 // Auth gate: until a session exists, hide the entire board and show only a
 // sign-in prompt. Keeping the board in a separate component means none of its
 // tRPC queries fire while signed out.
@@ -82,6 +95,48 @@ function ScoutingBoard() {
   });
   const [sort, setSort] = useState<Sort>({ key: "epa", dir: "desc" });
   const [selectedYear, setSelectedYear] = useState(2026);
+
+  // Schedule pin state lives here (not in SchedulePage) so pins survive
+  // switching between the board and schedule tabs.
+  const [pinnedTeams, setPinnedTeams] = useState<Set<number>>(new Set());
+
+  // Space clears all pins, except while typing in a field.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.code !== "Space") return;
+      const el = document.activeElement as HTMLElement | null;
+      const tag = el?.tagName;
+      if (
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        tag === "SELECT" ||
+        el?.isContentEditable
+      ) {
+        return;
+      }
+      e.preventDefault();
+      setPinnedTeams((prev) => (prev.size ? new Set() : prev));
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Assign each pinned team a stable color (by team number).
+  const colorByTeam = useMemo(() => {
+    const m = new Map<number, string>();
+    [...pinnedTeams]
+      .sort((a, b) => a - b)
+      .forEach((n, i) => m.set(n, PIN_COLORS[i % PIN_COLORS.length]!));
+    return m;
+  }, [pinnedTeams]);
+
+  const togglePin = (n: number) =>
+    setPinnedTeams((prev) => {
+      const next = new Set(prev);
+      if (next.has(n)) next.delete(n);
+      else next.add(n);
+      return next;
+    });
 
 
   // The user picks a district by abbreviation; we resolve to the year-specific
@@ -452,6 +507,15 @@ function ScoutingBoard() {
           }}
         />
         <div className="topbar-right">
+          {pinnedTeams.size > 0 && (
+            <button
+              className="clear-pins-btn"
+              onClick={() => setPinnedTeams(new Set())}
+              title="Clear pinned teams (Space)"
+            >
+              Clear {pinnedTeams.size} pin{pinnedTeams.size !== 1 ? "s" : ""}
+            </button>
+          )}
           <YearPicker value={selectedYear} onChange={setSelectedYear} />
           <AccountMenu year={selectedYear} />
         </div>
@@ -480,6 +544,9 @@ function ScoutingBoard() {
               onCyclePick={cyclePick}
               onSetStars={setStarsFor}
               emptyMessage={boardEmpty}
+              pinnedTeams={pinnedTeams}
+              colorByTeam={colorByTeam}
+              onTogglePin={togglePin}
             />
           )}
           {page === "schedule" && (
@@ -488,6 +555,9 @@ function ScoutingBoard() {
               districtKey={selectedDistrictKey}
               events={events}
               loading={scheduleQ.isLoading}
+              pinnedTeams={pinnedTeams}
+              colorByTeam={colorByTeam}
+              onTogglePin={togglePin}
             />
           )}
         </main>
