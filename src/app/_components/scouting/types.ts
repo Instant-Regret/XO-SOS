@@ -40,8 +40,11 @@ export type TeamView = {
   xVal: number; // no data → 0
   epa: number; // from TeamEpa for the selected year, 0 if missing
   stars: number; // local-only state
-  pickStatus: PickStatus; // local-only state
+  pickStatus: PickStatus;
   pickedBy: string | null;
+  // All owners across every board for the year — shown read-only on the
+  // top-100 / event views (a team can be taken in more than one region).
+  owners: string[];
   awardLog: AwardLog;
 };
 

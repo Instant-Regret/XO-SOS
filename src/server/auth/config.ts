@@ -3,6 +3,13 @@ import { type DefaultSession, type NextAuthConfig } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
 
 import { db } from "~/server/db";
+import { env } from "~/env";
+
+// Discord user IDs allowed to sign in. Empty list = open to anyone.
+const ALLOWED_DISCORD_IDS = (env.AUTH_ALLOWED_DISCORD_IDS ?? "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -45,6 +52,13 @@ export const authConfig = {
   ],
   adapter: PrismaAdapter(db),
   callbacks: {
+    // Gate sign-in to the allowlist (by Discord user ID). If the allowlist is
+    // empty, anyone with a Discord account may sign in.
+    signIn: ({ account }) => {
+      if (ALLOWED_DISCORD_IDS.length === 0) return true;
+      if (account?.provider !== "discord") return false;
+      return ALLOWED_DISCORD_IDS.includes(account.providerAccountId);
+    },
     session: ({ session, user }) => ({
       ...session,
       user: {

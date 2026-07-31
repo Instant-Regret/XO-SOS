@@ -567,6 +567,30 @@ export const frcRouter = createTRPCRouter({
       }),
     ),
 
+  // Aggregate of every owner of each team across all boards for a season.
+  // Drives the read-only pick column on the top-100 / event views, where a
+  // team can be owned in more than one region. "ours" collapses to "Ours";
+  // taken picks contribute their drafter handle.
+  pickOwnersForYear: publicProcedure
+    .input(yearInput)
+    .query(async ({ ctx, input }) => {
+      const picks = await ctx.db.pick.findMany({
+        where: { year: input.year, status: { not: "available" } },
+        select: { teamNumber: true, status: true, by: true },
+      });
+      const byTeam = new Map<number, Set<string>>();
+      for (const p of picks) {
+        const owner = p.status === "ours" ? "Ours" : (p.by ?? "Taken");
+        const set = byTeam.get(p.teamNumber) ?? new Set<string>();
+        set.add(owner);
+        byTeam.set(p.teamNumber, set);
+      }
+      return [...byTeam.entries()].map(([teamNumber, owners]) => ({
+        teamNumber,
+        owners: [...owners].sort(),
+      }));
+    }),
+
   // All star ratings for a season, polled like picks so ratings stay shared.
   ratingsForYear: publicProcedure
     .input(yearInput)

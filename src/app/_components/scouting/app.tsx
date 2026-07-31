@@ -212,13 +212,17 @@ function ScoutingBoard() {
       ? parseInt(selectedDistrictKey.slice(0, 4), 10)
       : selectedYear;
 
+  // Picks are only editable on a region/district board. The top-100 (global)
+  // and individual-event boards are read-only and show aggregated owners.
+  const canPick = !!selectedDistrictKey && !selectedEventKey;
+
   const draftersQ = api.frc.drafters.useQuery({ year: scopeYear });
   const drafters = useMemo(() => draftersQ.data ?? [], [draftersQ.data]);
 
-  // Shared draft state, polled so every scout converges on the same picks.
+  // Editable, per-board picks (region board only).
   const picksQ = api.frc.picksForScope.useQuery(
     { scopeKey },
-    { refetchInterval: 8000, refetchOnWindowFocus: true },
+    { enabled: canPick, refetchInterval: 8000, refetchOnWindowFocus: true },
   );
   const picksByTeam = useMemo(() => {
     const m = new Map<number, Pick>();
@@ -230,6 +234,18 @@ function ScoutingBoard() {
     }
     return m;
   }, [picksQ.data]);
+
+  // Read-only aggregate of owners across every board for the season, for the
+  // top-100 / event views.
+  const ownersQ = api.frc.pickOwnersForYear.useQuery(
+    { year: scopeYear },
+    { enabled: !canPick, refetchInterval: 8000, refetchOnWindowFocus: true },
+  );
+  const ownersByTeam = useMemo(() => {
+    const m = new Map<number, string[]>();
+    for (const r of ownersQ.data ?? []) m.set(r.teamNumber, r.owners);
+    return m;
+  }, [ownersQ.data]);
 
   // Pick cycle: available → ours → taken by each drafter, built from the
   // per-year drafter list.
@@ -343,6 +359,26 @@ function ScoutingBoard() {
         ? `data:image/png;base64,${b64}`
         : `https://www.thebluealliance.com/avatar/${year}/frc${number}.png`;
 
+    // Pick fields for a row: editable single pick on a region board, else a
+    // read-only aggregate of all owners across boards.
+    const pickFor = (number: number) => {
+      if (canPick) {
+        const p = picksByTeam.get(number) ?? DEFAULT_PICK;
+        return { pickStatus: p.status, pickedBy: p.by, owners: [] as string[] };
+      }
+      const owners = ownersByTeam.get(number) ?? [];
+      const pickStatus = owners.includes("Ours")
+        ? ("ours" as const)
+        : owners.length
+          ? ("taken" as const)
+          : ("available" as const);
+      return {
+        pickStatus,
+        pickedBy: owners.length ? owners.join(", ") : null,
+        owners,
+      };
+    };
+
     if (selectedEventKey) {
       const data = boardForEventQ.data;
       if (!data) return [];
@@ -357,8 +393,7 @@ function ScoutingBoard() {
           xVal: 0,
           epa: t.epa ?? 0,
           stars: ratingsByTeam.get(t.number) ?? 0,
-          pickStatus: (picksByTeam.get(t.number) ?? DEFAULT_PICK).status,
-          pickedBy: (picksByTeam.get(t.number) ?? DEFAULT_PICK).by,
+          ...pickFor(t.number),
           awardLog: bucketAwards(t.awards),
         };
       });
@@ -378,8 +413,7 @@ function ScoutingBoard() {
           xVal: 0,
           epa: t.epa ?? 0,
           stars: ratingsByTeam.get(t.number) ?? 0,
-          pickStatus: (picksByTeam.get(t.number) ?? DEFAULT_PICK).status,
-          pickedBy: (picksByTeam.get(t.number) ?? DEFAULT_PICK).by,
+          ...pickFor(t.number),
           awardLog: bucketAwards(t.awards),
         };
       });
@@ -396,8 +430,7 @@ function ScoutingBoard() {
         xVal: 0,
         epa: t.epa ?? 0,
         stars: ratingsByTeam.get(t.number) ?? 0,
-        pickStatus: (picksByTeam.get(t.number) ?? DEFAULT_PICK).status,
-        pickedBy: (picksByTeam.get(t.number) ?? DEFAULT_PICK).by,
+        ...pickFor(t.number),
         awardLog: bucketAwards(t.awards),
       };
     });
@@ -405,7 +438,9 @@ function ScoutingBoard() {
     boardForEventQ.data,
     boardQ.data,
     topQ.data,
+    canPick,
     picksByTeam,
+    ownersByTeam,
     ratingsByTeam,
     selectedAbbr,
     selectedEventKey,
@@ -455,6 +490,7 @@ function ScoutingBoard() {
   }, [sorted, filters]);
 
   const cyclePick = (id: string) => {
+    if (!canPick) return; // picks are only editable on a region/district board
     const number = parseInt(id.replace(/^frc/, ""), 10);
     if (!Number.isFinite(number)) return;
     const cur = picksByTeam.get(number) ?? DEFAULT_PICK;
@@ -542,6 +578,7 @@ function ScoutingBoard() {
               onCyclePick={cyclePick}
               onSetStars={setStarsFor}
               emptyMessage={boardEmpty}
+              canPick={canPick}
               pinnedTeams={pinnedTeams}
               colorByTeam={colorByTeam}
               onTogglePin={togglePin}
