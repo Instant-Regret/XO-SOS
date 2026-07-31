@@ -36,6 +36,8 @@ const eventSchema = z.object({
   event_type: z.number().int(),
   event_type_string: z.string(),
   year: z.number().int(),
+  // 0-indexed competition week; null for championships/offseason events.
+  week: z.number().int().nullish(),
   start_date: z.string().nullish(),
   end_date: z.string().nullish(),
   district: z.object({ key: z.string() }).nullish(),
@@ -52,6 +54,14 @@ const teamSchema = z.object({
   country: z.string().nullish(),
 });
 export type TbaTeam = z.infer<typeof teamSchema>;
+
+const mediaSchema = z.object({
+  type: z.string(),
+  details: z.record(z.string(), z.unknown()).nullish(),
+  foreign_key: z.string().nullish(),
+  direct_url: z.string().nullish(),
+});
+export type TbaMedia = z.infer<typeof mediaSchema>;
 
 const awardRecipientSchema = z.object({
   team_key: z.string().nullish(),
@@ -84,6 +94,9 @@ export const tba = {
 
   teamAwards: (teamKey: string, year: number) =>
     tbaFetch(`/team/${teamKey}/awards/${year}`, z.array(awardSchema)),
+
+  teamMedia: (teamKey: string, year: number) =>
+    tbaFetch(`/team/${teamKey}/media/${year}`, z.array(mediaSchema)),
 };
 
 // TBA event_type constants (https://github.com/the-blue-alliance/the-blue-alliance/blob/master/consts/event_type.py)

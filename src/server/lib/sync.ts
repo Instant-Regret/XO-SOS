@@ -2,7 +2,7 @@ import "server-only";
 
 import { db } from "~/server/db";
 import { env } from "~/env";
-import { getTeamYear } from "~/server/lib/statbotics";
+import { getAllTeamYears, getTeamYear } from "~/server/lib/statbotics";
 import { EVENT_TYPE, tba, type TbaEvent, type TbaTeam } from "~/server/lib/tba";
 
 // Process N items concurrently; resolve when all are done. Failures are logged
@@ -59,6 +59,7 @@ async function upsertEvent(event: TbaEvent) {
     eventType: event.event_type,
     eventTypeString: event.event_type_string,
     year: event.year,
+    week: event.week ?? null,
     startDate: event.start_date ?? null,
     endDate: event.end_date ?? null,
     districtKey: event.district?.key ?? null,
@@ -173,6 +174,103 @@ export async function syncTeamAwards(teamKey: string, year: number) {
   }
 }
 
+// TBA serves avatar PNGs via the media endpoint as base64 in
+// `details.base64Image`. We cache them per (team, year) so the leaderboard
+// doesn't depend on TBA at render time and missing avatars don't trigger 404
+// images for every empty cell.
+export async function syncTeamAvatar(
+  teamKey: string,
+  teamNumber: number,
+  year: number,
+  { force = false }: { force?: boolean } = {},
+) {
+  if (!force) {
+    const existing = await db.teamAvatar.findUnique({
+      where: { teamNumber },
+      select: { avatars: true },
+    });
+    if (existing?.avatars.some((a) => a.year === year)) return;
+  }
+
+  const media = await tba.teamMedia(teamKey, year);
+  const avatar = media.find((m) => m.type === "avatar");
+  const base64Raw =
+    (avatar?.details && (avatar.details as { base64Image?: unknown }).base64Image) ?? null;
+  const base64 = typeof base64Raw === "string" ? base64Raw : null;
+  if (!base64) return;
+
+  const existing = await db.teamAvatar.findUnique({
+    where: { teamNumber },
+    select: { avatars: true },
+  });
+  const others = existing?.avatars.filter((a) => a.year !== year) ?? [];
+  const next = [...others, { year, base64 }].sort((a, b) => a.year - b.year);
+  await db.teamAvatar.upsert({
+    where: { teamNumber },
+    create: { teamNumber, avatars: next },
+    update: { avatars: next },
+  });
+}
+
+// One-shot helper: walk every team in Mongo and pull their avatar for `year`
+// from TBA. Skips teams that already have an entry unless `force` is set.
+export async function seedAvatars(
+  year: number,
+  { force = false, concurrency = 4 }: { force?: boolean; concurrency?: number } = {},
+) {
+  const teams = await db.team.findMany({ select: { number: true, key: true } });
+  let saved = 0;
+  let skipped = 0;
+  let missing = 0;
+
+  await pool(teams, concurrency, async (t) => {
+    if (!force) {
+      const existing = await db.teamAvatar.findUnique({
+        where: { teamNumber: t.number },
+        select: { avatars: true },
+      });
+      if (existing?.avatars.some((a) => a.year === year)) {
+        skipped++;
+        return;
+      }
+    }
+    const before = await db.teamAvatar.findUnique({
+      where: { teamNumber: t.number },
+      select: { avatars: true },
+    });
+    await syncTeamAvatar(t.key, t.number, year, { force });
+    const after = await db.teamAvatar.findUnique({
+      where: { teamNumber: t.number },
+      select: { avatars: true },
+    });
+    const had = before?.avatars.some((a) => a.year === year) ?? false;
+    const has = after?.avatars.some((a) => a.year === year) ?? false;
+    if (!had && has) saved++;
+    else if (!has) missing++;
+  });
+
+  return { year, total: teams.length, saved, skipped, missing };
+}
+
+// Merge a single (year, epa) entry into a team's TeamEpa document.
+async function upsertTeamEpa(
+  teamNumber: number,
+  year: number,
+  epaUnitless: number,
+) {
+  const existing = await db.teamEpa.findUnique({
+    where: { teamNumber },
+    select: { epas: true },
+  });
+  const others = existing?.epas.filter((e) => e.year !== year) ?? [];
+  const epas = [...others, { year, epaUnitless }].sort((a, b) => a.year - b.year);
+  await db.teamEpa.upsert({
+    where: { teamNumber },
+    create: { teamNumber, epas },
+    update: { epas },
+  });
+}
+
 export async function syncTeamEpa(teamNumber: number, year: number) {
   const result = await getTeamYear(teamNumber, year);
   if (!result) return;
@@ -184,20 +282,23 @@ export async function syncTeamEpa(teamNumber: number, year: number) {
     });
   }
   if (result.epaUnitless !== null) {
-    const existing = await db.teamEpa.findUnique({
-      where: { teamNumber },
-      select: { epas: true },
-    });
-    const others = existing?.epas.filter((e) => e.year !== year) ?? [];
-    const epas = [...others, { year, epaUnitless: result.epaUnitless }].sort(
-      (a, b) => a.year - b.year,
-    );
-    await db.teamEpa.upsert({
-      where: { teamNumber },
-      create: { teamNumber, epas },
-      update: { epas },
-    });
+    await upsertTeamEpa(teamNumber, year, result.epaUnitless);
   }
+}
+
+// Targeted re-pull of just the EPA values for every known team — far cheaper
+// than a full syncAll, used to repair stale EPAs left behind when Statbotics
+// 500s during a big sync. Tracks how many teams failed even after retries.
+export async function syncAllEpas() {
+  const year = syncYear();
+  return logSync(`syncEpas:${year}`, async () => {
+    const teamYears = await getAllTeamYears(year);
+    const withEpa = teamYears.filter((t) => t.epaUnitless !== null);
+    await pool(withEpa, 10, async (t) =>
+      upsertTeamEpa(t.team, year, t.epaUnitless!),
+    );
+    return { year, fetched: teamYears.length, updated: withEpa.length };
+  });
 }
 
 async function logSync<T>(task: string, fn: () => Promise<T>): Promise<T> {
@@ -255,8 +356,18 @@ export async function syncAll() {
       await syncTeamAwards(t.key, year);
     });
 
-    await pool(teams, 6, async (t) => {
-      await syncTeamEpa(t.number, year);
+    // EPAs via the bulk endpoint (one request per ~1000 teams) so Statbotics
+    // rate-limiting can't leave teams with stale values. DB writes run in
+    // parallel against our own Mongo.
+    const teamYears = await getAllTeamYears(year);
+    await pool(
+      teamYears.filter((t) => t.epaUnitless !== null),
+      10,
+      async (t) => upsertTeamEpa(t.team, year, t.epaUnitless!),
+    );
+
+    await pool(teams, 4, async (t) => {
+      await syncTeamAvatar(t.key, t.number, year);
     });
 
     return { year, districts: districts.length, teams: teams.length, events: events.length };

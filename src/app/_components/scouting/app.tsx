@@ -1,14 +1,22 @@
 "use client";
 
+import { signIn, useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
 
 import { api } from "~/trpc/react";
 
-import { OTHER_PICKERS, bucketAwards, type Pick } from "./data";
+import { bucketAwards, type Pick } from "./data";
+import { DiscordIcon } from "./icons";
 import { Leaderboard } from "./leaderboard";
 import { SchedulePage } from "./schedule";
 import { Sidebar } from "./sidebar";
-import { AccountMenu, Logo, SearchBar, YearPicker } from "./topbar";
+import {
+  AccountMenu,
+  Logo,
+  SearchBar,
+  SyncIndicator,
+  YearPicker,
+} from "./topbar";
 import type {
   ExtraColumn,
   Filters,
@@ -16,12 +24,6 @@ import type {
   Sort,
   TeamView,
 } from "./types";
-
-const PICK_CYCLE: Pick[] = [
-  { status: "available", by: null },
-  { status: "ours", by: null },
-  ...OTHER_PICKERS.map((p) => ({ status: "taken" as const, by: p })),
-];
 
 function buildExtraColumns(selectedYear: number): ExtraColumn[] {
   const years = [0, 1, 2, 3, 4].map((n) => selectedYear - n);
@@ -42,7 +44,53 @@ function buildExtraColumns(selectedYear: number): ExtraColumn[] {
 
 const DEFAULT_PICK: Pick = { status: "available", by: null };
 
+// Distinct colors for pinned teams, shared by the board and the schedule so a
+// team reads the same color in both views.
+const PIN_COLORS = [
+  "#4f8cff", // blue
+  "#ff7a59", // orange
+  "#3ecf8e", // green
+  "#c084fc", // purple
+  "#f6c453", // yellow
+  "#ff6b9d", // pink
+  "#22d3ee", // cyan
+  "#a3e635", // lime
+];
+
+// Auth gate: until a session exists, hide the entire board and show only a
+// sign-in prompt. Keeping the board in a separate component means none of its
+// tRPC queries fire while signed out.
 export function ScoutingApp() {
+  const { status } = useSession();
+
+  if (status === "authenticated") return <ScoutingBoard />;
+
+  return (
+    <div className="auth-gate theme-dark">
+      <div className="auth-card">
+        <div className="logo-mark auth-logo">
+          <span>X</span>
+          <span>O</span>
+        </div>
+        <div className="auth-title">XO Sauce</div>
+        <div className="auth-sub">Scouting Board</div>
+        {status === "loading" ? (
+          <div className="auth-loading">Loading…</div>
+        ) : (
+          <button
+            className="btn btn-primary auth-signin"
+            onClick={() => void signIn("discord")}
+          >
+            <DiscordIcon />
+            Sign in with Discord
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ScoutingBoard() {
   const [page, setPage] = useState<PageId>("board");
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<Filters>({
@@ -52,12 +100,50 @@ export function ScoutingApp() {
     search: null,
   });
   const [sort, setSort] = useState<Sort>({ key: "epa", dir: "desc" });
-  const [selectedYear, setSelectedYear] = useState(2024);
+  const [selectedYear, setSelectedYear] = useState(2026);
 
-  // Local-only scouting state. Keys are "{year}:{teamNumber}" so picks/stars
-  // stay separate per season.
-  const [picks, setPicks] = useState<Record<string, Pick>>({});
-  const [stars, setStars] = useState<Record<string, number>>({});
+  // Schedule pin state lives here (not in SchedulePage) so pins survive
+  // switching between the board and schedule tabs.
+  const [pinnedTeams, setPinnedTeams] = useState<Set<number>>(new Set());
+
+  // Space clears all pins, except while typing in a field.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.code !== "Space") return;
+      const el = document.activeElement as HTMLElement | null;
+      const tag = el?.tagName;
+      if (
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        tag === "SELECT" ||
+        el?.isContentEditable
+      ) {
+        return;
+      }
+      e.preventDefault();
+      setPinnedTeams((prev) => (prev.size ? new Set() : prev));
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Assign each pinned team a stable color (by team number).
+  const colorByTeam = useMemo(() => {
+    const m = new Map<number, string>();
+    [...pinnedTeams]
+      .sort((a, b) => a - b)
+      .forEach((n, i) => m.set(n, PIN_COLORS[i % PIN_COLORS.length]!));
+    return m;
+  }, [pinnedTeams]);
+
+  const togglePin = (n: number) =>
+    setPinnedTeams((prev) => {
+      const next = new Set(prev);
+      if (next.has(n)) next.delete(n);
+      else next.add(n);
+      return next;
+    });
+
 
   // The user picks a district by abbreviation; we resolve to the year-specific
   // districtKey from the districts list. That way the selection follows you
@@ -65,30 +151,46 @@ export function ScoutingApp() {
   // in both seasons.
   const [selectedAbbr, setSelectedAbbr] = useState<string | null>(null);
 
-  const districtsQ = api.frc.districts.useQuery({ year: selectedYear });
-  const districts = useMemo(
+  // A specific event picked from the search bar. Takes precedence over the
+  // region selection for the board view.
+  const [selectedEventKey, setSelectedEventKey] = useState<string | null>(null);
+
+  const allDistrictsQ = api.frc.allDistricts.useQuery();
+  const allEventsQ = api.frc.allEvents.useQuery();
+  const allDistricts = useMemo(
     () =>
-      (districtsQ.data ?? []).map((d) => ({
+      (allDistrictsQ.data ?? []).map((d) => ({
         key: d.key,
         abbreviation: d.abbreviation,
         displayName: d.displayName,
         year: d.year,
       })),
-    [districtsQ.data],
+    [allDistrictsQ.data],
   );
 
-  const selectedDistrict = useMemo(
-    () =>
-      selectedAbbr
-        ? (districts.find((d) => d.abbreviation === selectedAbbr) ?? null)
-        : null,
-    [districts, selectedAbbr],
+  // Region selection is purely by abbreviation; the per-year districtKey is
+  // just "{year}{abbr}". Constructing it directly (instead of resolving via
+  // the District collection) means regions that only exist in the
+  // DistrictTeam collection for a given year still load — boardForDistrict
+  // returns empty teams if nothing matches, and the user gets the empty
+  // state instead of silently falling back to the global top-100.
+  const selectedDistrictKey = selectedAbbr
+    ? `${selectedYear}${selectedAbbr}`
+    : null;
+
+  const boardForEventQ = api.frc.boardForEvent.useQuery(
+    { eventKey: selectedEventKey! },
+    { enabled: !!selectedEventKey },
   );
-  const selectedDistrictKey = selectedDistrict?.key ?? null;
 
   const boardQ = api.frc.boardForDistrict.useQuery(
     { districtKey: selectedDistrictKey! },
-    { enabled: !!selectedDistrictKey },
+    { enabled: !!selectedDistrictKey && !selectedEventKey },
+  );
+
+  const topQ = api.frc.topTeamsByYear.useQuery(
+    { year: selectedYear, limit: 100 },
+    { enabled: !selectedDistrictKey && !selectedEventKey },
   );
 
   const scheduleQ = api.frc.scheduleForDistrict.useQuery(
@@ -96,16 +198,148 @@ export function ScoutingApp() {
     { enabled: !!selectedDistrictKey && page === "schedule" },
   );
 
+  // Board identity for collaborative picks. scopeKey is the board itself (so a
+  // team's pick state is independent per district / event / global view), and
+  // scopeYear is the season it belongs to.
+  const scopeKey = selectedEventKey
+    ? selectedEventKey
+    : selectedDistrictKey
+      ? selectedDistrictKey
+      : `global-${selectedYear}`;
+  const scopeYear = selectedEventKey
+    ? parseInt(selectedEventKey.slice(0, 4), 10)
+    : selectedDistrictKey
+      ? parseInt(selectedDistrictKey.slice(0, 4), 10)
+      : selectedYear;
+
+  // Picks are only editable on a region/district board. The top-100 (global)
+  // and individual-event boards are read-only and show aggregated owners.
+  const canPick = !!selectedDistrictKey && !selectedEventKey;
+
+  const draftersQ = api.frc.drafters.useQuery({ year: scopeYear });
+  const drafters = useMemo(() => draftersQ.data ?? [], [draftersQ.data]);
+
+  // Editable, per-board picks (region board only).
+  const picksQ = api.frc.picksForScope.useQuery(
+    { scopeKey },
+    { enabled: canPick, refetchInterval: 8000, refetchOnWindowFocus: true },
+  );
+  const picksByTeam = useMemo(() => {
+    const m = new Map<number, Pick>();
+    for (const p of picksQ.data ?? []) {
+      m.set(p.teamNumber, {
+        status: p.status as Pick["status"],
+        by: p.by ?? null,
+      });
+    }
+    return m;
+  }, [picksQ.data]);
+
+  // Read-only aggregate of owners across every board for the season, for the
+  // top-100 / event views.
+  const ownersQ = api.frc.pickOwnersForYear.useQuery(
+    { year: scopeYear },
+    { enabled: !canPick, refetchInterval: 8000, refetchOnWindowFocus: true },
+  );
+  const ownersByTeam = useMemo(() => {
+    const m = new Map<number, string[]>();
+    for (const r of ownersQ.data ?? []) m.set(r.teamNumber, r.owners);
+    return m;
+  }, [ownersQ.data]);
+
+  // Pick cycle: available → ours → taken by each drafter, built from the
+  // per-year drafter list.
+  const pickCycle = useMemo<Pick[]>(
+    () => [
+      { status: "available", by: null },
+      { status: "ours", by: null },
+      ...drafters.map((d) => ({ status: "taken" as const, by: d })),
+    ],
+    [drafters],
+  );
+
+  const utils = api.useUtils();
+  const setPickM = api.frc.setPick.useMutation({
+    // Optimistic update so the clicking scout sees the change instantly; other
+    // scouts pick it up on the next poll.
+    onMutate: async (vars) => {
+      await utils.frc.picksForScope.cancel({ scopeKey: vars.scopeKey });
+      const prev = utils.frc.picksForScope.getData({ scopeKey: vars.scopeKey });
+      utils.frc.picksForScope.setData({ scopeKey: vars.scopeKey }, (old) => {
+        const list = old ? [...old] : [];
+        const next = {
+          teamNumber: vars.teamNumber,
+          status: vars.status,
+          by: vars.status === "taken" ? (vars.by ?? null) : null,
+        };
+        const idx = list.findIndex((p) => p.teamNumber === vars.teamNumber);
+        if (idx >= 0) list[idx] = next;
+        else list.push(next);
+        return list;
+      });
+      return { prev };
+    },
+    onError: (_err, vars, ctx) => {
+      if (ctx?.prev) {
+        utils.frc.picksForScope.setData({ scopeKey: vars.scopeKey }, ctx.prev);
+      }
+    },
+    onSettled: (_data, _err, vars) => {
+      void utils.frc.picksForScope.invalidate({ scopeKey: vars.scopeKey });
+    },
+  });
+
+  // Shared star ratings, keyed by season and polled like picks.
+  const ratingsQ = api.frc.ratingsForYear.useQuery(
+    { year: scopeYear },
+    { refetchInterval: 8000, refetchOnWindowFocus: true },
+  );
+  const ratingsByTeam = useMemo(() => {
+    const m = new Map<number, number>();
+    for (const r of ratingsQ.data ?? []) m.set(r.teamNumber, r.stars);
+    return m;
+  }, [ratingsQ.data]);
+
+  const setRatingM = api.frc.setRating.useMutation({
+    onMutate: async (vars) => {
+      await utils.frc.ratingsForYear.cancel({ year: vars.year });
+      const prev = utils.frc.ratingsForYear.getData({ year: vars.year });
+      utils.frc.ratingsForYear.setData({ year: vars.year }, (old) => {
+        const list = old ? [...old] : [];
+        const idx = list.findIndex((r) => r.teamNumber === vars.teamNumber);
+        const next = { teamNumber: vars.teamNumber, stars: vars.stars };
+        if (idx >= 0) list[idx] = next;
+        else list.push(next);
+        return list;
+      });
+      return { prev };
+    },
+    onError: (_err, vars, ctx) => {
+      if (ctx?.prev) {
+        utils.frc.ratingsForYear.setData({ year: vars.year }, ctx.prev);
+      }
+    },
+    onSettled: (_data, _err, vars) => {
+      void utils.frc.ratingsForYear.invalidate({ year: vars.year });
+    },
+  });
+
   const extraColumns = useMemo(
     () => buildExtraColumns(selectedYear),
     [selectedYear],
   );
 
-  // Auto-pick a district if the user types its abbreviation exactly.
+  // Auto-pick a district if the user types its abbreviation exactly. When the
+  // search is cleared, drop the selection so the board falls back to the
+  // global top-100 view.
   useEffect(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return;
-    const exact = districts.find(
+    if (!q) {
+      if (selectedAbbr !== null) setSelectedAbbr(null);
+      if (selectedEventKey !== null) setSelectedEventKey(null);
+      return;
+    }
+    const exact = allDistricts.find(
       (d) =>
         d.abbreviation.toLowerCase() === q ||
         d.key.toLowerCase() === q ||
@@ -113,31 +347,104 @@ export function ScoutingApp() {
     );
     if (exact && exact.abbreviation !== selectedAbbr) {
       setSelectedAbbr(exact.abbreviation);
+      setSelectedEventKey(null);
     }
-  }, [search, districts, selectedAbbr]);
+  }, [search, allDistricts, selectedAbbr, selectedEventKey]);
 
-  // Build the row view from the tRPC payload + local pick/star state.
+  // Build the row view from whichever tRPC payload is active (district board
+  // when one is selected, else global top-100) plus local pick/star state.
   const teamsForYear: TeamView[] = useMemo(() => {
-    const data = boardQ.data;
-    if (!data || !selectedDistrict) return [];
-    const districtChip = selectedDistrict.abbreviation.toUpperCase();
-    return data.teams.map((t) => {
-      const localKey = `${data.year}:${t.number}`;
+    const buildAvatarUrl = (year: number, number: number, b64: string | null) =>
+      b64
+        ? `data:image/png;base64,${b64}`
+        : `https://www.thebluealliance.com/avatar/${year}/frc${number}.png`;
+
+    // Pick fields for a row: editable single pick on a region board, else a
+    // read-only aggregate of all owners across boards.
+    const pickFor = (number: number) => {
+      if (canPick) {
+        const p = picksByTeam.get(number) ?? DEFAULT_PICK;
+        return { pickStatus: p.status, pickedBy: p.by, owners: [] as string[] };
+      }
+      const owners = ownersByTeam.get(number) ?? [];
+      const pickStatus = owners.includes("Ours")
+        ? ("ours" as const)
+        : owners.length
+          ? ("taken" as const)
+          : ("available" as const);
       return {
-        _id: t.key, // "frc{number}"
+        pickStatus,
+        pickedBy: owners.length ? owners.join(", ") : null,
+        owners,
+      };
+    };
+
+    if (selectedEventKey) {
+      const data = boardForEventQ.data;
+      if (!data) return [];
+      const eventChip = selectedEventKey.replace(/^\d{4}/, "").toUpperCase();
+      return data.teams.map((t) => {
+        return {
+          _id: t.key,
+          number: t.number,
+          name: t.nickname ?? t.name ?? `Team ${t.number}`,
+          region: eventChip,
+          avatarUrl: buildAvatarUrl(data.year, t.number, t.avatarB64),
+          xVal: 0,
+          epa: t.epa ?? 0,
+          stars: ratingsByTeam.get(t.number) ?? 0,
+          ...pickFor(t.number),
+          awardLog: bucketAwards(t.awards),
+        };
+      });
+    }
+
+    if (selectedAbbr) {
+      const data = boardQ.data;
+      if (!data) return [];
+      const districtChip = selectedAbbr.toUpperCase();
+      return data.teams.map((t) => {
+        return {
+          _id: t.key,
+          number: t.number,
+          name: t.nickname ?? t.name ?? `Team ${t.number}`,
+          region: districtChip,
+          avatarUrl: buildAvatarUrl(data.year, t.number, t.avatarB64),
+          xVal: 0,
+          epa: t.epa ?? 0,
+          stars: ratingsByTeam.get(t.number) ?? 0,
+          ...pickFor(t.number),
+          awardLog: bucketAwards(t.awards),
+        };
+      });
+    }
+    const data = topQ.data;
+    if (!data) return [];
+    return data.teams.map((t) => {
+      return {
+        _id: t.key,
         number: t.number,
         name: t.nickname ?? t.name ?? `Team ${t.number}`,
-        region: districtChip,
-        avatarUrl: `https://www.thebluealliance.com/avatar/${data.year}/frc${t.number}.png`,
+        region: t.districtAbbr ? t.districtAbbr.toUpperCase() : "—",
+        avatarUrl: buildAvatarUrl(data.year, t.number, t.avatarB64),
         xVal: 0,
         epa: t.epa ?? 0,
-        stars: stars[localKey] ?? 0,
-        pickStatus: (picks[localKey] ?? DEFAULT_PICK).status,
-        pickedBy: (picks[localKey] ?? DEFAULT_PICK).by,
+        stars: ratingsByTeam.get(t.number) ?? 0,
+        ...pickFor(t.number),
         awardLog: bucketAwards(t.awards),
       };
     });
-  }, [boardQ.data, picks, stars, selectedDistrict]);
+  }, [
+    boardForEventQ.data,
+    boardQ.data,
+    topQ.data,
+    canPick,
+    picksByTeam,
+    ownersByTeam,
+    ratingsByTeam,
+    selectedAbbr,
+    selectedEventKey,
+  ]);
 
   const sorted = useMemo(() => {
     const arr = [...teamsForYear];
@@ -183,35 +490,42 @@ export function ScoutingApp() {
   }, [sorted, filters]);
 
   const cyclePick = (id: string) => {
-    if (!boardQ.data) return;
+    if (!canPick) return; // picks are only editable on a region/district board
     const number = parseInt(id.replace(/^frc/, ""), 10);
     if (!Number.isFinite(number)) return;
-    const localKey = `${boardQ.data.year}:${number}`;
-    setPicks((prev) => {
-      const cur = prev[localKey] ?? DEFAULT_PICK;
-      const idx = PICK_CYCLE.findIndex(
-        (p) => p.status === cur.status && p.by === (cur.by ?? null),
-      );
-      const next = PICK_CYCLE[(Math.max(0, idx) + 1) % PICK_CYCLE.length]!;
-      return { ...prev, [localKey]: { status: next.status, by: next.by } };
+    const cur = picksByTeam.get(number) ?? DEFAULT_PICK;
+    const idx = pickCycle.findIndex(
+      (p) => p.status === cur.status && (p.by ?? null) === (cur.by ?? null),
+    );
+    const next = pickCycle[(Math.max(0, idx) + 1) % pickCycle.length]!;
+    setPickM.mutate({
+      scopeKey,
+      year: scopeYear,
+      teamNumber: number,
+      status: next.status,
+      by: next.by,
     });
   };
 
   const setStarsFor = (id: string, value: number) => {
-    if (!boardQ.data) return;
     const number = parseInt(id.replace(/^frc/, ""), 10);
     if (!Number.isFinite(number)) return;
-    const localKey = `${boardQ.data.year}:${number}`;
-    setStars((prev) => ({ ...prev, [localKey]: value }));
+    setRatingM.mutate({ year: scopeYear, teamNumber: number, stars: value });
   };
 
   const events = scheduleQ.data ?? [];
 
-  const boardEmpty = !selectedDistrictKey
-    ? "Search a district above to load teams."
-    : boardQ.isLoading
+  const boardEmpty = selectedEventKey
+    ? boardForEventQ.isLoading
       ? "Loading teams…"
-      : "No teams in this district.";
+      : "No teams for this event."
+    : selectedDistrictKey
+      ? boardQ.isLoading
+        ? "Loading teams…"
+        : "No teams in this district."
+      : topQ.isLoading
+        ? "Loading top teams…"
+        : "No teams found for this season.";
 
   return (
     <div className="app theme-dark">
@@ -220,16 +534,24 @@ export function ScoutingApp() {
         <SearchBar
           value={search}
           onChange={setSearch}
-          districts={districts}
-          loading={districtsQ.isLoading}
+          districts={allDistricts}
+          events={allEventsQ.data ?? []}
+          loading={allDistrictsQ.isLoading}
           onPickDistrict={(d) => {
+            setSelectedEventKey(null);
             setSelectedAbbr(d.abbreviation);
             setSearch(d.abbreviation.toUpperCase());
           }}
+          onPickEvent={(e) => {
+            setSelectedAbbr(null);
+            setSelectedEventKey(e.key);
+            setSearch(e.key.replace(/^\d{4}/, "").toUpperCase());
+          }}
         />
         <div className="topbar-right">
+          <SyncIndicator />
           <YearPicker value={selectedYear} onChange={setSelectedYear} />
-          <AccountMenu />
+          <AccountMenu year={selectedYear} />
         </div>
       </header>
 
@@ -256,14 +578,22 @@ export function ScoutingApp() {
               onCyclePick={cyclePick}
               onSetStars={setStarsFor}
               emptyMessage={boardEmpty}
+              canPick={canPick}
+              pinnedTeams={pinnedTeams}
+              colorByTeam={colorByTeam}
+              onTogglePin={togglePin}
             />
           )}
           {page === "schedule" && (
             <SchedulePage
-              districtAbbr={selectedDistrict?.abbreviation ?? null}
+              districtAbbr={selectedAbbr}
               districtKey={selectedDistrictKey}
               events={events}
               loading={scheduleQ.isLoading}
+              pinnedTeams={pinnedTeams}
+              colorByTeam={colorByTeam}
+              onTogglePin={togglePin}
+              onClearPins={() => setPinnedTeams(new Set())}
             />
           )}
         </main>

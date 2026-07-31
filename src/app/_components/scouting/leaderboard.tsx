@@ -22,6 +22,10 @@ export function Leaderboard({
   onCyclePick,
   onSetStars,
   emptyMessage,
+  canPick,
+  pinnedTeams,
+  colorByTeam,
+  onTogglePin,
 }: {
   teams: TeamView[];
   allTeams: TeamView[];
@@ -33,7 +37,18 @@ export function Leaderboard({
   onCyclePick: (id: string) => void;
   onSetStars: (id: string, stars: number) => void;
   emptyMessage?: string;
+  // Picks are editable only on a region board; elsewhere the column is a
+  // read-only list of owners.
+  canPick: boolean;
+  // Pinning teams here drives the schedule's per-team highlight/colors.
+  pinnedTeams: Set<number>;
+  colorByTeam: Map<number, string>;
+  onTogglePin: (n: number) => void;
 }) {
+  // Statbotics "unitless" EPA runs on a ~1500-avg, ~2000-top scale, so a raw
+  // percentage bar would peg every team at 100%. Scale each bar against the
+  // strongest team in view instead so the bars are actually comparable.
+  const maxEpa = Math.max(1, ...allTeams.map((t) => t.epa));
   const toggleSort = (key: string) => {
     setSort((s) =>
       s.key === key
@@ -92,7 +107,7 @@ export function Leaderboard({
           </div>
           <div className="col-region">
             <ColHeader
-              label="District"
+              label="Region"
               sortKey="region"
               sortState={sort}
               onSort={toggleSort}
@@ -163,6 +178,7 @@ export function Leaderboard({
                       onChange={(v) =>
                         setFilters((f) => ({ ...f, minStars: v }))
                       }
+                      max={3}
                       size={18}
                     />
                     <div className="pop-actions">
@@ -183,7 +199,7 @@ export function Leaderboard({
           </div>
           <div className="col-pick">
             <ColHeader
-              label="Pick status"
+              label="Pick"
               sortKey="pickStatus"
               sortState={sort}
               onSort={toggleSort}
@@ -248,12 +264,26 @@ export function Leaderboard({
 
         {teams.map((t) => {
           const rank = allTeams.findIndex((x) => x._id === t._id) + 1;
+          const isPinned = pinnedTeams.has(t.number);
+          const pinColor = colorByTeam.get(t.number);
           return (
-            <div key={t._id} className="row">
+            <div
+              key={t._id}
+              className={`row${isPinned ? " row-pinned" : ""}`}
+              style={
+                isPinned
+                  ? ({ "--pin": pinColor } as React.CSSProperties)
+                  : undefined
+              }
+            >
               <div className="col-rank">
                 <span className="rank">{String(rank).padStart(2, "0")}</span>
               </div>
-              <div className="col-team">
+              <div
+                className="col-team col-team-pin"
+                onClick={() => onTogglePin(t.number)}
+                title={isPinned ? "Unpin from schedule" : "Pin to schedule"}
+              >
                 <TeamMark team={t} />
                 <div className="team-info">
                   <div className="team-name">{t.number}</div>
@@ -274,7 +304,9 @@ export function Leaderboard({
                 <div className="xval-bar">
                   <div
                     className="xval-fill epa-fill"
-                    style={{ width: `${Math.min(100, t.epa)}%` }}
+                    style={{
+                      width: `${Math.max(0, Math.min(100, (t.epa / maxEpa) * 100))}%`,
+                    }}
                   />
                 </div>
               </div>
@@ -282,14 +314,30 @@ export function Leaderboard({
                 <StarRating
                   value={t.stars}
                   onChange={(v) => onSetStars(t._id, v)}
+                  max={3}
                 />
               </div>
               <div className="col-pick">
-                <PickPill
-                  status={t.pickStatus}
-                  pickedBy={t.pickedBy}
-                  onClick={() => onCyclePick(t._id)}
-                />
+                {canPick ? (
+                  <PickPill
+                    status={t.pickStatus}
+                    pickedBy={t.pickedBy}
+                    onClick={() => onCyclePick(t._id)}
+                  />
+                ) : t.owners.length > 0 ? (
+                  <div className="owners-cell">
+                    {t.owners.map((o) => (
+                      <span
+                        key={o}
+                        className={`owner-chip ${o === "Ours" ? "owner-ours" : ""}`}
+                      >
+                        {o}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="owners-empty">—</span>
+                )}
               </div>
               {extraColumns.map((c) => (
                 <div key={c.key} className="col-extra extra-cell">

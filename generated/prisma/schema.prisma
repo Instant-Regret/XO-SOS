@@ -92,6 +92,7 @@ model Event {
   eventType       Int // TBA event_type: 0=regional, 1=district, 2=district_cmp, ...
   eventTypeString String
   year            Int
+  week            Int? // 0-indexed competition week; null for champs/offseason
   startDate       String?
   endDate         String?
   districtKey     String?
@@ -139,6 +140,20 @@ model DistrictTeam {
   teamNumbers Int[]
 }
 
+type AvatarEntry {
+  year   Int
+  base64 String // raw base64-encoded PNG bytes, no data: prefix
+}
+
+// One document per team holding avatar bytes per year. Stored inline so the
+// leaderboard query can return rows + avatars in a single round-trip.
+model TeamAvatar {
+  id         String        @id @default(auto()) @map("_id") @db.ObjectId
+  teamNumber Int           @unique
+  avatars    AvatarEntry[]
+  updatedAt  DateTime      @updatedAt
+}
+
 type AwardEntry {
   eventKey  String
   awardType Int
@@ -161,4 +176,44 @@ model SyncLog {
   finishedAt DateTime
 
   @@index([task, startedAt])
+}
+
+// Shared, collaborative draft state. One document per (scopeKey, teamNumber).
+// scopeKey is the board the pick belongs to — a districtKey ("2026chs"), an
+// eventKey ("2026ausc"), or "global-{year}" for the top-100 view — so the same
+// team can be drafted independently in a district and a regional.
+model Pick {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  scopeKey   String
+  year       Int
+  teamNumber Int
+  status     String // "available" | "ours" | "taken"
+  by         String? // drafter handle (e.g. "@kai") when taken
+  updatedBy  String? // user who last changed it
+  updatedAt  DateTime @updatedAt
+
+  @@unique([scopeKey, teamNumber])
+  @@index([scopeKey])
+}
+
+// Per-year list of drafter handles used to populate the pick cycle.
+model Draft {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  year      Int      @unique
+  drafters  String[]
+  updatedAt DateTime @updatedAt
+}
+
+// Shared star ratings. Unlike picks, a rating is intrinsic to the team for a
+// season, so it's keyed by (year, teamNumber) rather than by board.
+model Rating {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  year       Int
+  teamNumber Int
+  stars      Int
+  updatedBy  String?
+  updatedAt  DateTime @updatedAt
+
+  @@unique([year, teamNumber])
+  @@index([year])
 }

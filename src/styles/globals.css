@@ -81,7 +81,7 @@ body {
   grid-template-columns: auto 1fr auto;
   gap: 20px;
   align-items: center;
-  padding: 12px 24px;
+  padding: 12px 16px;
   background: color-mix(in oklch, var(--surface) 88%, transparent);
   backdrop-filter: saturate(140%) blur(10px);
   border-bottom: 1px solid var(--border);
@@ -207,6 +207,14 @@ body {
 .search-item:hover {
   background: var(--surface-2);
   color: var(--ink);
+}
+.search-item-meta {
+  margin-left: auto;
+  padding-left: 8px;
+  font-size: 11px;
+  color: var(--ink-3);
+  white-space: nowrap;
+  flex: none;
 }
 
 .btn {
@@ -429,7 +437,7 @@ body {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 8px 24px;
+  padding: 8px 12px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   position: sticky;
@@ -474,8 +482,36 @@ body {
   min-height: calc(100vh - 120px);
 }
 .main {
-  padding: 24px 24px 80px;
+  padding: 20px 12px 80px;
   min-width: 0;
+}
+
+/* Themed, slim scrollbars for the horizontally-scrolling areas. */
+.board-scroll,
+.event-columns {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+.board-scroll::-webkit-scrollbar,
+.event-columns::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+.board-scroll::-webkit-scrollbar-track,
+.event-columns::-webkit-scrollbar-track {
+  background: transparent;
+}
+.board-scroll::-webkit-scrollbar-thumb,
+.event-columns::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.board-scroll::-webkit-scrollbar-thumb:hover,
+.event-columns::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-3);
+  background-clip: padding-box;
 }
 
 /* ============= Board ============= */
@@ -486,29 +522,29 @@ body {
   background: var(--surface);
 }
 .board {
-  min-width: 1980px;
+  min-width: 1100px;
 }
 .board-head,
 .row {
   display: grid;
   grid-template-columns:
-    48px
-    minmax(190px, 1.4fr)
-    80px
-    110px
+    34px
+    minmax(140px, 1fr)
     72px
-    100px
-    140px
-    repeat(8, minmax(78px, 1fr))
-    minmax(180px, 1.2fr);
-  gap: 8px;
+    80px
+    60px
+    74px
+    96px
+    repeat(8, minmax(42px, 0.7fr))
+    minmax(132px, 1.1fr);
+  gap: 6px;
   align-items: center;
-  padding: 10px 14px;
+  padding: 8px 12px;
 }
 .board-head {
   background: var(--surface-2);
   border-bottom: 1px solid var(--border);
-  padding: 0 16px;
+  padding: 0 12px;
   height: 42px;
   position: sticky;
   top: 0;
@@ -523,6 +559,15 @@ body {
 }
 .row:hover {
   background: var(--surface-2);
+}
+.col-team-pin {
+  cursor: pointer;
+}
+.row-pinned {
+  box-shadow: inset 3px 0 0 var(--pin, var(--accent));
+}
+.row-pinned .team-name {
+  color: var(--pin, var(--accent-ink));
 }
 
 .col-head {
@@ -539,8 +584,8 @@ body {
 .col-head-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px;
+  gap: 4px;
+  padding: 6px 4px;
   border-radius: 4px;
   font-size: 11px;
   font-weight: 600;
@@ -843,7 +888,6 @@ body {
 .award-pop {
   position: absolute;
   z-index: 80;
-  bottom: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
   min-width: 220px;
@@ -855,6 +899,12 @@ body {
   padding: 8px 10px;
   text-align: left;
   pointer-events: none;
+}
+.award-pop-top {
+  bottom: calc(100% + 6px);
+}
+.award-pop-bottom {
+  top: calc(100% + 6px);
 }
 .award-pop-title {
   font-size: 10px;
@@ -886,6 +936,17 @@ body {
   font-size: 11px;
   color: var(--ink-3);
 }
+.award-pop-events {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.award-pop-event-row {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
 .award-pop-event {
   color: var(--ink);
   white-space: nowrap;
@@ -893,10 +954,12 @@ body {
   text-overflow: ellipsis;
 }
 .award-pop-sub {
-  grid-column: 2;
   font-size: 11px;
   color: var(--ink-3);
   font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .banner-count {
   font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
@@ -911,6 +974,11 @@ body {
 .stars {
   display: inline-flex;
   gap: 2px;
+}
+/* Header label is indented by the sort-button padding; match it so the row
+   stars line up under the "Rating" text. */
+.col-stars .stars {
+  padding-left: 6px;
 }
 
 .pick {
@@ -945,12 +1013,39 @@ body {
 }
 .pick-available {
   color: var(--ink);
+  padding: 5px 7px;
+}
+
+/* Read-only owners list (top-100 / event boards). */
+.owners-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+.owner-chip {
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  color: var(--ink-2);
+  border: 1px solid var(--border);
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.owner-chip.owner-ours {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  border-color: color-mix(in oklch, var(--accent) 40%, var(--border));
+}
+.owners-empty {
+  color: var(--ink-3);
+  font-size: 12px;
 }
 .pick-taken {
   background: var(--surface-2);
-  color: var(--ink-3);
-  text-decoration: line-through;
-  text-decoration-color: color-mix(in oklch, var(--ink-3) 50%, transparent);
+  color: var(--ink-2);
 }
 
 .col-extra {
@@ -975,13 +1070,17 @@ body {
 
 /* ============= Schedule ============= */
 .schedule {
-  padding-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 168px);
+  min-height: 0;
 }
 .schedule-head {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+  flex: 0 0 auto;
 }
 .region-block-count {
   font-size: 12px;
@@ -990,12 +1089,14 @@ body {
 
 .event-columns {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(260px, 1fr);
-  gap: 12px;
-  overflow-x: auto;
-  padding-bottom: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
   align-items: stretch;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 .event-col {
   background: var(--surface);
@@ -1003,72 +1104,107 @@ body {
   border-radius: 10px;
   display: flex;
   flex-direction: column;
-  min-height: 260px;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 .event-head {
-  padding: 12px 14px;
+  padding: 8px 10px;
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
+  flex-direction: column;
+  gap: 2px;
   border-bottom: 1px solid var(--border);
   background: var(--surface-2);
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
+  flex: 0 0 auto;
 }
 .event-name {
-  font-weight: 600;
-  font-size: 14px;
-  letter-spacing: -0.01em;
-}
-.event-date {
   font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
-  font-size: 11px;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: visible;
+  text-align: center;
+}
+.event-week {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--ink-3);
+  text-align: center;
+}
+.event-col-pinned {
+  border-color: var(--accent);
+}
+.event-col-pinned .event-head {
+  background: var(--accent-soft);
 }
 
 .event-roster {
-  padding: 4px;
-  flex: 1;
+  padding: 2px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 .roster-row {
-  display: grid;
-  grid-template-columns: 36px 1fr auto auto;
-  gap: 8px;
+  display: flex;
   align-items: center;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 13px;
+  gap: 6px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
   transition: background 100ms, opacity 160ms, transform 160ms;
-  cursor: default;
+  cursor: pointer;
+  min-height: 0;
+}
+.roster-rank {
+  flex: 0 0 auto;
+  width: 16px;
+  text-align: right;
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 10px;
+  color: var(--ink-3);
+}
+.roster-tag {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-3);
+  letter-spacing: 0.02em;
+  flex: 0 0 auto;
 }
 .roster-row:hover {
   background: var(--surface-2);
 }
-.roster-tag {
-  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--ink-3);
-  letter-spacing: 0.04em;
-}
-.roster-name {
-  color: var(--ink);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 .roster-guest-chip {
-  padding: 1px 6px;
+  padding: 0 3px;
   border-radius: 3px;
   background: var(--surface-3);
   color: var(--ink-3);
   font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
   font-size: 9px;
   font-weight: 600;
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+/* Guests stay readable (needed for pick context) but are slightly smaller and
+   tighter than in-district teams to save space. */
+.roster-guest {
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+.roster-guest .roster-tag {
+  font-size: 11px;
+  font-weight: 500;
 }
 .roster-pick {
-  width: 18px;
-  text-align: center;
+  width: 0;
+  flex: 0 0 auto;
   font-size: 12px;
   color: var(--ink-3);
 }
@@ -1087,9 +1223,198 @@ body {
   outline: 1px solid var(--accent);
   transform: translateX(2px);
 }
-.roster-hover .roster-name,
 .roster-hover .roster-tag {
   color: var(--accent-ink);
+}
+.roster-pinned {
+  background: color-mix(in oklch, var(--pin, var(--accent)) 22%, transparent) !important;
+  outline: 1.5px solid var(--pin, var(--accent));
+  transform: translateX(2px);
+}
+.roster-pinned .roster-tag {
+  color: var(--pin, var(--accent-ink));
+}
+.roster-pinned .roster-rank {
+  color: var(--pin, var(--accent-ink));
+  font-weight: 700;
+}
+
+.sync-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.sync-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ink-3);
+  flex: none;
+}
+.sync-fresh .sync-dot {
+  background: var(--ok);
+  box-shadow: 0 0 6px color-mix(in oklch, var(--ok) 70%, transparent);
+}
+.sync-stale .sync-dot {
+  background: var(--star, #f6c453);
+}
+.sync-fresh .sync-label {
+  color: var(--ink-2);
+}
+
+.clear-pins-btn {
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.clear-pins-btn:hover {
+  color: var(--ink);
+  border-color: var(--accent);
+}
+
+.schedule-pins {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+.schedule-pin-chip {
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--pin, var(--accent));
+  background: color-mix(in oklch, var(--pin, var(--accent)) 18%, transparent);
+  color: var(--pin, var(--accent-ink));
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.schedule-pin-chip:hover {
+  background: color-mix(in oklch, var(--pin, var(--accent)) 32%, transparent);
+}
+
+.schedule-clear {
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+.schedule-clear:hover {
+  background: color-mix(in oklch, var(--accent) 22%, transparent);
+}
+
+/* ============= Auth gate ============= */
+.auth-gate {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  color: var(--ink);
+  padding: 24px;
+}
+.auth-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 48px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  text-align: center;
+}
+.auth-logo {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 8px;
+}
+.auth-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.auth-sub {
+  font-size: 13px;
+  color: var(--ink-3);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.auth-signin {
+  margin-top: 20px;
+}
+.auth-loading {
+  margin-top: 20px;
+  color: var(--ink-3);
+  font-size: 13px;
+}
+
+/* ============= Modal ============= */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 24px;
+}
+.modal {
+  width: 100%;
+  max-width: 380px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.modal-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+.modal-sub {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.drafters-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.drafter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.drafter-row .pop-input {
+  flex: 1 1 auto;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 /* ============= Responsive ============= */

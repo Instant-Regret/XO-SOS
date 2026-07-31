@@ -27,8 +27,25 @@ export const OTHER_PICKERS = [
 export const AVAILABLE_YEARS = [2026, 2025, 2024, 2023, 2022];
 
 // Map TBA award_type integers into the four buckets the design uses.
-// 0 = Chairman's / Impact, 1 = Winner, 9 = Engineering Inspiration; everything
-// else is shown under the "technical" wrench bucket.
+// 0 = Chairman's / Impact, 1 = Winner, 9 = Engineering Inspiration; the
+// "technical" wrench bucket is intentionally narrow — only the six awards
+// the scouting team cares about land there.
+const TECHNICAL_AWARD_NAMES = [
+  "autonomous award",
+  "creativity award",
+  "excellence in engineering award",
+  "industrial design award",
+  "innovation in control award",
+  "quality award",
+];
+
+function isTrackedTechnical(name: string) {
+  const n = name.trim().toLowerCase();
+  // TBA names are sometimes sponsor-prefixed ("Autonomous Award sponsored by …")
+  // so match by prefix rather than equality.
+  return TECHNICAL_AWARD_NAMES.some((target) => n.startsWith(target));
+}
+
 export function bucketAwards(
   awards: { eventKey: string; awardType: number; name: string; year: number }[],
 ): AwardLog {
@@ -38,7 +55,7 @@ export function bucketAwards(
     if (a.awardType === 1) log.eventWins.push(entry);
     else if (a.awardType === 0) log.impact.push(entry);
     else if (a.awardType === 9) log.ei.push(entry);
-    else log.technical.push(entry);
+    else if (isTrackedTechnical(a.name)) log.technical.push(entry);
   }
   return log;
 }

@@ -176,6 +176,7 @@ exports.Prisma.EventScalarFieldEnum = {
   eventType: 'eventType',
   eventTypeString: 'eventTypeString',
   year: 'year',
+  week: 'week',
   startDate: 'startDate',
   endDate: 'endDate',
   districtKey: 'districtKey',
@@ -212,6 +213,12 @@ exports.Prisma.DistrictTeamScalarFieldEnum = {
   teamNumbers: 'teamNumbers'
 };
 
+exports.Prisma.TeamAvatarScalarFieldEnum = {
+  id: 'id',
+  teamNumber: 'teamNumber',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.AwardScalarFieldEnum = {
   id: 'id',
   teamNumber: 'teamNumber'
@@ -224,6 +231,33 @@ exports.Prisma.SyncLogScalarFieldEnum = {
   message: 'message',
   startedAt: 'startedAt',
   finishedAt: 'finishedAt'
+};
+
+exports.Prisma.PickScalarFieldEnum = {
+  id: 'id',
+  scopeKey: 'scopeKey',
+  year: 'year',
+  teamNumber: 'teamNumber',
+  status: 'status',
+  by: 'by',
+  updatedBy: 'updatedBy',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DraftScalarFieldEnum = {
+  id: 'id',
+  year: 'year',
+  drafters: 'drafters',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.RatingScalarFieldEnum = {
+  id: 'id',
+  year: 'year',
+  teamNumber: 'teamNumber',
+  stars: 'stars',
+  updatedBy: 'updatedBy',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -249,8 +283,12 @@ exports.Prisma.ModelName = {
   TeamEpa: 'TeamEpa',
   EventTeam: 'EventTeam',
   DistrictTeam: 'DistrictTeam',
+  TeamAvatar: 'TeamAvatar',
   Award: 'Award',
-  SyncLog: 'SyncLog'
+  SyncLog: 'SyncLog',
+  Pick: 'Pick',
+  Draft: 'Draft',
+  Rating: 'Rating'
 };
 
 /**

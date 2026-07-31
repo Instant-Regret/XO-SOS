@@ -1,11 +1,19 @@
 import { z } from "zod";
 
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 
 const yearInput = z.object({ year: z.number().int() });
 const districtInput = z.object({ districtKey: z.string().min(1) });
 const eventInput = z.object({ eventKey: z.string().min(1) });
 const teamInput = z.object({ teamNumber: z.number().int() });
+const scopeInput = z.object({ scopeKey: z.string().min(1) });
+
+// Default drafter handles used when a year has no Draft document yet.
+const DEFAULT_DRAFTERS = ["@kai", "@rho", "@mira", "@vex", "@juno", "@pax"];
 
 export const frcRouter = createTRPCRouter({
   districts: publicProcedure
@@ -16,6 +24,62 @@ export const frcRouter = createTRPCRouter({
         orderBy: { displayName: "asc" },
       }),
     ),
+
+  // Every region across every year, deduped by abbreviation. The search bar
+  // uses this so users can find a region whose abbreviation isn't in the
+  // currently-selected season. The District collection isn't always
+  // comprehensive — DistrictTeam is the source of truth for which regions
+  // exist — so we union both: prefer District rows (they have a displayName)
+  // and fall back to parsing the districtKey ("{year}{abbr}") for any
+  // DistrictTeam without a matching District row.
+  allDistricts: publicProcedure.query(async ({ ctx }) => {
+    const [districts, links] = await Promise.all([
+      ctx.db.district.findMany({ orderBy: [{ year: "desc" }] }),
+      ctx.db.districtTeam.findMany({ select: { districtKey: true } }),
+    ]);
+
+    type Entry = {
+      key: string;
+      abbreviation: string;
+      displayName: string;
+      year: number;
+    };
+    const byAbbr = new Map<string, Entry>();
+
+    for (const d of districts) {
+      const cur = byAbbr.get(d.abbreviation);
+      if (!cur || cur.year < d.year) {
+        byAbbr.set(d.abbreviation, {
+          key: d.key,
+          abbreviation: d.abbreviation,
+          displayName: d.displayName,
+          year: d.year,
+        });
+      }
+    }
+
+    for (const link of links) {
+      const year = parseInt(link.districtKey.slice(0, 4), 10);
+      const abbr = link.districtKey.slice(4);
+      if (!Number.isFinite(year) || !abbr) continue;
+      const cur = byAbbr.get(abbr);
+      if (cur && cur.year >= year) continue;
+      // Either no entry yet, or a newer year exists in DistrictTeam than in
+      // District — fall back to using the abbreviation as the display name.
+      if (!cur) {
+        byAbbr.set(abbr, {
+          key: link.districtKey,
+          abbreviation: abbr,
+          displayName: abbr.toUpperCase(),
+          year,
+        });
+      }
+    }
+
+    return [...byAbbr.values()].sort((a, b) =>
+      a.displayName.localeCompare(b.displayName),
+    );
+  }),
 
   districtEvents: publicProcedure
     .input(districtInput)
@@ -98,7 +162,7 @@ export const frcRouter = createTRPCRouter({
       }
       const numbers = link.teamNumbers;
 
-      const [teams, epaDocs, awardDocs] = await Promise.all([
+      const [teams, epaDocs, awardDocs, avatarDocs] = await Promise.all([
         ctx.db.team.findMany({
           where: { number: { in: numbers } },
           orderBy: { number: "asc" },
@@ -110,6 +174,10 @@ export const frcRouter = createTRPCRouter({
         ctx.db.award.findMany({
           where: { teamNumber: { in: numbers } },
           select: { teamNumber: true, awards: true },
+        }),
+        ctx.db.teamAvatar.findMany({
+          where: { teamNumber: { in: numbers } },
+          select: { teamNumber: true, avatars: true },
         }),
       ]);
 
@@ -127,6 +195,18 @@ export const frcRouter = createTRPCRouter({
         awardsByTeam.set(row.teamNumber, row.awards);
       }
 
+      const avatarByTeam = new Map<number, string | null>();
+      for (const row of avatarDocs) {
+        const exact = row.avatars.find((a) => a.year === year);
+        const fallback =
+          exact ??
+          [...row.avatars]
+            .sort((a, b) => b.year - a.year)
+            .find((a) => a.year <= year) ??
+          null;
+        avatarByTeam.set(row.teamNumber, fallback?.base64 ?? null);
+      }
+
       return {
         year,
         districtKey: input.districtKey,
@@ -139,6 +219,204 @@ export const frcRouter = createTRPCRouter({
           stateProv: t.stateProv,
           country: t.country,
           epa: epaByTeam.get(t.number) ?? null,
+          avatarB64: avatarByTeam.get(t.number) ?? null,
+          awards: awardsByTeam.get(t.number) ?? [],
+        })),
+      };
+    }),
+
+  // Global top-100 leaderboard for a season — drives the default landing view
+  // when no district has been searched.
+  topTeamsByYear: publicProcedure
+    .input(z.object({ year: z.number().int(), limit: z.number().int().min(1).max(500).optional() }))
+    .query(async ({ ctx, input }) => {
+      const limit = input.limit ?? 100;
+      const epaDocs = await ctx.db.teamEpa.findMany({
+        select: { teamNumber: true, epas: true },
+      });
+
+      const ranked = epaDocs
+        .map((row) => {
+          const entry = row.epas.find((e) => e.year === input.year);
+          return entry ? { teamNumber: row.teamNumber, epa: entry.epaUnitless } : null;
+        })
+        .filter((x): x is { teamNumber: number; epa: number } => x !== null)
+        .sort((a, b) => b.epa - a.epa)
+        .slice(0, limit);
+
+      const numbers = ranked.map((r) => r.teamNumber);
+      if (numbers.length === 0) {
+        return { year: input.year, teams: [] };
+      }
+
+      const [teams, awardDocs, avatarDocs, districtLinks] = await Promise.all([
+        ctx.db.team.findMany({ where: { number: { in: numbers } } }),
+        ctx.db.award.findMany({
+          where: { teamNumber: { in: numbers } },
+          select: { teamNumber: true, awards: true },
+        }),
+        ctx.db.teamAvatar.findMany({
+          where: { teamNumber: { in: numbers } },
+          select: { teamNumber: true, avatars: true },
+        }),
+        ctx.db.districtTeam.findMany({
+          where: { districtKey: { startsWith: String(input.year) } },
+          select: { districtKey: true, teamNumbers: true },
+        }),
+      ]);
+
+      // The districtKey is "{year}{abbr}" (e.g. "2024chs"); strip the year
+      // prefix to get the chip text. Scoping the findMany above to the year
+      // means each team appears in at most one entry.
+      const districtByTeam = new Map<number, string>();
+      for (const link of districtLinks) {
+        const abbr = link.districtKey.slice(4);
+        for (const n of link.teamNumbers) {
+          if (numbers.includes(n)) districtByTeam.set(n, abbr);
+        }
+      }
+
+      const teamByNumber = new Map(teams.map((t) => [t.number, t]));
+      const awardsByTeam = new Map<
+        number,
+        { eventKey: string; awardType: number; name: string; year: number }[]
+      >();
+      for (const row of awardDocs) {
+        awardsByTeam.set(row.teamNumber, row.awards);
+      }
+      const avatarByTeam = new Map<number, string | null>();
+      for (const row of avatarDocs) {
+        const exact = row.avatars.find((a) => a.year === input.year);
+        const fallback =
+          exact ??
+          [...row.avatars]
+            .sort((a, b) => b.year - a.year)
+            .find((a) => a.year <= input.year) ??
+          null;
+        avatarByTeam.set(row.teamNumber, fallback?.base64 ?? null);
+      }
+
+      return {
+        year: input.year,
+        teams: ranked.map((r) => {
+          const t = teamByNumber.get(r.teamNumber);
+          return {
+            number: r.teamNumber,
+            key: t?.key ?? `frc${r.teamNumber}`,
+            nickname: t?.nickname ?? null,
+            name: t?.name ?? null,
+            city: t?.city ?? null,
+            stateProv: t?.stateProv ?? null,
+            country: t?.country ?? null,
+            districtAbbr: districtByTeam.get(r.teamNumber) ?? null,
+            epa: r.epa,
+            avatarB64: avatarByTeam.get(r.teamNumber) ?? null,
+            awards: awardsByTeam.get(r.teamNumber) ?? [],
+          };
+        }),
+      };
+    }),
+
+  // Timestamp of the last successful full data sync, for the freshness
+  // indicator. Data is refreshed by a daily cron, so this drives a
+  // "synced Nh ago" badge.
+  lastSync: publicProcedure.query(async ({ ctx }) => {
+    const log = await ctx.db.syncLog.findFirst({
+      where: { status: "success" },
+      orderBy: { finishedAt: "desc" },
+      select: { finishedAt: true },
+    });
+    return { finishedAt: log?.finishedAt ?? null };
+  }),
+
+  // Every event we know about, minimal fields, for the search bar. Newest
+  // first so the current season surfaces at the top of the suggestions.
+  allEvents: publicProcedure.query(async ({ ctx }) => {
+    const events = await ctx.db.event.findMany({
+      orderBy: [{ year: "desc" }, { startDate: "asc" }],
+      select: {
+        key: true,
+        name: true,
+        year: true,
+        week: true,
+        eventTypeString: true,
+        districtKey: true,
+      },
+    });
+    return events;
+  }),
+
+  // Bulk fetch for the leaderboard, scoped to a single event's roster. Mirrors
+  // boardForDistrict but resolves teams through the EventTeam link.
+  boardForEvent: publicProcedure
+    .input(eventInput)
+    .query(async ({ ctx, input }) => {
+      const year = parseInt(input.eventKey.slice(0, 4), 10);
+      const link = await ctx.db.eventTeam.findUnique({
+        where: { eventKey: input.eventKey },
+        select: { teamNumbers: true },
+      });
+      if (!link || link.teamNumbers.length === 0) {
+        return { year, eventKey: input.eventKey, teams: [] };
+      }
+      const numbers = link.teamNumbers;
+
+      const [teams, epaDocs, awardDocs, avatarDocs] = await Promise.all([
+        ctx.db.team.findMany({
+          where: { number: { in: numbers } },
+          orderBy: { number: "asc" },
+        }),
+        ctx.db.teamEpa.findMany({
+          where: { teamNumber: { in: numbers } },
+          select: { teamNumber: true, epas: true },
+        }),
+        ctx.db.award.findMany({
+          where: { teamNumber: { in: numbers } },
+          select: { teamNumber: true, awards: true },
+        }),
+        ctx.db.teamAvatar.findMany({
+          where: { teamNumber: { in: numbers } },
+          select: { teamNumber: true, avatars: true },
+        }),
+      ]);
+
+      const epaByTeam = new Map<number, number | null>();
+      for (const row of epaDocs) {
+        const entry = row.epas.find((e) => e.year === year);
+        epaByTeam.set(row.teamNumber, entry?.epaUnitless ?? null);
+      }
+      const awardsByTeam = new Map<
+        number,
+        { eventKey: string; awardType: number; name: string; year: number }[]
+      >();
+      for (const row of awardDocs) {
+        awardsByTeam.set(row.teamNumber, row.awards);
+      }
+      const avatarByTeam = new Map<number, string | null>();
+      for (const row of avatarDocs) {
+        const exact = row.avatars.find((a) => a.year === year);
+        const fallback =
+          exact ??
+          [...row.avatars]
+            .sort((a, b) => b.year - a.year)
+            .find((a) => a.year <= year) ??
+          null;
+        avatarByTeam.set(row.teamNumber, fallback?.base64 ?? null);
+      }
+
+      return {
+        year,
+        eventKey: input.eventKey,
+        teams: teams.map((t) => ({
+          number: t.number,
+          key: t.key,
+          nickname: t.nickname,
+          name: t.name,
+          city: t.city,
+          stateProv: t.stateProv,
+          country: t.country,
+          epa: epaByTeam.get(t.number) ?? null,
+          avatarB64: avatarByTeam.get(t.number) ?? null,
           awards: awardsByTeam.get(t.number) ?? [],
         })),
       };
@@ -180,26 +458,171 @@ export const frcRouter = createTRPCRouter({
         for (const n of et.teamNumbers) rosterNumberSet.add(n);
       }
 
-      const teams = await ctx.db.team.findMany({
-        where: { number: { in: [...rosterNumberSet] } },
-        select: { number: true, nickname: true },
-      });
+      const rosterNumbers = [...rosterNumberSet];
+      const [teams, epaDocs] = await Promise.all([
+        ctx.db.team.findMany({
+          where: { number: { in: rosterNumbers } },
+          select: { number: true, nickname: true },
+        }),
+        ctx.db.teamEpa.findMany({
+          where: { teamNumber: { in: rosterNumbers } },
+          select: { teamNumber: true, epas: true },
+        }),
+      ]);
       const nicknameByNumber = new Map<number, string | null>();
       for (const t of teams) nicknameByNumber.set(t.number, t.nickname);
+      const epaByNumber = new Map<number, number>();
+      for (const row of epaDocs) {
+        const entry = row.epas.find((e) => e.year === year);
+        if (entry) epaByNumber.set(row.teamNumber, entry.epaUnitless);
+      }
 
       const districtSet = new Set(districtNumbers);
 
-      return events.map((ev) => ({
-        key: ev.key,
-        name: ev.name,
-        year: ev.year,
-        startDate: ev.startDate,
-        endDate: ev.endDate,
-        roster: (rosterByEvent.get(ev.key) ?? []).map((n) => ({
-          number: n,
-          nickname: nicknameByNumber.get(n) ?? null,
-          inDistrict: districtSet.has(n),
-        })),
+      return events.map((ev) => {
+        const roster = (rosterByEvent.get(ev.key) ?? [])
+          .map((n) => ({
+            number: n,
+            nickname: nicknameByNumber.get(n) ?? null,
+            inDistrict: districtSet.has(n),
+            epa: epaByNumber.get(n) ?? null,
+          }))
+          .sort((a, b) => (b.epa ?? -Infinity) - (a.epa ?? -Infinity));
+        return {
+          key: ev.key,
+          name: ev.name,
+          year: ev.year,
+          week: ev.week,
+          startDate: ev.startDate,
+          endDate: ev.endDate,
+          roster,
+        };
+      });
+    }),
+
+  // ---- Collaborative draft state ----
+
+  // All picks for a board (district/event/global). The client polls this so
+  // every signed-in scout converges on the same draft state.
+  picksForScope: publicProcedure
+    .input(scopeInput)
+    .query(({ ctx, input }) =>
+      ctx.db.pick.findMany({
+        where: { scopeKey: input.scopeKey },
+        select: { teamNumber: true, status: true, by: true },
+      }),
+    ),
+
+  // Per-year drafter handles; falls back to the defaults until one is saved.
+  drafters: publicProcedure
+    .input(yearInput)
+    .query(async ({ ctx, input }) => {
+      const doc = await ctx.db.draft.findUnique({
+        where: { year: input.year },
+        select: { drafters: true },
+      });
+      return doc?.drafters ?? DEFAULT_DRAFTERS;
+    }),
+
+  setPick: protectedProcedure
+    .input(
+      z.object({
+        scopeKey: z.string().min(1),
+        year: z.number().int(),
+        teamNumber: z.number().int(),
+        status: z.enum(["available", "ours", "taken"]),
+        by: z.string().nullish(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const updatedBy =
+        ctx.session.user.name ?? ctx.session.user.email ?? ctx.session.user.id;
+      const by = input.status === "taken" ? (input.by ?? null) : null;
+      return ctx.db.pick.upsert({
+        where: {
+          scopeKey_teamNumber: {
+            scopeKey: input.scopeKey,
+            teamNumber: input.teamNumber,
+          },
+        },
+        create: {
+          scopeKey: input.scopeKey,
+          year: input.year,
+          teamNumber: input.teamNumber,
+          status: input.status,
+          by,
+          updatedBy,
+        },
+        update: { status: input.status, by, updatedBy },
+      });
+    }),
+
+  setDrafters: protectedProcedure
+    .input(z.object({ year: z.number().int(), drafters: z.array(z.string()) }))
+    .mutation(({ ctx, input }) =>
+      ctx.db.draft.upsert({
+        where: { year: input.year },
+        create: { year: input.year, drafters: input.drafters },
+        update: { drafters: input.drafters },
+      }),
+    ),
+
+  // Aggregate of every owner of each team across all boards for a season.
+  // Drives the read-only pick column on the top-100 / event views, where a
+  // team can be owned in more than one region. "ours" collapses to "Ours";
+  // taken picks contribute their drafter handle.
+  pickOwnersForYear: publicProcedure
+    .input(yearInput)
+    .query(async ({ ctx, input }) => {
+      const picks = await ctx.db.pick.findMany({
+        where: { year: input.year, status: { not: "available" } },
+        select: { teamNumber: true, status: true, by: true },
+      });
+      const byTeam = new Map<number, Set<string>>();
+      for (const p of picks) {
+        const owner = p.status === "ours" ? "Ours" : (p.by ?? "Taken");
+        const set = byTeam.get(p.teamNumber) ?? new Set<string>();
+        set.add(owner);
+        byTeam.set(p.teamNumber, set);
+      }
+      return [...byTeam.entries()].map(([teamNumber, owners]) => ({
+        teamNumber,
+        owners: [...owners].sort(),
       }));
+    }),
+
+  // All star ratings for a season, polled like picks so ratings stay shared.
+  ratingsForYear: publicProcedure
+    .input(yearInput)
+    .query(({ ctx, input }) =>
+      ctx.db.rating.findMany({
+        where: { year: input.year },
+        select: { teamNumber: true, stars: true },
+      }),
+    ),
+
+  setRating: protectedProcedure
+    .input(
+      z.object({
+        year: z.number().int(),
+        teamNumber: z.number().int(),
+        stars: z.number().int().min(0).max(5),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const updatedBy =
+        ctx.session.user.name ?? ctx.session.user.email ?? ctx.session.user.id;
+      return ctx.db.rating.upsert({
+        where: {
+          year_teamNumber: { year: input.year, teamNumber: input.teamNumber },
+        },
+        create: {
+          year: input.year,
+          teamNumber: input.teamNumber,
+          stars: input.stars,
+          updatedBy,
+        },
+        update: { stars: input.stars, updatedBy },
+      });
     }),
 });
