@@ -22,6 +22,7 @@ export function Leaderboard({
   onCyclePick,
   onSetStars,
   emptyMessage,
+  canPick,
   pinnedTeams,
   colorByTeam,
   onTogglePin,
@@ -36,6 +37,9 @@ export function Leaderboard({
   onCyclePick: (id: string) => void;
   onSetStars: (id: string, stars: number) => void;
   emptyMessage?: string;
+  // Picks are editable only on a region board; elsewhere the column is a
+  // read-only list of owners.
+  canPick: boolean;
   // Pinning teams here drives the schedule's per-team highlight/colors.
   pinnedTeams: Set<number>;
   colorByTeam: Map<number, string>;
@@ -314,11 +318,26 @@ export function Leaderboard({
                 />
               </div>
               <div className="col-pick">
-                <PickPill
-                  status={t.pickStatus}
-                  pickedBy={t.pickedBy}
-                  onClick={() => onCyclePick(t._id)}
-                />
+                {canPick ? (
+                  <PickPill
+                    status={t.pickStatus}
+                    pickedBy={t.pickedBy}
+                    onClick={() => onCyclePick(t._id)}
+                  />
+                ) : t.owners.length > 0 ? (
+                  <div className="owners-cell">
+                    {t.owners.map((o) => (
+                      <span
+                        key={o}
+                        className={`owner-chip ${o === "Ours" ? "owner-ours" : ""}`}
+                      >
+                        {o}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="owners-empty">—</span>
+                )}
               </div>
               {extraColumns.map((c) => (
                 <div key={c.key} className="col-extra extra-cell">

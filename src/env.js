@@ -20,6 +20,9 @@ export const env = createEnv({
     TBA_AUTH_KEY: z.string().min(1),
     CRON_SECRET: z.string().min(1),
     SYNC_YEAR: z.coerce.number().int().optional(),
+    // Comma-separated Discord user IDs allowed to sign in. Empty/unset = open
+    // to anyone with a Discord account.
+    AUTH_ALLOWED_DISCORD_IDS: z.string().optional(),
   },
 
   /**
@@ -44,6 +47,7 @@ export const env = createEnv({
     TBA_AUTH_KEY: process.env.TBA_AUTH_KEY,
     CRON_SECRET: process.env.CRON_SECRET,
     SYNC_YEAR: process.env.SYNC_YEAR,
+    AUTH_ALLOWED_DISCORD_IDS: process.env.AUTH_ALLOWED_DISCORD_IDS,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
