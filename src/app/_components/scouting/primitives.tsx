@@ -158,6 +158,7 @@ function AwardIcon({
   label: string;
 }) {
   const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement | null>(null);
   const popRef = useRef<HTMLDivElement | null>(null);
   const [shift, setShift] = useState(0);
   const [placement, setPlacement] = useState<"top" | "bottom">("top");
@@ -168,16 +169,27 @@ function AwardIcon({
       setPlacement("top");
       return;
     }
-    const el = popRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
+    const pop = popRef.current;
+    const wrap = wrapRef.current;
+    if (!pop || !wrap) return;
+    const rect = pop.getBoundingClientRect();
+    const trigger = wrap.getBoundingClientRect();
     const vw = window.innerWidth;
     const margin = 8;
+
+    // Horizontal: nudge back on-screen.
     let dx = 0;
     if (rect.right > vw - margin) dx = vw - margin - rect.right;
     else if (rect.left < margin) dx = margin - rect.left;
-    if (dx !== 0) setShift(dx);
-    if (rect.top < margin) setPlacement("bottom");
+    setShift(dx);
+
+    // Vertical: prefer showing above, but flip below when there isn't room
+    // above and there's more room below (so tall tooltips aren't clipped).
+    const spaceAbove = trigger.top - margin;
+    const spaceBelow = window.innerHeight - trigger.bottom - margin;
+    setPlacement(
+      rect.height > spaceAbove && spaceBelow > spaceAbove ? "bottom" : "top",
+    );
   }, [open]);
 
   if (!entries || entries.length === 0) return null;
@@ -188,6 +200,7 @@ function AwardIcon({
 
   return (
     <div
+      ref={wrapRef}
       className={`award-icon award-${subkind ?? kind}`}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}

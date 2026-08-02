@@ -204,6 +204,15 @@ model Draft {
   updatedAt DateTime @updatedAt
 }
 
+// Stores the TBA ETag per request path so the next sync can send
+// If-None-Match and skip unchanged endpoints (304 Not Modified).
+model SyncCursor {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  path      String   @unique
+  etag      String
+  updatedAt DateTime @updatedAt
+}
+
 // Shared star ratings. Unlike picks, a rating is intrinsic to the team for a
 // season, so it's keyed by (year, teamNumber) rather than by board.
 model Rating {
