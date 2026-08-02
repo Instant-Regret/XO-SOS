@@ -26,11 +26,11 @@ export function Logo({ onClick }: { onClick: () => void }) {
   return (
     <button className="logo" onClick={onClick}>
       <div className="logo-mark">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="logo-img" src="/xosos.png" alt="XOSOS" />
+        <span>X</span>
+        <span>O</span>
       </div>
       <div className="logo-text">
-        <div className="logo-title">XOSOS</div>
+        <div className="logo-title">XO Sauce</div>
         <div className="logo-sub">Scouting Board</div>
       </div>
     </button>
