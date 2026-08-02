@@ -20,7 +20,10 @@ export async function GET(req: NextRequest) {
     const result = task === "epa" ? await syncAllEpas() : await syncAll();
     return NextResponse.json({ ok: true, result });
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
+    // Log the full error (with stack) so it shows in the function logs, not
+    // just the response body.
+    console.error("[cron/sync] failed:", err);
+    const message = err instanceof Error ? err.stack ?? err.message : String(err);
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
