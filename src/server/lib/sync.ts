@@ -3,6 +3,7 @@ import "server-only";
 import { db } from "~/server/db";
 import { env } from "~/env";
 import { getAllTeamYears, getTeamYear } from "~/server/lib/statbotics";
+import { computeYearScores, syncEventResults } from "~/server/lib/scoring-sync";
 import { EVENT_TYPE, tba, type TbaEvent, type TbaTeam } from "~/server/lib/tba";
 
 // Process N items concurrently; resolve when all are done. Failures are logged
@@ -493,56 +494,88 @@ async function logSync<T>(task: string, fn: () => Promise<T>): Promise<T> {
   }
 }
 
+// Full data pull + score compute for one season. Reused by the daily sync
+// (current year) and the offline backfill (each of the prior years).
+export async function syncYearData(year: number) {
+  const phase = async <T>(label: string, fn: () => Promise<T>): Promise<T> => {
+    const t = Date.now();
+    const r = await fn();
+    console.log(`[sync] ${year} ${label}: ${Date.now() - t}ms`);
+    return r;
+  };
+
+  const districts = await phase("districts+districtData", async () => {
+    const ds = await syncDistricts(year);
+    await Promise.all([
+      pool(ds, 8, async (d) => {
+        await syncDistrictEvents(d.key);
+        await syncDistrictTeams(d.key);
+      }),
+      syncRegionalEvents(year),
+    ]);
+    return ds;
+  });
+
+  const events = await db.event.findMany({
+    where: { year },
+    select: { key: true, eventType: true, startDate: true },
+  });
+
+  await phase("eventTeams", () =>
+    pool(events, 12, async (e) => {
+      await syncEventTeams(e.key);
+    }),
+  );
+
+  await phase("eventAwards", () =>
+    pool(events, 12, async (e) => {
+      await syncEventAwards(e.key);
+    }),
+  );
+
+  await phase("epas", async () => {
+    const teamYears = await getAllTeamYears(year);
+    await writeChangedEpas(year, teamYears);
+  });
+
+  // Per-event results (rankings/alliances/matches) feeding the SLFF scores.
+  // Matches payloads are large, so keep concurrency lower than the metadata
+  // phases. Conditional/diff logic inside makes daily re-runs cheap.
+  await phase("results", () =>
+    pool(events, 8, async (e) => {
+      await syncEventResults({
+        key: e.key,
+        year,
+        eventType: e.eventType,
+        startDate: e.startDate,
+      });
+    }),
+  );
+
+  await phase("scores", () => computeYearScores(year));
+
+  const teamCount = await db.team.count();
+
+  // Avatars are intentionally NOT synced here: they change rarely and the UI
+  // falls back to TBA's avatar URL when there's no cached copy, so keeping
+  // them out of the daily sync keeps it well under the serverless timeout.
+  // Refresh them occasionally via /api/cron/avatars (seedAvatars).
+
+  return { year, districts: districts.length, teams: teamCount, events: events.length };
+}
+
 export async function syncAll() {
   const year = syncYear();
-  return logSync(`syncAll:${year}`, async () => {
-    const phase = async <T>(label: string, fn: () => Promise<T>): Promise<T> => {
-      const t = Date.now();
-      const r = await fn();
-      console.log(`[sync] ${label}: ${Date.now() - t}ms`);
-      return r;
-    };
+  return logSync(`syncAll:${year}`, () => syncYearData(year));
+}
 
-    const districts = await phase("districts+districtData", async () => {
-      const ds = await syncDistricts(year);
-      await Promise.all([
-        pool(ds, 8, async (d) => {
-          await syncDistrictEvents(d.key);
-          await syncDistrictTeams(d.key);
-        }),
-        syncRegionalEvents(year),
-      ]);
-      return ds;
-    });
-
-    const events = await db.event.findMany({
-      where: { year },
-      select: { key: true },
-    });
-
-    await phase("eventTeams", () =>
-      pool(events, 12, async (e) => {
-        await syncEventTeams(e.key);
-      }),
-    );
-
-    await phase("eventAwards", () =>
-      pool(events, 12, async (e) => {
-        await syncEventAwards(e.key);
-      }),
-    );
-
-    await phase("epas", async () => {
-      const teamYears = await getAllTeamYears(year);
-      await writeChangedEpas(year, teamYears);
-    });
-    const teamCount = await db.team.count();
-
-    // Avatars are intentionally NOT synced here: they change rarely and the UI
-    // falls back to TBA's avatar URL when there's no cached copy, so keeping
-    // them out of the daily sync keeps it well under the serverless timeout.
-    // Refresh them occasionally via /api/cron/avatars (seedAvatars).
-
-    return { year, districts: districts.length, teams: teamCount, events: events.length };
-  });
+// One-time offline backfill: pull + score a range of prior seasons so the
+// weighted-4-year predictions have history. Run locally (no Vercel timeout).
+export async function backfillYears(years: number[]) {
+  const results: Array<Awaited<ReturnType<typeof syncYearData>>> = [];
+  for (const year of years) {
+    const r = await logSync(`backfill:${year}`, () => syncYearData(year));
+    results.push(r);
+  }
+  return results;
 }

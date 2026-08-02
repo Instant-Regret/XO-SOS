@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { env } from "~/env";
-import { syncAll, syncAllEpas } from "~/server/lib/sync";
+import { backfillYears, syncAll, syncAllEpas } from "~/server/lib/sync";
+import { fitWeights } from "~/server/lib/scoring-fit";
 
 export const runtime = "nodejs";
 export const maxDuration = 300; // 5 min — Vercel hobby caps at 60s; pro/enterprise can extend.
@@ -13,11 +14,35 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  // `?task=epa` re-pulls only EPA values (repair stale data); default = full sync.
-  const task = new URL(req.url).searchParams.get("task");
+  // Tasks:
+  //   ?task=epa                       re-pull only EPA values (repair stale data)
+  //   ?task=backfill&years=2022,2023   pull+score prior seasons (run offline)
+  //   ?task=fit                        refit prediction weights from TeamScore
+  //   (default)                        full current-year sync
+  const params = new URL(req.url).searchParams;
+  const task = params.get("task");
 
   try {
-    const result = task === "epa" ? await syncAllEpas() : await syncAll();
+    let result: unknown;
+    if (task === "epa") {
+      result = await syncAllEpas();
+    } else if (task === "backfill") {
+      const years = (params.get("years") ?? "")
+        .split(",")
+        .map((y) => Number(y.trim()))
+        .filter((y) => Number.isInteger(y) && y > 2000);
+      if (years.length === 0) {
+        return NextResponse.json(
+          { ok: false, error: "backfill needs ?years=YYYY,YYYY" },
+          { status: 400 },
+        );
+      }
+      result = await backfillYears(years);
+    } else if (task === "fit") {
+      result = await fitWeights();
+    } else {
+      result = await syncAll();
+    }
     return NextResponse.json({ ok: true, result });
   } catch (err) {
     // Log the full error (with stack) so it shows in the function logs, not
