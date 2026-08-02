@@ -226,3 +226,59 @@ model Rating {
     @@unique([year, teamNumber])
     @@index([year])
 }
+
+// Per (team, event) result inputs for SLFF scoring, pulled from TBA. One doc
+// per team+event. Awards live in the Award model and are joined at compute time.
+model TeamEventResult {
+    id                String   @id @default(auto()) @map("_id") @db.ObjectId
+    teamNumber        Int
+    eventKey          String
+    year              Int
+    eventType         Int // TBA event_type (0=regional, 1=district, 2=dcmp, 3/4=champs, ...)
+    startDate         String? // for ordering a team's first-2 events
+    qualRank          Int?
+    numTeams          Int? // field size, for the seeding formula
+    allianceSeed      Int? // 1-8 if selected, else null
+    pickRole          String? // "captain" | "pick1" | "pick2" | "pick3"
+    elimMatchesPlayed Int      @default(0) // 5 pts each
+    einsteinWins      Int      @default(0) // champs only, 5 pts each
+    opponents         Int[] // distinct teams played with/against (for XSOS)
+    updatedAt         DateTime @updatedAt
+
+    @@unique([teamNumber, eventKey])
+    @@index([year])
+    @@index([eventKey])
+}
+
+// Computed SLFF scores per (team, year). Two windows: "std" = first 2 events +
+// dcmp (region/district boards); "full" = all events (champs-division pages).
+// Predicted (weighted-4-year) values are computed on read from prior years.
+model TeamScore {
+    id         String   @id @default(auto()) @map("_id") @db.ObjectId
+    teamNumber Int
+    year       Int
+    stdXrobot  Float    @default(0)
+    stdXawards Float    @default(0)
+    stdXval    Float    @default(0)
+    fullXrobot Float    @default(0)
+    fullXawards Float   @default(0)
+    fullXval   Float    @default(0)
+    xsos       Float? // strength-of-schedule percentile (0-100) within region
+    updatedAt  DateTime @updatedAt
+
+    @@unique([teamNumber, year])
+    @@index([year])
+}
+
+// Prediction weights for the weighted-4-year XROBOT/XAWARDS. `opt*` are the
+// regression-fitted optimum; `act*` are the editable active weights ("reset to
+// optimal" copies opt -> act). Arrays are [w_{y-1}, w_{y-2}, w_{y-3}, w_{y-4}].
+model ScoreWeights {
+    id         String   @id @default(auto()) @map("_id") @db.ObjectId
+    key        String   @unique @default("default")
+    optRobot   Float[]
+    optAwards  Float[]
+    actRobot   Float[]
+    actAwards  Float[]
+    updatedAt  DateTime @updatedAt
+}

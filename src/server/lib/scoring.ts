@@ -125,13 +125,14 @@ export function awardPoints(
     return 0;
   }
 
-  // Impact / Chairman's — champs distinguishes winner (110) from finalist (90).
+  // Impact / Chairman's. Regular events have no Impact finalist; champs
+  // distinguishes winner (110) from finalist (90).
   const isImpact =
     awardType === AWARD_TYPE.CHAIRMANS ||
     name.includes("chairman") ||
     name.includes("impact");
   if (isImpact) {
-    if (name.includes("finalist")) return champs ? 90 : 5;
+    if (champs && name.includes("finalist")) return 90;
     return champs ? 110 : 60;
   }
 
@@ -169,15 +170,27 @@ export function onePlaySecondEventPoints(firstEventPoints: number): number {
 // Seeding points — "district ranking formula" on the qual ranking.
 // ---------------------------------------------------------------------------
 
+// Inverse error function (Winitzki approximation) — accurate to ~1e-3, plenty
+// for a value that gets rounded to an integer.
+function erfInv(x: number): number {
+  const a = 0.147;
+  const sign = x < 0 ? -1 : 1;
+  const ln = Math.log(1 - x * x);
+  const term = 2 / (Math.PI * a) + ln / 2;
+  return sign * Math.sqrt(Math.sqrt(term * term - ln / a) - term);
+}
+
 /**
  * Seeding points from a team's qualification rank and the number of teams at
- * the event, using FIRST's district qualification-points formula (applied to
- * every regular event, regionals included).
- *
- * TODO: implement the exact FRC district qual-points formula (verify against
- * TBA /event/{key}/district_points for a known district event before relying on
- * it). Left unimplemented so no wrong values leak into scoring.
+ * the event, using FIRST's district qualification-ranking-points formula
+ * (applied to every regular event, regionals included). Top seed ≈ 22, last
+ * ≈ 2-3 — matches FRC. Verify against TBA /event/{key}/district_points for a
+ * known district event.
  */
-export function seedingPoints(_rank: number, _numTeams: number): number {
-  throw new Error("seedingPoints: district ranking formula not implemented yet");
+export function seedingPoints(rank: number, numTeams: number): number {
+  if (numTeams <= 1 || rank < 1) return 0;
+  const alpha = 1.07;
+  const scale = 10 / erfInv(1 / alpha);
+  const x = (numTeams - 2 * rank + 2) / (alpha * numTeams);
+  return Math.round(erfInv(x) * scale + 12);
 }

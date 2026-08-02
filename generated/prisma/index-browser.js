@@ -267,6 +267,47 @@ exports.Prisma.RatingScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.TeamEventResultScalarFieldEnum = {
+  id: 'id',
+  teamNumber: 'teamNumber',
+  eventKey: 'eventKey',
+  year: 'year',
+  eventType: 'eventType',
+  startDate: 'startDate',
+  qualRank: 'qualRank',
+  numTeams: 'numTeams',
+  allianceSeed: 'allianceSeed',
+  pickRole: 'pickRole',
+  elimMatchesPlayed: 'elimMatchesPlayed',
+  einsteinWins: 'einsteinWins',
+  opponents: 'opponents',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TeamScoreScalarFieldEnum = {
+  id: 'id',
+  teamNumber: 'teamNumber',
+  year: 'year',
+  stdXrobot: 'stdXrobot',
+  stdXawards: 'stdXawards',
+  stdXval: 'stdXval',
+  fullXrobot: 'fullXrobot',
+  fullXawards: 'fullXawards',
+  fullXval: 'fullXval',
+  xsos: 'xsos',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ScoreWeightsScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  optRobot: 'optRobot',
+  optAwards: 'optAwards',
+  actRobot: 'actRobot',
+  actAwards: 'actAwards',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -296,7 +337,10 @@ exports.Prisma.ModelName = {
   Pick: 'Pick',
   Draft: 'Draft',
   SyncCursor: 'SyncCursor',
-  Rating: 'Rating'
+  Rating: 'Rating',
+  TeamEventResult: 'TeamEventResult',
+  TeamScore: 'TeamScore',
+  ScoreWeights: 'ScoreWeights'
 };
 
 /**

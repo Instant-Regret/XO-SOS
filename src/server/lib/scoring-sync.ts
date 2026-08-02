@@ -1,0 +1,396 @@
+import "server-only";
+
+import { db } from "~/server/db";
+import { tba, type TbaMatch } from "~/server/lib/tba";
+import {
+  awardPoints,
+  ELIM_POINTS_PER_MATCH,
+  EINSTEIN_POINTS_PER_WIN,
+  onePlaySecondEventPoints,
+  pickingPoints,
+  seedingPoints,
+  type ScoreContext,
+} from "~/server/lib/scoring";
+
+// TBA event_type: 0=regional, 1=district, 2=district_cmp, 3=cmp_division,
+// 4=cmp_finals, 5=district_cmp_division, 6=foc, 7=remote.
+const isChampsEvent = (t: number) => t === 3 || t === 4;
+const isCmpFinals = (t: number) => t === 4;
+const isDcmp = (t: number) => t === 2 || t === 5;
+const isQualifying = (t: number) => t === 0 || t === 1; // "first 2 events" pool
+const contextFor = (t: number): ScoreContext =>
+  isChampsEvent(t) ? "champs" : "regular";
+
+const teamNum = (key: string) => Number(key.replace(/^frc/, ""));
+
+// ---- ETag cursor helpers (mirror sync.ts) ----
+async function getEtag(path: string): Promise<string | undefined> {
+  const cur = await db.syncCursor.findUnique({
+    where: { path },
+    select: { etag: true },
+  });
+  return cur?.etag;
+}
+async function setEtag(path: string, etag: string | null) {
+  if (!etag) return;
+  await db.syncCursor.upsert({
+    where: { path },
+    create: { path, etag },
+    update: { etag },
+  });
+}
+
+// Parse a team's elim participation, elim wins, and co-competitors from an
+// event's match list.
+function parseTeamMatches(matches: TbaMatch[], teamKey: string) {
+  let elimPlayed = 0;
+  let elimWins = 0;
+  const opponents = new Set<number>();
+  for (const m of matches) {
+    const red = m.alliances.red.team_keys;
+    const blue = m.alliances.blue.team_keys;
+    const inRed = red.includes(teamKey);
+    const inBlue = blue.includes(teamKey);
+    if (!inRed && !inBlue) continue;
+    for (const k of [...red, ...blue]) {
+      if (k === teamKey) continue;
+      const n = teamNum(k);
+      if (Number.isFinite(n)) opponents.add(n);
+    }
+    if (m.comp_level !== "qm") {
+      elimPlayed++;
+      const myColor = inRed ? "red" : "blue";
+      if (m.winning_alliance === myColor) elimWins++;
+    }
+  }
+  return { elimPlayed, elimWins, opponents: [...opponents] };
+}
+
+type EventLite = {
+  key: string;
+  eventType: number;
+  year: number;
+  startDate: string | null;
+};
+
+/**
+ * Pull rankings + alliances + matches for one event (ETag-conditional) and
+ * upsert a TeamEventResult per team. Returns false when nothing changed.
+ */
+export async function syncEventResults(ev: EventLite): Promise<boolean> {
+  const rPath = `/event/${ev.key}/rankings`;
+  const aPath = `/event/${ev.key}/alliances`;
+  const mPath = `/event/${ev.key}/matches`;
+
+  const [rankRes, allyRes, matchRes] = await Promise.all([
+    tba.eventRankingsConditional(ev.key, await getEtag(rPath)),
+    tba.eventAlliancesConditional(ev.key, await getEtag(aPath)),
+    tba.eventMatchesConditional(ev.key, await getEtag(mPath)),
+  ]);
+
+  // If everything is unchanged, skip.
+  if (rankRes.notModified && allyRes.notModified && matchRes.notModified) {
+    return false;
+  }
+
+  // Rankings → rank + field size.
+  const rankByTeam = new Map<number, number>();
+  const rankings = rankRes.notModified ? null : rankRes.data;
+  const numTeams = rankings?.rankings.length ?? null;
+  for (const r of rankings?.rankings ?? []) {
+    rankByTeam.set(teamNum(r.team_key), r.rank);
+  }
+
+  // Alliances → seed + pick role.
+  const ROLES = ["captain", "pick1", "pick2", "pick3"] as const;
+  const allyByTeam = new Map<number, { seed: number; role: string }>();
+  const alliances = allyRes.notModified ? null : allyRes.data;
+  (alliances ?? []).forEach((a, i) => {
+    a.picks.forEach((k, idx) => {
+      if (idx < ROLES.length) allyByTeam.set(teamNum(k), { seed: i + 1, role: ROLES[idx]! });
+    });
+  });
+
+  // Matches → elim played/wins + co-competitors, per team.
+  const matches = matchRes.notModified ? [] : (matchRes.data ?? []);
+  const matchTeams = new Set<number>();
+  for (const m of matches) {
+    for (const k of [...m.alliances.red.team_keys, ...m.alliances.blue.team_keys]) {
+      matchTeams.add(teamNum(k));
+    }
+  }
+
+  // Union of every team we have data for this event.
+  const link = await db.eventTeam.findUnique({
+    where: { eventKey: ev.key },
+    select: { teamNumbers: true },
+  });
+  const allTeams = new Set<number>([
+    ...(link?.teamNumbers ?? []),
+    ...rankByTeam.keys(),
+    ...allyByTeam.keys(),
+    ...matchTeams,
+  ]);
+
+  for (const number of allTeams) {
+    const key = `frc${number}`;
+    const mm = parseTeamMatches(matches, key);
+    const ally = allyByTeam.get(number);
+    await db.teamEventResult.upsert({
+      where: { teamNumber_eventKey: { teamNumber: number, eventKey: ev.key } },
+      create: {
+        teamNumber: number,
+        eventKey: ev.key,
+        year: ev.year,
+        eventType: ev.eventType,
+        startDate: ev.startDate,
+        qualRank: rankByTeam.get(number) ?? null,
+        numTeams,
+        allianceSeed: ally?.seed ?? null,
+        pickRole: ally?.role ?? null,
+        elimMatchesPlayed: mm.elimPlayed,
+        einsteinWins: isCmpFinals(ev.eventType) ? mm.elimWins : 0,
+        opponents: mm.opponents,
+      },
+      update: {
+        eventType: ev.eventType,
+        startDate: ev.startDate,
+        qualRank: rankByTeam.get(number) ?? null,
+        numTeams,
+        allianceSeed: ally?.seed ?? null,
+        pickRole: ally?.role ?? null,
+        elimMatchesPlayed: mm.elimPlayed,
+        einsteinWins: isCmpFinals(ev.eventType) ? mm.elimWins : 0,
+        opponents: mm.opponents,
+      },
+    });
+  }
+
+  await Promise.all([
+    setEtag(rPath, rankRes.etag),
+    setEtag(aPath, allyRes.etag),
+    setEtag(mPath, matchRes.etag),
+  ]);
+  return true;
+}
+
+// ---- Per-event points from a stored TeamEventResult + its awards ----
+type ResultRow = {
+  eventKey: string;
+  eventType: number;
+  startDate: string | null;
+  qualRank: number | null;
+  numTeams: number | null;
+  allianceSeed: number | null;
+  pickRole: string | null;
+  elimMatchesPlayed: number;
+  einsteinWins: number;
+  opponents: number[];
+};
+
+function eventPoints(
+  r: ResultRow,
+  awards: { awardType: number; name: string }[],
+) {
+  const ctx = contextFor(r.eventType);
+  const seeding =
+    r.qualRank && r.numTeams ? seedingPoints(r.qualRank, r.numTeams) : 0;
+  const picking =
+    r.allianceSeed && r.pickRole
+      ? pickingPoints(ctx, r.allianceSeed, r.pickRole as never)
+      : 0;
+  const elim = ELIM_POINTS_PER_MATCH * r.elimMatchesPlayed;
+  const einstein = EINSTEIN_POINTS_PER_WIN * r.einsteinWins;
+  const xrobot = seeding + picking + elim + einstein;
+  const xawards = awards.reduce(
+    (s, a) => s + awardPoints(a.awardType, a.name, ctx),
+    0,
+  );
+  return { xrobot, xawards, xval: xrobot + xawards };
+}
+
+/**
+ * Recompute TeamScore for every team with results in `year`. Reads
+ * TeamEventResult + Award + TeamEpa. Diff-before-write: only touches changed
+ * teams. Computes both windows (std = first 2 + dcmp, full = all events) and the
+ * XSOS percentile within region.
+ */
+export async function computeYearScores(year: number) {
+  const [results, awardDocs, epaDocs, districtLinks] = await Promise.all([
+    db.teamEventResult.findMany({ where: { year } }),
+    db.award.findMany({ select: { teamNumber: true, awards: true } }),
+    db.teamEpa.findMany({ select: { teamNumber: true, epas: true } }),
+    db.districtTeam.findMany({
+      where: { districtKey: { startsWith: String(year) } },
+      select: { districtKey: true, teamNumbers: true },
+    }),
+  ]);
+
+  // team -> epa (this year), for XSOS.
+  const epaByTeam = new Map<number, number>();
+  for (const row of epaDocs) {
+    const e = row.epas.find((x) => x.year === year);
+    if (e) epaByTeam.set(row.teamNumber, e.epaUnitless);
+  }
+  // team -> awards at (eventKey) this year.
+  const awardsByTeamEvent = new Map<string, { awardType: number; name: string }[]>();
+  for (const row of awardDocs) {
+    for (const a of row.awards) {
+      if (a.year !== year) continue;
+      const k = `${row.teamNumber}:${a.eventKey}`;
+      const list = awardsByTeamEvent.get(k) ?? [];
+      list.push({ awardType: a.awardType, name: a.name });
+      awardsByTeamEvent.set(k, list);
+    }
+  }
+  // team -> region (first district it appears in this year), for XSOS grouping.
+  const regionByTeam = new Map<number, string>();
+  for (const link of districtLinks) {
+    for (const n of link.teamNumbers) {
+      if (!regionByTeam.has(n)) regionByTeam.set(n, link.districtKey);
+    }
+  }
+
+  // Group results by team.
+  const byTeam = new Map<number, ResultRow[]>();
+  for (const r of results) {
+    const list = byTeam.get(r.teamNumber) ?? [];
+    list.push(r);
+    byTeam.set(r.teamNumber, list);
+  }
+
+  // First pass: raw scores + schedule difficulty per team.
+  type Computed = {
+    stdXrobot: number;
+    stdXawards: number;
+    stdXval: number;
+    fullXrobot: number;
+    fullXawards: number;
+    fullXval: number;
+    difficulty: number | null; // mean opponent EPA over std window
+  };
+  const computed = new Map<number, Computed>();
+
+  for (const [team, rows] of byTeam) {
+    const scored = rows.map((r) => ({
+      r,
+      pts: eventPoints(r, awardsByTeamEvent.get(`${team}:${r.eventKey}`) ?? []),
+    }));
+
+    // full window: sum everything.
+    const full = scored.reduce(
+      (acc, s) => ({
+        xrobot: acc.xrobot + s.pts.xrobot,
+        xawards: acc.xawards + s.pts.xawards,
+      }),
+      { xrobot: 0, xawards: 0 },
+    );
+
+    // std window: first 2 qualifying events (by date) + dcmp.
+    const qualifying = scored
+      .filter((s) => isQualifying(s.r.eventType))
+      .sort((a, b) => (a.r.startDate ?? "").localeCompare(b.r.startDate ?? ""));
+    const first2 = qualifying.slice(0, 2);
+    const dcmp = scored.filter((s) => isDcmp(s.r.eventType));
+    const stdEvents = [...first2, ...dcmp];
+
+    let stdXrobot = stdEvents.reduce((s, e) => s + e.pts.xrobot, 0);
+    let stdXawards = stdEvents.reduce((s, e) => s + e.pts.xawards, 0);
+
+    // One-play team: only one qualifying event, no dcmp — project a 2nd event.
+    if (first2.length === 1 && dcmp.length === 0) {
+      const firstXval = first2[0]!.pts.xval;
+      const bonus = onePlaySecondEventPoints(firstXval); // 0.6*first + 14
+      // Keep XVAL = XROBOT + XAWARDS: scale both by 1.6, put the flat +14 on robot.
+      stdXrobot = 1.6 * first2[0]!.pts.xrobot + 14;
+      stdXawards = 1.6 * first2[0]!.pts.xawards;
+      void bonus;
+    }
+
+    // Schedule difficulty over the std-window events: mean opponent EPA.
+    const opps = new Set<number>();
+    for (const e of stdEvents) for (const o of e.r.opponents) opps.add(o);
+    const oppEpas = [...opps]
+      .map((o) => epaByTeam.get(o))
+      .filter((v): v is number => v != null);
+    const difficulty =
+      oppEpas.length > 0 ? oppEpas.reduce((a, b) => a + b, 0) / oppEpas.length : null;
+
+    computed.set(team, {
+      stdXrobot,
+      stdXawards,
+      stdXval: stdXrobot + stdXawards,
+      fullXrobot: full.xrobot,
+      fullXawards: full.xawards,
+      fullXval: full.xrobot + full.xawards,
+      difficulty,
+    });
+  }
+
+  // Second pass: XSOS = percentile of difficulty within region.
+  const byRegion = new Map<string, number[]>();
+  for (const [team, c] of computed) {
+    if (c.difficulty == null) continue;
+    const region = regionByTeam.get(team) ?? "_none";
+    const arr = byRegion.get(region) ?? [];
+    arr.push(c.difficulty);
+    byRegion.set(region, arr);
+  }
+  for (const arr of byRegion.values()) arr.sort((a, b) => a - b);
+  const percentile = (region: string, value: number) => {
+    const arr = byRegion.get(region);
+    if (!arr || arr.length < 2) return null;
+    // fraction of teams with a strictly-lower difficulty (higher = harder).
+    let below = 0;
+    for (const v of arr) if (v < value) below++;
+    return Math.round((below / (arr.length - 1)) * 100);
+  };
+
+  // Diff-before-write: only upsert changed teams.
+  const existing = new Map(
+    (
+      await db.teamScore.findMany({ where: { year } })
+    ).map((s) => [s.teamNumber, s]),
+  );
+
+  for (const [team, c] of computed) {
+    const xsos =
+      c.difficulty == null
+        ? null
+        : percentile(regionByTeam.get(team) ?? "_none", c.difficulty);
+    const prev = existing.get(team);
+    const same =
+      prev &&
+      prev.stdXval === c.stdXval &&
+      prev.fullXval === c.fullXval &&
+      prev.stdXrobot === c.stdXrobot &&
+      prev.stdXawards === c.stdXawards &&
+      prev.xsos === xsos;
+    if (same) continue;
+    await db.teamScore.upsert({
+      where: { teamNumber_year: { teamNumber: team, year } },
+      create: { teamNumber: team, year, ...round(c), xsos },
+      update: { ...round(c), xsos },
+    });
+  }
+}
+
+// Round stored floats to 2 dp for stable diffing.
+function round(c: {
+  stdXrobot: number;
+  stdXawards: number;
+  stdXval: number;
+  fullXrobot: number;
+  fullXawards: number;
+  fullXval: number;
+}) {
+  const r = (n: number) => Math.round(n * 100) / 100;
+  return {
+    stdXrobot: r(c.stdXrobot),
+    stdXawards: r(c.stdXawards),
+    stdXval: r(c.stdXval),
+    fullXrobot: r(c.fullXrobot),
+    fullXawards: r(c.fullXawards),
+    fullXval: r(c.fullXval),
+  };
+}

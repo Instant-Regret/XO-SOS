@@ -118,6 +118,21 @@ export type SyncCursor = $Result.DefaultSelection<Prisma.$SyncCursorPayload>
  * 
  */
 export type Rating = $Result.DefaultSelection<Prisma.$RatingPayload>
+/**
+ * Model TeamEventResult
+ * 
+ */
+export type TeamEventResult = $Result.DefaultSelection<Prisma.$TeamEventResultPayload>
+/**
+ * Model TeamScore
+ * 
+ */
+export type TeamScore = $Result.DefaultSelection<Prisma.$TeamScorePayload>
+/**
+ * Model ScoreWeights
+ * 
+ */
+export type ScoreWeights = $Result.DefaultSelection<Prisma.$ScoreWeightsPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -383,6 +398,36 @@ export class PrismaClient<
     * ```
     */
   get rating(): Prisma.RatingDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.teamEventResult`: Exposes CRUD operations for the **TeamEventResult** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TeamEventResults
+    * const teamEventResults = await prisma.teamEventResult.findMany()
+    * ```
+    */
+  get teamEventResult(): Prisma.TeamEventResultDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.teamScore`: Exposes CRUD operations for the **TeamScore** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TeamScores
+    * const teamScores = await prisma.teamScore.findMany()
+    * ```
+    */
+  get teamScore(): Prisma.TeamScoreDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.scoreWeights`: Exposes CRUD operations for the **ScoreWeights** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ScoreWeights
+    * const scoreWeights = await prisma.scoreWeights.findMany()
+    * ```
+    */
+  get scoreWeights(): Prisma.ScoreWeightsDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -841,7 +886,10 @@ export namespace Prisma {
     Pick: 'Pick',
     Draft: 'Draft',
     SyncCursor: 'SyncCursor',
-    Rating: 'Rating'
+    Rating: 'Rating',
+    TeamEventResult: 'TeamEventResult',
+    TeamScore: 'TeamScore',
+    ScoreWeights: 'ScoreWeights'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -860,7 +908,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "post" | "account" | "session" | "user" | "verificationToken" | "district" | "event" | "team" | "teamEpa" | "eventTeam" | "districtTeam" | "teamAvatar" | "award" | "syncLog" | "pick" | "draft" | "syncCursor" | "rating"
+      modelProps: "post" | "account" | "session" | "user" | "verificationToken" | "district" | "event" | "team" | "teamEpa" | "eventTeam" | "districtTeam" | "teamAvatar" | "award" | "syncLog" | "pick" | "draft" | "syncCursor" | "rating" | "teamEventResult" | "teamScore" | "scoreWeights"
       txIsolationLevel: never
     }
     model: {
@@ -2196,6 +2244,228 @@ export namespace Prisma {
           }
         }
       }
+      TeamEventResult: {
+        payload: Prisma.$TeamEventResultPayload<ExtArgs>
+        fields: Prisma.TeamEventResultFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TeamEventResultFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TeamEventResultPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TeamEventResultFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TeamEventResultPayload>
+          }
+          findFirst: {
+            args: Prisma.TeamEventResultFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TeamEventResultPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TeamEventResultFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TeamEventResultPayload>
+          }
+          findMany: {
+            args: Prisma.TeamEventResultFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TeamEventResultPayload>[]
+          }
+          create: {
+            args: Prisma.TeamEventResultCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TeamEventResultPayload>
+          }
+          createMany: {
+            args: Prisma.TeamEventResultCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.TeamEventResultDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TeamEventResultPayload>
+          }
+          update: {
+            args: Prisma.TeamEventResultUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TeamEventResultPayload>
+          }
+          deleteMany: {
+            args: Prisma.TeamEventResultDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TeamEventResultUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.TeamEventResultUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TeamEventResultPayload>
+          }
+          aggregate: {
+            args: Prisma.TeamEventResultAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTeamEventResult>
+          }
+          groupBy: {
+            args: Prisma.TeamEventResultGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TeamEventResultGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.TeamEventResultFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.TeamEventResultAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.TeamEventResultCountArgs<ExtArgs>
+            result: $Utils.Optional<TeamEventResultCountAggregateOutputType> | number
+          }
+        }
+      }
+      TeamScore: {
+        payload: Prisma.$TeamScorePayload<ExtArgs>
+        fields: Prisma.TeamScoreFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TeamScoreFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TeamScorePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TeamScoreFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TeamScorePayload>
+          }
+          findFirst: {
+            args: Prisma.TeamScoreFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TeamScorePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TeamScoreFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TeamScorePayload>
+          }
+          findMany: {
+            args: Prisma.TeamScoreFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TeamScorePayload>[]
+          }
+          create: {
+            args: Prisma.TeamScoreCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TeamScorePayload>
+          }
+          createMany: {
+            args: Prisma.TeamScoreCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.TeamScoreDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TeamScorePayload>
+          }
+          update: {
+            args: Prisma.TeamScoreUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TeamScorePayload>
+          }
+          deleteMany: {
+            args: Prisma.TeamScoreDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TeamScoreUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.TeamScoreUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TeamScorePayload>
+          }
+          aggregate: {
+            args: Prisma.TeamScoreAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTeamScore>
+          }
+          groupBy: {
+            args: Prisma.TeamScoreGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TeamScoreGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.TeamScoreFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.TeamScoreAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.TeamScoreCountArgs<ExtArgs>
+            result: $Utils.Optional<TeamScoreCountAggregateOutputType> | number
+          }
+        }
+      }
+      ScoreWeights: {
+        payload: Prisma.$ScoreWeightsPayload<ExtArgs>
+        fields: Prisma.ScoreWeightsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ScoreWeightsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScoreWeightsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ScoreWeightsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScoreWeightsPayload>
+          }
+          findFirst: {
+            args: Prisma.ScoreWeightsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScoreWeightsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ScoreWeightsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScoreWeightsPayload>
+          }
+          findMany: {
+            args: Prisma.ScoreWeightsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScoreWeightsPayload>[]
+          }
+          create: {
+            args: Prisma.ScoreWeightsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScoreWeightsPayload>
+          }
+          createMany: {
+            args: Prisma.ScoreWeightsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.ScoreWeightsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScoreWeightsPayload>
+          }
+          update: {
+            args: Prisma.ScoreWeightsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScoreWeightsPayload>
+          }
+          deleteMany: {
+            args: Prisma.ScoreWeightsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ScoreWeightsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ScoreWeightsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScoreWeightsPayload>
+          }
+          aggregate: {
+            args: Prisma.ScoreWeightsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateScoreWeights>
+          }
+          groupBy: {
+            args: Prisma.ScoreWeightsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ScoreWeightsGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.ScoreWeightsFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.ScoreWeightsAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.ScoreWeightsCountArgs<ExtArgs>
+            result: $Utils.Optional<ScoreWeightsCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2293,6 +2563,9 @@ export namespace Prisma {
     draft?: DraftOmit
     syncCursor?: SyncCursorOmit
     rating?: RatingOmit
+    teamEventResult?: TeamEventResultOmit
+    teamScore?: TeamScoreOmit
+    scoreWeights?: ScoreWeightsOmit
   }
 
   /* Types for Logging */
@@ -20316,6 +20589,3147 @@ export namespace Prisma {
 
 
   /**
+   * Model TeamEventResult
+   */
+
+  export type AggregateTeamEventResult = {
+    _count: TeamEventResultCountAggregateOutputType | null
+    _avg: TeamEventResultAvgAggregateOutputType | null
+    _sum: TeamEventResultSumAggregateOutputType | null
+    _min: TeamEventResultMinAggregateOutputType | null
+    _max: TeamEventResultMaxAggregateOutputType | null
+  }
+
+  export type TeamEventResultAvgAggregateOutputType = {
+    teamNumber: number | null
+    year: number | null
+    eventType: number | null
+    qualRank: number | null
+    numTeams: number | null
+    allianceSeed: number | null
+    elimMatchesPlayed: number | null
+    einsteinWins: number | null
+    opponents: number | null
+  }
+
+  export type TeamEventResultSumAggregateOutputType = {
+    teamNumber: number | null
+    year: number | null
+    eventType: number | null
+    qualRank: number | null
+    numTeams: number | null
+    allianceSeed: number | null
+    elimMatchesPlayed: number | null
+    einsteinWins: number | null
+    opponents: number[]
+  }
+
+  export type TeamEventResultMinAggregateOutputType = {
+    id: string | null
+    teamNumber: number | null
+    eventKey: string | null
+    year: number | null
+    eventType: number | null
+    startDate: string | null
+    qualRank: number | null
+    numTeams: number | null
+    allianceSeed: number | null
+    pickRole: string | null
+    elimMatchesPlayed: number | null
+    einsteinWins: number | null
+    updatedAt: Date | null
+  }
+
+  export type TeamEventResultMaxAggregateOutputType = {
+    id: string | null
+    teamNumber: number | null
+    eventKey: string | null
+    year: number | null
+    eventType: number | null
+    startDate: string | null
+    qualRank: number | null
+    numTeams: number | null
+    allianceSeed: number | null
+    pickRole: string | null
+    elimMatchesPlayed: number | null
+    einsteinWins: number | null
+    updatedAt: Date | null
+  }
+
+  export type TeamEventResultCountAggregateOutputType = {
+    id: number
+    teamNumber: number
+    eventKey: number
+    year: number
+    eventType: number
+    startDate: number
+    qualRank: number
+    numTeams: number
+    allianceSeed: number
+    pickRole: number
+    elimMatchesPlayed: number
+    einsteinWins: number
+    opponents: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type TeamEventResultAvgAggregateInputType = {
+    teamNumber?: true
+    year?: true
+    eventType?: true
+    qualRank?: true
+    numTeams?: true
+    allianceSeed?: true
+    elimMatchesPlayed?: true
+    einsteinWins?: true
+    opponents?: true
+  }
+
+  export type TeamEventResultSumAggregateInputType = {
+    teamNumber?: true
+    year?: true
+    eventType?: true
+    qualRank?: true
+    numTeams?: true
+    allianceSeed?: true
+    elimMatchesPlayed?: true
+    einsteinWins?: true
+    opponents?: true
+  }
+
+  export type TeamEventResultMinAggregateInputType = {
+    id?: true
+    teamNumber?: true
+    eventKey?: true
+    year?: true
+    eventType?: true
+    startDate?: true
+    qualRank?: true
+    numTeams?: true
+    allianceSeed?: true
+    pickRole?: true
+    elimMatchesPlayed?: true
+    einsteinWins?: true
+    updatedAt?: true
+  }
+
+  export type TeamEventResultMaxAggregateInputType = {
+    id?: true
+    teamNumber?: true
+    eventKey?: true
+    year?: true
+    eventType?: true
+    startDate?: true
+    qualRank?: true
+    numTeams?: true
+    allianceSeed?: true
+    pickRole?: true
+    elimMatchesPlayed?: true
+    einsteinWins?: true
+    updatedAt?: true
+  }
+
+  export type TeamEventResultCountAggregateInputType = {
+    id?: true
+    teamNumber?: true
+    eventKey?: true
+    year?: true
+    eventType?: true
+    startDate?: true
+    qualRank?: true
+    numTeams?: true
+    allianceSeed?: true
+    pickRole?: true
+    elimMatchesPlayed?: true
+    einsteinWins?: true
+    opponents?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type TeamEventResultAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TeamEventResult to aggregate.
+     */
+    where?: TeamEventResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TeamEventResults to fetch.
+     */
+    orderBy?: TeamEventResultOrderByWithRelationInput | TeamEventResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TeamEventResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TeamEventResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TeamEventResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TeamEventResults
+    **/
+    _count?: true | TeamEventResultCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TeamEventResultAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TeamEventResultSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TeamEventResultMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TeamEventResultMaxAggregateInputType
+  }
+
+  export type GetTeamEventResultAggregateType<T extends TeamEventResultAggregateArgs> = {
+        [P in keyof T & keyof AggregateTeamEventResult]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTeamEventResult[P]>
+      : GetScalarType<T[P], AggregateTeamEventResult[P]>
+  }
+
+
+
+
+  export type TeamEventResultGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TeamEventResultWhereInput
+    orderBy?: TeamEventResultOrderByWithAggregationInput | TeamEventResultOrderByWithAggregationInput[]
+    by: TeamEventResultScalarFieldEnum[] | TeamEventResultScalarFieldEnum
+    having?: TeamEventResultScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TeamEventResultCountAggregateInputType | true
+    _avg?: TeamEventResultAvgAggregateInputType
+    _sum?: TeamEventResultSumAggregateInputType
+    _min?: TeamEventResultMinAggregateInputType
+    _max?: TeamEventResultMaxAggregateInputType
+  }
+
+  export type TeamEventResultGroupByOutputType = {
+    id: string
+    teamNumber: number
+    eventKey: string
+    year: number
+    eventType: number
+    startDate: string | null
+    qualRank: number | null
+    numTeams: number | null
+    allianceSeed: number | null
+    pickRole: string | null
+    elimMatchesPlayed: number
+    einsteinWins: number
+    opponents: number[]
+    updatedAt: Date
+    _count: TeamEventResultCountAggregateOutputType | null
+    _avg: TeamEventResultAvgAggregateOutputType | null
+    _sum: TeamEventResultSumAggregateOutputType | null
+    _min: TeamEventResultMinAggregateOutputType | null
+    _max: TeamEventResultMaxAggregateOutputType | null
+  }
+
+  type GetTeamEventResultGroupByPayload<T extends TeamEventResultGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TeamEventResultGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TeamEventResultGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TeamEventResultGroupByOutputType[P]>
+            : GetScalarType<T[P], TeamEventResultGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TeamEventResultSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    teamNumber?: boolean
+    eventKey?: boolean
+    year?: boolean
+    eventType?: boolean
+    startDate?: boolean
+    qualRank?: boolean
+    numTeams?: boolean
+    allianceSeed?: boolean
+    pickRole?: boolean
+    elimMatchesPlayed?: boolean
+    einsteinWins?: boolean
+    opponents?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["teamEventResult"]>
+
+
+
+  export type TeamEventResultSelectScalar = {
+    id?: boolean
+    teamNumber?: boolean
+    eventKey?: boolean
+    year?: boolean
+    eventType?: boolean
+    startDate?: boolean
+    qualRank?: boolean
+    numTeams?: boolean
+    allianceSeed?: boolean
+    pickRole?: boolean
+    elimMatchesPlayed?: boolean
+    einsteinWins?: boolean
+    opponents?: boolean
+    updatedAt?: boolean
+  }
+
+  export type TeamEventResultOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "teamNumber" | "eventKey" | "year" | "eventType" | "startDate" | "qualRank" | "numTeams" | "allianceSeed" | "pickRole" | "elimMatchesPlayed" | "einsteinWins" | "opponents" | "updatedAt", ExtArgs["result"]["teamEventResult"]>
+
+  export type $TeamEventResultPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TeamEventResult"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      teamNumber: number
+      eventKey: string
+      year: number
+      eventType: number
+      startDate: string | null
+      qualRank: number | null
+      numTeams: number | null
+      allianceSeed: number | null
+      pickRole: string | null
+      elimMatchesPlayed: number
+      einsteinWins: number
+      opponents: number[]
+      updatedAt: Date
+    }, ExtArgs["result"]["teamEventResult"]>
+    composites: {}
+  }
+
+  type TeamEventResultGetPayload<S extends boolean | null | undefined | TeamEventResultDefaultArgs> = $Result.GetResult<Prisma.$TeamEventResultPayload, S>
+
+  type TeamEventResultCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TeamEventResultFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TeamEventResultCountAggregateInputType | true
+    }
+
+  export interface TeamEventResultDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TeamEventResult'], meta: { name: 'TeamEventResult' } }
+    /**
+     * Find zero or one TeamEventResult that matches the filter.
+     * @param {TeamEventResultFindUniqueArgs} args - Arguments to find a TeamEventResult
+     * @example
+     * // Get one TeamEventResult
+     * const teamEventResult = await prisma.teamEventResult.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TeamEventResultFindUniqueArgs>(args: SelectSubset<T, TeamEventResultFindUniqueArgs<ExtArgs>>): Prisma__TeamEventResultClient<$Result.GetResult<Prisma.$TeamEventResultPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TeamEventResult that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TeamEventResultFindUniqueOrThrowArgs} args - Arguments to find a TeamEventResult
+     * @example
+     * // Get one TeamEventResult
+     * const teamEventResult = await prisma.teamEventResult.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TeamEventResultFindUniqueOrThrowArgs>(args: SelectSubset<T, TeamEventResultFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TeamEventResultClient<$Result.GetResult<Prisma.$TeamEventResultPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TeamEventResult that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TeamEventResultFindFirstArgs} args - Arguments to find a TeamEventResult
+     * @example
+     * // Get one TeamEventResult
+     * const teamEventResult = await prisma.teamEventResult.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TeamEventResultFindFirstArgs>(args?: SelectSubset<T, TeamEventResultFindFirstArgs<ExtArgs>>): Prisma__TeamEventResultClient<$Result.GetResult<Prisma.$TeamEventResultPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TeamEventResult that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TeamEventResultFindFirstOrThrowArgs} args - Arguments to find a TeamEventResult
+     * @example
+     * // Get one TeamEventResult
+     * const teamEventResult = await prisma.teamEventResult.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TeamEventResultFindFirstOrThrowArgs>(args?: SelectSubset<T, TeamEventResultFindFirstOrThrowArgs<ExtArgs>>): Prisma__TeamEventResultClient<$Result.GetResult<Prisma.$TeamEventResultPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TeamEventResults that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TeamEventResultFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TeamEventResults
+     * const teamEventResults = await prisma.teamEventResult.findMany()
+     * 
+     * // Get first 10 TeamEventResults
+     * const teamEventResults = await prisma.teamEventResult.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const teamEventResultWithIdOnly = await prisma.teamEventResult.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TeamEventResultFindManyArgs>(args?: SelectSubset<T, TeamEventResultFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeamEventResultPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TeamEventResult.
+     * @param {TeamEventResultCreateArgs} args - Arguments to create a TeamEventResult.
+     * @example
+     * // Create one TeamEventResult
+     * const TeamEventResult = await prisma.teamEventResult.create({
+     *   data: {
+     *     // ... data to create a TeamEventResult
+     *   }
+     * })
+     * 
+     */
+    create<T extends TeamEventResultCreateArgs>(args: SelectSubset<T, TeamEventResultCreateArgs<ExtArgs>>): Prisma__TeamEventResultClient<$Result.GetResult<Prisma.$TeamEventResultPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TeamEventResults.
+     * @param {TeamEventResultCreateManyArgs} args - Arguments to create many TeamEventResults.
+     * @example
+     * // Create many TeamEventResults
+     * const teamEventResult = await prisma.teamEventResult.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TeamEventResultCreateManyArgs>(args?: SelectSubset<T, TeamEventResultCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a TeamEventResult.
+     * @param {TeamEventResultDeleteArgs} args - Arguments to delete one TeamEventResult.
+     * @example
+     * // Delete one TeamEventResult
+     * const TeamEventResult = await prisma.teamEventResult.delete({
+     *   where: {
+     *     // ... filter to delete one TeamEventResult
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TeamEventResultDeleteArgs>(args: SelectSubset<T, TeamEventResultDeleteArgs<ExtArgs>>): Prisma__TeamEventResultClient<$Result.GetResult<Prisma.$TeamEventResultPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TeamEventResult.
+     * @param {TeamEventResultUpdateArgs} args - Arguments to update one TeamEventResult.
+     * @example
+     * // Update one TeamEventResult
+     * const teamEventResult = await prisma.teamEventResult.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TeamEventResultUpdateArgs>(args: SelectSubset<T, TeamEventResultUpdateArgs<ExtArgs>>): Prisma__TeamEventResultClient<$Result.GetResult<Prisma.$TeamEventResultPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TeamEventResults.
+     * @param {TeamEventResultDeleteManyArgs} args - Arguments to filter TeamEventResults to delete.
+     * @example
+     * // Delete a few TeamEventResults
+     * const { count } = await prisma.teamEventResult.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TeamEventResultDeleteManyArgs>(args?: SelectSubset<T, TeamEventResultDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TeamEventResults.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TeamEventResultUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TeamEventResults
+     * const teamEventResult = await prisma.teamEventResult.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TeamEventResultUpdateManyArgs>(args: SelectSubset<T, TeamEventResultUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one TeamEventResult.
+     * @param {TeamEventResultUpsertArgs} args - Arguments to update or create a TeamEventResult.
+     * @example
+     * // Update or create a TeamEventResult
+     * const teamEventResult = await prisma.teamEventResult.upsert({
+     *   create: {
+     *     // ... data to create a TeamEventResult
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TeamEventResult we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TeamEventResultUpsertArgs>(args: SelectSubset<T, TeamEventResultUpsertArgs<ExtArgs>>): Prisma__TeamEventResultClient<$Result.GetResult<Prisma.$TeamEventResultPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TeamEventResults that matches the filter.
+     * @param {TeamEventResultFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const teamEventResult = await prisma.teamEventResult.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: TeamEventResultFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a TeamEventResult.
+     * @param {TeamEventResultAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const teamEventResult = await prisma.teamEventResult.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: TeamEventResultAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of TeamEventResults.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TeamEventResultCountArgs} args - Arguments to filter TeamEventResults to count.
+     * @example
+     * // Count the number of TeamEventResults
+     * const count = await prisma.teamEventResult.count({
+     *   where: {
+     *     // ... the filter for the TeamEventResults we want to count
+     *   }
+     * })
+    **/
+    count<T extends TeamEventResultCountArgs>(
+      args?: Subset<T, TeamEventResultCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TeamEventResultCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TeamEventResult.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TeamEventResultAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TeamEventResultAggregateArgs>(args: Subset<T, TeamEventResultAggregateArgs>): Prisma.PrismaPromise<GetTeamEventResultAggregateType<T>>
+
+    /**
+     * Group by TeamEventResult.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TeamEventResultGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TeamEventResultGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TeamEventResultGroupByArgs['orderBy'] }
+        : { orderBy?: TeamEventResultGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TeamEventResultGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTeamEventResultGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TeamEventResult model
+   */
+  readonly fields: TeamEventResultFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TeamEventResult.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TeamEventResultClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TeamEventResult model
+   */
+  interface TeamEventResultFieldRefs {
+    readonly id: FieldRef<"TeamEventResult", 'String'>
+    readonly teamNumber: FieldRef<"TeamEventResult", 'Int'>
+    readonly eventKey: FieldRef<"TeamEventResult", 'String'>
+    readonly year: FieldRef<"TeamEventResult", 'Int'>
+    readonly eventType: FieldRef<"TeamEventResult", 'Int'>
+    readonly startDate: FieldRef<"TeamEventResult", 'String'>
+    readonly qualRank: FieldRef<"TeamEventResult", 'Int'>
+    readonly numTeams: FieldRef<"TeamEventResult", 'Int'>
+    readonly allianceSeed: FieldRef<"TeamEventResult", 'Int'>
+    readonly pickRole: FieldRef<"TeamEventResult", 'String'>
+    readonly elimMatchesPlayed: FieldRef<"TeamEventResult", 'Int'>
+    readonly einsteinWins: FieldRef<"TeamEventResult", 'Int'>
+    readonly opponents: FieldRef<"TeamEventResult", 'Int[]'>
+    readonly updatedAt: FieldRef<"TeamEventResult", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TeamEventResult findUnique
+   */
+  export type TeamEventResultFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TeamEventResult
+     */
+    select?: TeamEventResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TeamEventResult
+     */
+    omit?: TeamEventResultOmit<ExtArgs> | null
+    /**
+     * Filter, which TeamEventResult to fetch.
+     */
+    where: TeamEventResultWhereUniqueInput
+  }
+
+  /**
+   * TeamEventResult findUniqueOrThrow
+   */
+  export type TeamEventResultFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TeamEventResult
+     */
+    select?: TeamEventResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TeamEventResult
+     */
+    omit?: TeamEventResultOmit<ExtArgs> | null
+    /**
+     * Filter, which TeamEventResult to fetch.
+     */
+    where: TeamEventResultWhereUniqueInput
+  }
+
+  /**
+   * TeamEventResult findFirst
+   */
+  export type TeamEventResultFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TeamEventResult
+     */
+    select?: TeamEventResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TeamEventResult
+     */
+    omit?: TeamEventResultOmit<ExtArgs> | null
+    /**
+     * Filter, which TeamEventResult to fetch.
+     */
+    where?: TeamEventResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TeamEventResults to fetch.
+     */
+    orderBy?: TeamEventResultOrderByWithRelationInput | TeamEventResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TeamEventResults.
+     */
+    cursor?: TeamEventResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TeamEventResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TeamEventResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TeamEventResults.
+     */
+    distinct?: TeamEventResultScalarFieldEnum | TeamEventResultScalarFieldEnum[]
+  }
+
+  /**
+   * TeamEventResult findFirstOrThrow
+   */
+  export type TeamEventResultFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TeamEventResult
+     */
+    select?: TeamEventResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TeamEventResult
+     */
+    omit?: TeamEventResultOmit<ExtArgs> | null
+    /**
+     * Filter, which TeamEventResult to fetch.
+     */
+    where?: TeamEventResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TeamEventResults to fetch.
+     */
+    orderBy?: TeamEventResultOrderByWithRelationInput | TeamEventResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TeamEventResults.
+     */
+    cursor?: TeamEventResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TeamEventResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TeamEventResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TeamEventResults.
+     */
+    distinct?: TeamEventResultScalarFieldEnum | TeamEventResultScalarFieldEnum[]
+  }
+
+  /**
+   * TeamEventResult findMany
+   */
+  export type TeamEventResultFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TeamEventResult
+     */
+    select?: TeamEventResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TeamEventResult
+     */
+    omit?: TeamEventResultOmit<ExtArgs> | null
+    /**
+     * Filter, which TeamEventResults to fetch.
+     */
+    where?: TeamEventResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TeamEventResults to fetch.
+     */
+    orderBy?: TeamEventResultOrderByWithRelationInput | TeamEventResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TeamEventResults.
+     */
+    cursor?: TeamEventResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TeamEventResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TeamEventResults.
+     */
+    skip?: number
+    distinct?: TeamEventResultScalarFieldEnum | TeamEventResultScalarFieldEnum[]
+  }
+
+  /**
+   * TeamEventResult create
+   */
+  export type TeamEventResultCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TeamEventResult
+     */
+    select?: TeamEventResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TeamEventResult
+     */
+    omit?: TeamEventResultOmit<ExtArgs> | null
+    /**
+     * The data needed to create a TeamEventResult.
+     */
+    data: XOR<TeamEventResultCreateInput, TeamEventResultUncheckedCreateInput>
+  }
+
+  /**
+   * TeamEventResult createMany
+   */
+  export type TeamEventResultCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TeamEventResults.
+     */
+    data: TeamEventResultCreateManyInput | TeamEventResultCreateManyInput[]
+  }
+
+  /**
+   * TeamEventResult update
+   */
+  export type TeamEventResultUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TeamEventResult
+     */
+    select?: TeamEventResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TeamEventResult
+     */
+    omit?: TeamEventResultOmit<ExtArgs> | null
+    /**
+     * The data needed to update a TeamEventResult.
+     */
+    data: XOR<TeamEventResultUpdateInput, TeamEventResultUncheckedUpdateInput>
+    /**
+     * Choose, which TeamEventResult to update.
+     */
+    where: TeamEventResultWhereUniqueInput
+  }
+
+  /**
+   * TeamEventResult updateMany
+   */
+  export type TeamEventResultUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TeamEventResults.
+     */
+    data: XOR<TeamEventResultUpdateManyMutationInput, TeamEventResultUncheckedUpdateManyInput>
+    /**
+     * Filter which TeamEventResults to update
+     */
+    where?: TeamEventResultWhereInput
+    /**
+     * Limit how many TeamEventResults to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TeamEventResult upsert
+   */
+  export type TeamEventResultUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TeamEventResult
+     */
+    select?: TeamEventResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TeamEventResult
+     */
+    omit?: TeamEventResultOmit<ExtArgs> | null
+    /**
+     * The filter to search for the TeamEventResult to update in case it exists.
+     */
+    where: TeamEventResultWhereUniqueInput
+    /**
+     * In case the TeamEventResult found by the `where` argument doesn't exist, create a new TeamEventResult with this data.
+     */
+    create: XOR<TeamEventResultCreateInput, TeamEventResultUncheckedCreateInput>
+    /**
+     * In case the TeamEventResult was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TeamEventResultUpdateInput, TeamEventResultUncheckedUpdateInput>
+  }
+
+  /**
+   * TeamEventResult delete
+   */
+  export type TeamEventResultDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TeamEventResult
+     */
+    select?: TeamEventResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TeamEventResult
+     */
+    omit?: TeamEventResultOmit<ExtArgs> | null
+    /**
+     * Filter which TeamEventResult to delete.
+     */
+    where: TeamEventResultWhereUniqueInput
+  }
+
+  /**
+   * TeamEventResult deleteMany
+   */
+  export type TeamEventResultDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TeamEventResults to delete
+     */
+    where?: TeamEventResultWhereInput
+    /**
+     * Limit how many TeamEventResults to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TeamEventResult findRaw
+   */
+  export type TeamEventResultFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * TeamEventResult aggregateRaw
+   */
+  export type TeamEventResultAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * TeamEventResult without action
+   */
+  export type TeamEventResultDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TeamEventResult
+     */
+    select?: TeamEventResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TeamEventResult
+     */
+    omit?: TeamEventResultOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model TeamScore
+   */
+
+  export type AggregateTeamScore = {
+    _count: TeamScoreCountAggregateOutputType | null
+    _avg: TeamScoreAvgAggregateOutputType | null
+    _sum: TeamScoreSumAggregateOutputType | null
+    _min: TeamScoreMinAggregateOutputType | null
+    _max: TeamScoreMaxAggregateOutputType | null
+  }
+
+  export type TeamScoreAvgAggregateOutputType = {
+    teamNumber: number | null
+    year: number | null
+    stdXrobot: number | null
+    stdXawards: number | null
+    stdXval: number | null
+    fullXrobot: number | null
+    fullXawards: number | null
+    fullXval: number | null
+    xsos: number | null
+  }
+
+  export type TeamScoreSumAggregateOutputType = {
+    teamNumber: number | null
+    year: number | null
+    stdXrobot: number | null
+    stdXawards: number | null
+    stdXval: number | null
+    fullXrobot: number | null
+    fullXawards: number | null
+    fullXval: number | null
+    xsos: number | null
+  }
+
+  export type TeamScoreMinAggregateOutputType = {
+    id: string | null
+    teamNumber: number | null
+    year: number | null
+    stdXrobot: number | null
+    stdXawards: number | null
+    stdXval: number | null
+    fullXrobot: number | null
+    fullXawards: number | null
+    fullXval: number | null
+    xsos: number | null
+    updatedAt: Date | null
+  }
+
+  export type TeamScoreMaxAggregateOutputType = {
+    id: string | null
+    teamNumber: number | null
+    year: number | null
+    stdXrobot: number | null
+    stdXawards: number | null
+    stdXval: number | null
+    fullXrobot: number | null
+    fullXawards: number | null
+    fullXval: number | null
+    xsos: number | null
+    updatedAt: Date | null
+  }
+
+  export type TeamScoreCountAggregateOutputType = {
+    id: number
+    teamNumber: number
+    year: number
+    stdXrobot: number
+    stdXawards: number
+    stdXval: number
+    fullXrobot: number
+    fullXawards: number
+    fullXval: number
+    xsos: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type TeamScoreAvgAggregateInputType = {
+    teamNumber?: true
+    year?: true
+    stdXrobot?: true
+    stdXawards?: true
+    stdXval?: true
+    fullXrobot?: true
+    fullXawards?: true
+    fullXval?: true
+    xsos?: true
+  }
+
+  export type TeamScoreSumAggregateInputType = {
+    teamNumber?: true
+    year?: true
+    stdXrobot?: true
+    stdXawards?: true
+    stdXval?: true
+    fullXrobot?: true
+    fullXawards?: true
+    fullXval?: true
+    xsos?: true
+  }
+
+  export type TeamScoreMinAggregateInputType = {
+    id?: true
+    teamNumber?: true
+    year?: true
+    stdXrobot?: true
+    stdXawards?: true
+    stdXval?: true
+    fullXrobot?: true
+    fullXawards?: true
+    fullXval?: true
+    xsos?: true
+    updatedAt?: true
+  }
+
+  export type TeamScoreMaxAggregateInputType = {
+    id?: true
+    teamNumber?: true
+    year?: true
+    stdXrobot?: true
+    stdXawards?: true
+    stdXval?: true
+    fullXrobot?: true
+    fullXawards?: true
+    fullXval?: true
+    xsos?: true
+    updatedAt?: true
+  }
+
+  export type TeamScoreCountAggregateInputType = {
+    id?: true
+    teamNumber?: true
+    year?: true
+    stdXrobot?: true
+    stdXawards?: true
+    stdXval?: true
+    fullXrobot?: true
+    fullXawards?: true
+    fullXval?: true
+    xsos?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type TeamScoreAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TeamScore to aggregate.
+     */
+    where?: TeamScoreWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TeamScores to fetch.
+     */
+    orderBy?: TeamScoreOrderByWithRelationInput | TeamScoreOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TeamScoreWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TeamScores from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TeamScores.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TeamScores
+    **/
+    _count?: true | TeamScoreCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TeamScoreAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TeamScoreSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TeamScoreMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TeamScoreMaxAggregateInputType
+  }
+
+  export type GetTeamScoreAggregateType<T extends TeamScoreAggregateArgs> = {
+        [P in keyof T & keyof AggregateTeamScore]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTeamScore[P]>
+      : GetScalarType<T[P], AggregateTeamScore[P]>
+  }
+
+
+
+
+  export type TeamScoreGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TeamScoreWhereInput
+    orderBy?: TeamScoreOrderByWithAggregationInput | TeamScoreOrderByWithAggregationInput[]
+    by: TeamScoreScalarFieldEnum[] | TeamScoreScalarFieldEnum
+    having?: TeamScoreScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TeamScoreCountAggregateInputType | true
+    _avg?: TeamScoreAvgAggregateInputType
+    _sum?: TeamScoreSumAggregateInputType
+    _min?: TeamScoreMinAggregateInputType
+    _max?: TeamScoreMaxAggregateInputType
+  }
+
+  export type TeamScoreGroupByOutputType = {
+    id: string
+    teamNumber: number
+    year: number
+    stdXrobot: number
+    stdXawards: number
+    stdXval: number
+    fullXrobot: number
+    fullXawards: number
+    fullXval: number
+    xsos: number | null
+    updatedAt: Date
+    _count: TeamScoreCountAggregateOutputType | null
+    _avg: TeamScoreAvgAggregateOutputType | null
+    _sum: TeamScoreSumAggregateOutputType | null
+    _min: TeamScoreMinAggregateOutputType | null
+    _max: TeamScoreMaxAggregateOutputType | null
+  }
+
+  type GetTeamScoreGroupByPayload<T extends TeamScoreGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TeamScoreGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TeamScoreGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TeamScoreGroupByOutputType[P]>
+            : GetScalarType<T[P], TeamScoreGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TeamScoreSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    teamNumber?: boolean
+    year?: boolean
+    stdXrobot?: boolean
+    stdXawards?: boolean
+    stdXval?: boolean
+    fullXrobot?: boolean
+    fullXawards?: boolean
+    fullXval?: boolean
+    xsos?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["teamScore"]>
+
+
+
+  export type TeamScoreSelectScalar = {
+    id?: boolean
+    teamNumber?: boolean
+    year?: boolean
+    stdXrobot?: boolean
+    stdXawards?: boolean
+    stdXval?: boolean
+    fullXrobot?: boolean
+    fullXawards?: boolean
+    fullXval?: boolean
+    xsos?: boolean
+    updatedAt?: boolean
+  }
+
+  export type TeamScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "teamNumber" | "year" | "stdXrobot" | "stdXawards" | "stdXval" | "fullXrobot" | "fullXawards" | "fullXval" | "xsos" | "updatedAt", ExtArgs["result"]["teamScore"]>
+
+  export type $TeamScorePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TeamScore"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      teamNumber: number
+      year: number
+      stdXrobot: number
+      stdXawards: number
+      stdXval: number
+      fullXrobot: number
+      fullXawards: number
+      fullXval: number
+      xsos: number | null
+      updatedAt: Date
+    }, ExtArgs["result"]["teamScore"]>
+    composites: {}
+  }
+
+  type TeamScoreGetPayload<S extends boolean | null | undefined | TeamScoreDefaultArgs> = $Result.GetResult<Prisma.$TeamScorePayload, S>
+
+  type TeamScoreCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TeamScoreFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TeamScoreCountAggregateInputType | true
+    }
+
+  export interface TeamScoreDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TeamScore'], meta: { name: 'TeamScore' } }
+    /**
+     * Find zero or one TeamScore that matches the filter.
+     * @param {TeamScoreFindUniqueArgs} args - Arguments to find a TeamScore
+     * @example
+     * // Get one TeamScore
+     * const teamScore = await prisma.teamScore.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TeamScoreFindUniqueArgs>(args: SelectSubset<T, TeamScoreFindUniqueArgs<ExtArgs>>): Prisma__TeamScoreClient<$Result.GetResult<Prisma.$TeamScorePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TeamScore that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TeamScoreFindUniqueOrThrowArgs} args - Arguments to find a TeamScore
+     * @example
+     * // Get one TeamScore
+     * const teamScore = await prisma.teamScore.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TeamScoreFindUniqueOrThrowArgs>(args: SelectSubset<T, TeamScoreFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TeamScoreClient<$Result.GetResult<Prisma.$TeamScorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TeamScore that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TeamScoreFindFirstArgs} args - Arguments to find a TeamScore
+     * @example
+     * // Get one TeamScore
+     * const teamScore = await prisma.teamScore.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TeamScoreFindFirstArgs>(args?: SelectSubset<T, TeamScoreFindFirstArgs<ExtArgs>>): Prisma__TeamScoreClient<$Result.GetResult<Prisma.$TeamScorePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TeamScore that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TeamScoreFindFirstOrThrowArgs} args - Arguments to find a TeamScore
+     * @example
+     * // Get one TeamScore
+     * const teamScore = await prisma.teamScore.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TeamScoreFindFirstOrThrowArgs>(args?: SelectSubset<T, TeamScoreFindFirstOrThrowArgs<ExtArgs>>): Prisma__TeamScoreClient<$Result.GetResult<Prisma.$TeamScorePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TeamScores that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TeamScoreFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TeamScores
+     * const teamScores = await prisma.teamScore.findMany()
+     * 
+     * // Get first 10 TeamScores
+     * const teamScores = await prisma.teamScore.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const teamScoreWithIdOnly = await prisma.teamScore.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TeamScoreFindManyArgs>(args?: SelectSubset<T, TeamScoreFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeamScorePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TeamScore.
+     * @param {TeamScoreCreateArgs} args - Arguments to create a TeamScore.
+     * @example
+     * // Create one TeamScore
+     * const TeamScore = await prisma.teamScore.create({
+     *   data: {
+     *     // ... data to create a TeamScore
+     *   }
+     * })
+     * 
+     */
+    create<T extends TeamScoreCreateArgs>(args: SelectSubset<T, TeamScoreCreateArgs<ExtArgs>>): Prisma__TeamScoreClient<$Result.GetResult<Prisma.$TeamScorePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TeamScores.
+     * @param {TeamScoreCreateManyArgs} args - Arguments to create many TeamScores.
+     * @example
+     * // Create many TeamScores
+     * const teamScore = await prisma.teamScore.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TeamScoreCreateManyArgs>(args?: SelectSubset<T, TeamScoreCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a TeamScore.
+     * @param {TeamScoreDeleteArgs} args - Arguments to delete one TeamScore.
+     * @example
+     * // Delete one TeamScore
+     * const TeamScore = await prisma.teamScore.delete({
+     *   where: {
+     *     // ... filter to delete one TeamScore
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TeamScoreDeleteArgs>(args: SelectSubset<T, TeamScoreDeleteArgs<ExtArgs>>): Prisma__TeamScoreClient<$Result.GetResult<Prisma.$TeamScorePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TeamScore.
+     * @param {TeamScoreUpdateArgs} args - Arguments to update one TeamScore.
+     * @example
+     * // Update one TeamScore
+     * const teamScore = await prisma.teamScore.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TeamScoreUpdateArgs>(args: SelectSubset<T, TeamScoreUpdateArgs<ExtArgs>>): Prisma__TeamScoreClient<$Result.GetResult<Prisma.$TeamScorePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TeamScores.
+     * @param {TeamScoreDeleteManyArgs} args - Arguments to filter TeamScores to delete.
+     * @example
+     * // Delete a few TeamScores
+     * const { count } = await prisma.teamScore.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TeamScoreDeleteManyArgs>(args?: SelectSubset<T, TeamScoreDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TeamScores.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TeamScoreUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TeamScores
+     * const teamScore = await prisma.teamScore.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TeamScoreUpdateManyArgs>(args: SelectSubset<T, TeamScoreUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one TeamScore.
+     * @param {TeamScoreUpsertArgs} args - Arguments to update or create a TeamScore.
+     * @example
+     * // Update or create a TeamScore
+     * const teamScore = await prisma.teamScore.upsert({
+     *   create: {
+     *     // ... data to create a TeamScore
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TeamScore we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TeamScoreUpsertArgs>(args: SelectSubset<T, TeamScoreUpsertArgs<ExtArgs>>): Prisma__TeamScoreClient<$Result.GetResult<Prisma.$TeamScorePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TeamScores that matches the filter.
+     * @param {TeamScoreFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const teamScore = await prisma.teamScore.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: TeamScoreFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a TeamScore.
+     * @param {TeamScoreAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const teamScore = await prisma.teamScore.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: TeamScoreAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of TeamScores.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TeamScoreCountArgs} args - Arguments to filter TeamScores to count.
+     * @example
+     * // Count the number of TeamScores
+     * const count = await prisma.teamScore.count({
+     *   where: {
+     *     // ... the filter for the TeamScores we want to count
+     *   }
+     * })
+    **/
+    count<T extends TeamScoreCountArgs>(
+      args?: Subset<T, TeamScoreCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TeamScoreCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TeamScore.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TeamScoreAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TeamScoreAggregateArgs>(args: Subset<T, TeamScoreAggregateArgs>): Prisma.PrismaPromise<GetTeamScoreAggregateType<T>>
+
+    /**
+     * Group by TeamScore.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TeamScoreGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TeamScoreGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TeamScoreGroupByArgs['orderBy'] }
+        : { orderBy?: TeamScoreGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TeamScoreGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTeamScoreGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TeamScore model
+   */
+  readonly fields: TeamScoreFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TeamScore.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TeamScoreClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TeamScore model
+   */
+  interface TeamScoreFieldRefs {
+    readonly id: FieldRef<"TeamScore", 'String'>
+    readonly teamNumber: FieldRef<"TeamScore", 'Int'>
+    readonly year: FieldRef<"TeamScore", 'Int'>
+    readonly stdXrobot: FieldRef<"TeamScore", 'Float'>
+    readonly stdXawards: FieldRef<"TeamScore", 'Float'>
+    readonly stdXval: FieldRef<"TeamScore", 'Float'>
+    readonly fullXrobot: FieldRef<"TeamScore", 'Float'>
+    readonly fullXawards: FieldRef<"TeamScore", 'Float'>
+    readonly fullXval: FieldRef<"TeamScore", 'Float'>
+    readonly xsos: FieldRef<"TeamScore", 'Float'>
+    readonly updatedAt: FieldRef<"TeamScore", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TeamScore findUnique
+   */
+  export type TeamScoreFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TeamScore
+     */
+    select?: TeamScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TeamScore
+     */
+    omit?: TeamScoreOmit<ExtArgs> | null
+    /**
+     * Filter, which TeamScore to fetch.
+     */
+    where: TeamScoreWhereUniqueInput
+  }
+
+  /**
+   * TeamScore findUniqueOrThrow
+   */
+  export type TeamScoreFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TeamScore
+     */
+    select?: TeamScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TeamScore
+     */
+    omit?: TeamScoreOmit<ExtArgs> | null
+    /**
+     * Filter, which TeamScore to fetch.
+     */
+    where: TeamScoreWhereUniqueInput
+  }
+
+  /**
+   * TeamScore findFirst
+   */
+  export type TeamScoreFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TeamScore
+     */
+    select?: TeamScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TeamScore
+     */
+    omit?: TeamScoreOmit<ExtArgs> | null
+    /**
+     * Filter, which TeamScore to fetch.
+     */
+    where?: TeamScoreWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TeamScores to fetch.
+     */
+    orderBy?: TeamScoreOrderByWithRelationInput | TeamScoreOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TeamScores.
+     */
+    cursor?: TeamScoreWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TeamScores from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TeamScores.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TeamScores.
+     */
+    distinct?: TeamScoreScalarFieldEnum | TeamScoreScalarFieldEnum[]
+  }
+
+  /**
+   * TeamScore findFirstOrThrow
+   */
+  export type TeamScoreFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TeamScore
+     */
+    select?: TeamScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TeamScore
+     */
+    omit?: TeamScoreOmit<ExtArgs> | null
+    /**
+     * Filter, which TeamScore to fetch.
+     */
+    where?: TeamScoreWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TeamScores to fetch.
+     */
+    orderBy?: TeamScoreOrderByWithRelationInput | TeamScoreOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TeamScores.
+     */
+    cursor?: TeamScoreWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TeamScores from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TeamScores.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TeamScores.
+     */
+    distinct?: TeamScoreScalarFieldEnum | TeamScoreScalarFieldEnum[]
+  }
+
+  /**
+   * TeamScore findMany
+   */
+  export type TeamScoreFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TeamScore
+     */
+    select?: TeamScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TeamScore
+     */
+    omit?: TeamScoreOmit<ExtArgs> | null
+    /**
+     * Filter, which TeamScores to fetch.
+     */
+    where?: TeamScoreWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TeamScores to fetch.
+     */
+    orderBy?: TeamScoreOrderByWithRelationInput | TeamScoreOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TeamScores.
+     */
+    cursor?: TeamScoreWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TeamScores from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TeamScores.
+     */
+    skip?: number
+    distinct?: TeamScoreScalarFieldEnum | TeamScoreScalarFieldEnum[]
+  }
+
+  /**
+   * TeamScore create
+   */
+  export type TeamScoreCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TeamScore
+     */
+    select?: TeamScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TeamScore
+     */
+    omit?: TeamScoreOmit<ExtArgs> | null
+    /**
+     * The data needed to create a TeamScore.
+     */
+    data: XOR<TeamScoreCreateInput, TeamScoreUncheckedCreateInput>
+  }
+
+  /**
+   * TeamScore createMany
+   */
+  export type TeamScoreCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TeamScores.
+     */
+    data: TeamScoreCreateManyInput | TeamScoreCreateManyInput[]
+  }
+
+  /**
+   * TeamScore update
+   */
+  export type TeamScoreUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TeamScore
+     */
+    select?: TeamScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TeamScore
+     */
+    omit?: TeamScoreOmit<ExtArgs> | null
+    /**
+     * The data needed to update a TeamScore.
+     */
+    data: XOR<TeamScoreUpdateInput, TeamScoreUncheckedUpdateInput>
+    /**
+     * Choose, which TeamScore to update.
+     */
+    where: TeamScoreWhereUniqueInput
+  }
+
+  /**
+   * TeamScore updateMany
+   */
+  export type TeamScoreUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TeamScores.
+     */
+    data: XOR<TeamScoreUpdateManyMutationInput, TeamScoreUncheckedUpdateManyInput>
+    /**
+     * Filter which TeamScores to update
+     */
+    where?: TeamScoreWhereInput
+    /**
+     * Limit how many TeamScores to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TeamScore upsert
+   */
+  export type TeamScoreUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TeamScore
+     */
+    select?: TeamScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TeamScore
+     */
+    omit?: TeamScoreOmit<ExtArgs> | null
+    /**
+     * The filter to search for the TeamScore to update in case it exists.
+     */
+    where: TeamScoreWhereUniqueInput
+    /**
+     * In case the TeamScore found by the `where` argument doesn't exist, create a new TeamScore with this data.
+     */
+    create: XOR<TeamScoreCreateInput, TeamScoreUncheckedCreateInput>
+    /**
+     * In case the TeamScore was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TeamScoreUpdateInput, TeamScoreUncheckedUpdateInput>
+  }
+
+  /**
+   * TeamScore delete
+   */
+  export type TeamScoreDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TeamScore
+     */
+    select?: TeamScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TeamScore
+     */
+    omit?: TeamScoreOmit<ExtArgs> | null
+    /**
+     * Filter which TeamScore to delete.
+     */
+    where: TeamScoreWhereUniqueInput
+  }
+
+  /**
+   * TeamScore deleteMany
+   */
+  export type TeamScoreDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TeamScores to delete
+     */
+    where?: TeamScoreWhereInput
+    /**
+     * Limit how many TeamScores to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TeamScore findRaw
+   */
+  export type TeamScoreFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * TeamScore aggregateRaw
+   */
+  export type TeamScoreAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * TeamScore without action
+   */
+  export type TeamScoreDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TeamScore
+     */
+    select?: TeamScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TeamScore
+     */
+    omit?: TeamScoreOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ScoreWeights
+   */
+
+  export type AggregateScoreWeights = {
+    _count: ScoreWeightsCountAggregateOutputType | null
+    _avg: ScoreWeightsAvgAggregateOutputType | null
+    _sum: ScoreWeightsSumAggregateOutputType | null
+    _min: ScoreWeightsMinAggregateOutputType | null
+    _max: ScoreWeightsMaxAggregateOutputType | null
+  }
+
+  export type ScoreWeightsAvgAggregateOutputType = {
+    optRobot: number | null
+    optAwards: number | null
+    actRobot: number | null
+    actAwards: number | null
+  }
+
+  export type ScoreWeightsSumAggregateOutputType = {
+    optRobot: number[]
+    optAwards: number[]
+    actRobot: number[]
+    actAwards: number[]
+  }
+
+  export type ScoreWeightsMinAggregateOutputType = {
+    id: string | null
+    key: string | null
+    updatedAt: Date | null
+  }
+
+  export type ScoreWeightsMaxAggregateOutputType = {
+    id: string | null
+    key: string | null
+    updatedAt: Date | null
+  }
+
+  export type ScoreWeightsCountAggregateOutputType = {
+    id: number
+    key: number
+    optRobot: number
+    optAwards: number
+    actRobot: number
+    actAwards: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ScoreWeightsAvgAggregateInputType = {
+    optRobot?: true
+    optAwards?: true
+    actRobot?: true
+    actAwards?: true
+  }
+
+  export type ScoreWeightsSumAggregateInputType = {
+    optRobot?: true
+    optAwards?: true
+    actRobot?: true
+    actAwards?: true
+  }
+
+  export type ScoreWeightsMinAggregateInputType = {
+    id?: true
+    key?: true
+    updatedAt?: true
+  }
+
+  export type ScoreWeightsMaxAggregateInputType = {
+    id?: true
+    key?: true
+    updatedAt?: true
+  }
+
+  export type ScoreWeightsCountAggregateInputType = {
+    id?: true
+    key?: true
+    optRobot?: true
+    optAwards?: true
+    actRobot?: true
+    actAwards?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ScoreWeightsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ScoreWeights to aggregate.
+     */
+    where?: ScoreWeightsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ScoreWeights to fetch.
+     */
+    orderBy?: ScoreWeightsOrderByWithRelationInput | ScoreWeightsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ScoreWeightsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ScoreWeights from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ScoreWeights.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ScoreWeights
+    **/
+    _count?: true | ScoreWeightsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ScoreWeightsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ScoreWeightsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ScoreWeightsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ScoreWeightsMaxAggregateInputType
+  }
+
+  export type GetScoreWeightsAggregateType<T extends ScoreWeightsAggregateArgs> = {
+        [P in keyof T & keyof AggregateScoreWeights]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateScoreWeights[P]>
+      : GetScalarType<T[P], AggregateScoreWeights[P]>
+  }
+
+
+
+
+  export type ScoreWeightsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ScoreWeightsWhereInput
+    orderBy?: ScoreWeightsOrderByWithAggregationInput | ScoreWeightsOrderByWithAggregationInput[]
+    by: ScoreWeightsScalarFieldEnum[] | ScoreWeightsScalarFieldEnum
+    having?: ScoreWeightsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ScoreWeightsCountAggregateInputType | true
+    _avg?: ScoreWeightsAvgAggregateInputType
+    _sum?: ScoreWeightsSumAggregateInputType
+    _min?: ScoreWeightsMinAggregateInputType
+    _max?: ScoreWeightsMaxAggregateInputType
+  }
+
+  export type ScoreWeightsGroupByOutputType = {
+    id: string
+    key: string
+    optRobot: number[]
+    optAwards: number[]
+    actRobot: number[]
+    actAwards: number[]
+    updatedAt: Date
+    _count: ScoreWeightsCountAggregateOutputType | null
+    _avg: ScoreWeightsAvgAggregateOutputType | null
+    _sum: ScoreWeightsSumAggregateOutputType | null
+    _min: ScoreWeightsMinAggregateOutputType | null
+    _max: ScoreWeightsMaxAggregateOutputType | null
+  }
+
+  type GetScoreWeightsGroupByPayload<T extends ScoreWeightsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ScoreWeightsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ScoreWeightsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ScoreWeightsGroupByOutputType[P]>
+            : GetScalarType<T[P], ScoreWeightsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ScoreWeightsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    key?: boolean
+    optRobot?: boolean
+    optAwards?: boolean
+    actRobot?: boolean
+    actAwards?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["scoreWeights"]>
+
+
+
+  export type ScoreWeightsSelectScalar = {
+    id?: boolean
+    key?: boolean
+    optRobot?: boolean
+    optAwards?: boolean
+    actRobot?: boolean
+    actAwards?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ScoreWeightsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "key" | "optRobot" | "optAwards" | "actRobot" | "actAwards" | "updatedAt", ExtArgs["result"]["scoreWeights"]>
+
+  export type $ScoreWeightsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ScoreWeights"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      key: string
+      optRobot: number[]
+      optAwards: number[]
+      actRobot: number[]
+      actAwards: number[]
+      updatedAt: Date
+    }, ExtArgs["result"]["scoreWeights"]>
+    composites: {}
+  }
+
+  type ScoreWeightsGetPayload<S extends boolean | null | undefined | ScoreWeightsDefaultArgs> = $Result.GetResult<Prisma.$ScoreWeightsPayload, S>
+
+  type ScoreWeightsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ScoreWeightsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ScoreWeightsCountAggregateInputType | true
+    }
+
+  export interface ScoreWeightsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ScoreWeights'], meta: { name: 'ScoreWeights' } }
+    /**
+     * Find zero or one ScoreWeights that matches the filter.
+     * @param {ScoreWeightsFindUniqueArgs} args - Arguments to find a ScoreWeights
+     * @example
+     * // Get one ScoreWeights
+     * const scoreWeights = await prisma.scoreWeights.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ScoreWeightsFindUniqueArgs>(args: SelectSubset<T, ScoreWeightsFindUniqueArgs<ExtArgs>>): Prisma__ScoreWeightsClient<$Result.GetResult<Prisma.$ScoreWeightsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ScoreWeights that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ScoreWeightsFindUniqueOrThrowArgs} args - Arguments to find a ScoreWeights
+     * @example
+     * // Get one ScoreWeights
+     * const scoreWeights = await prisma.scoreWeights.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ScoreWeightsFindUniqueOrThrowArgs>(args: SelectSubset<T, ScoreWeightsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ScoreWeightsClient<$Result.GetResult<Prisma.$ScoreWeightsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ScoreWeights that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScoreWeightsFindFirstArgs} args - Arguments to find a ScoreWeights
+     * @example
+     * // Get one ScoreWeights
+     * const scoreWeights = await prisma.scoreWeights.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ScoreWeightsFindFirstArgs>(args?: SelectSubset<T, ScoreWeightsFindFirstArgs<ExtArgs>>): Prisma__ScoreWeightsClient<$Result.GetResult<Prisma.$ScoreWeightsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ScoreWeights that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScoreWeightsFindFirstOrThrowArgs} args - Arguments to find a ScoreWeights
+     * @example
+     * // Get one ScoreWeights
+     * const scoreWeights = await prisma.scoreWeights.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ScoreWeightsFindFirstOrThrowArgs>(args?: SelectSubset<T, ScoreWeightsFindFirstOrThrowArgs<ExtArgs>>): Prisma__ScoreWeightsClient<$Result.GetResult<Prisma.$ScoreWeightsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ScoreWeights that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScoreWeightsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ScoreWeights
+     * const scoreWeights = await prisma.scoreWeights.findMany()
+     * 
+     * // Get first 10 ScoreWeights
+     * const scoreWeights = await prisma.scoreWeights.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const scoreWeightsWithIdOnly = await prisma.scoreWeights.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ScoreWeightsFindManyArgs>(args?: SelectSubset<T, ScoreWeightsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ScoreWeightsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ScoreWeights.
+     * @param {ScoreWeightsCreateArgs} args - Arguments to create a ScoreWeights.
+     * @example
+     * // Create one ScoreWeights
+     * const ScoreWeights = await prisma.scoreWeights.create({
+     *   data: {
+     *     // ... data to create a ScoreWeights
+     *   }
+     * })
+     * 
+     */
+    create<T extends ScoreWeightsCreateArgs>(args: SelectSubset<T, ScoreWeightsCreateArgs<ExtArgs>>): Prisma__ScoreWeightsClient<$Result.GetResult<Prisma.$ScoreWeightsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ScoreWeights.
+     * @param {ScoreWeightsCreateManyArgs} args - Arguments to create many ScoreWeights.
+     * @example
+     * // Create many ScoreWeights
+     * const scoreWeights = await prisma.scoreWeights.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ScoreWeightsCreateManyArgs>(args?: SelectSubset<T, ScoreWeightsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a ScoreWeights.
+     * @param {ScoreWeightsDeleteArgs} args - Arguments to delete one ScoreWeights.
+     * @example
+     * // Delete one ScoreWeights
+     * const ScoreWeights = await prisma.scoreWeights.delete({
+     *   where: {
+     *     // ... filter to delete one ScoreWeights
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ScoreWeightsDeleteArgs>(args: SelectSubset<T, ScoreWeightsDeleteArgs<ExtArgs>>): Prisma__ScoreWeightsClient<$Result.GetResult<Prisma.$ScoreWeightsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ScoreWeights.
+     * @param {ScoreWeightsUpdateArgs} args - Arguments to update one ScoreWeights.
+     * @example
+     * // Update one ScoreWeights
+     * const scoreWeights = await prisma.scoreWeights.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ScoreWeightsUpdateArgs>(args: SelectSubset<T, ScoreWeightsUpdateArgs<ExtArgs>>): Prisma__ScoreWeightsClient<$Result.GetResult<Prisma.$ScoreWeightsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ScoreWeights.
+     * @param {ScoreWeightsDeleteManyArgs} args - Arguments to filter ScoreWeights to delete.
+     * @example
+     * // Delete a few ScoreWeights
+     * const { count } = await prisma.scoreWeights.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ScoreWeightsDeleteManyArgs>(args?: SelectSubset<T, ScoreWeightsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ScoreWeights.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScoreWeightsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ScoreWeights
+     * const scoreWeights = await prisma.scoreWeights.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ScoreWeightsUpdateManyArgs>(args: SelectSubset<T, ScoreWeightsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ScoreWeights.
+     * @param {ScoreWeightsUpsertArgs} args - Arguments to update or create a ScoreWeights.
+     * @example
+     * // Update or create a ScoreWeights
+     * const scoreWeights = await prisma.scoreWeights.upsert({
+     *   create: {
+     *     // ... data to create a ScoreWeights
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ScoreWeights we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ScoreWeightsUpsertArgs>(args: SelectSubset<T, ScoreWeightsUpsertArgs<ExtArgs>>): Prisma__ScoreWeightsClient<$Result.GetResult<Prisma.$ScoreWeightsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ScoreWeights that matches the filter.
+     * @param {ScoreWeightsFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const scoreWeights = await prisma.scoreWeights.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: ScoreWeightsFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a ScoreWeights.
+     * @param {ScoreWeightsAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const scoreWeights = await prisma.scoreWeights.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: ScoreWeightsAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of ScoreWeights.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScoreWeightsCountArgs} args - Arguments to filter ScoreWeights to count.
+     * @example
+     * // Count the number of ScoreWeights
+     * const count = await prisma.scoreWeights.count({
+     *   where: {
+     *     // ... the filter for the ScoreWeights we want to count
+     *   }
+     * })
+    **/
+    count<T extends ScoreWeightsCountArgs>(
+      args?: Subset<T, ScoreWeightsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ScoreWeightsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ScoreWeights.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScoreWeightsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ScoreWeightsAggregateArgs>(args: Subset<T, ScoreWeightsAggregateArgs>): Prisma.PrismaPromise<GetScoreWeightsAggregateType<T>>
+
+    /**
+     * Group by ScoreWeights.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScoreWeightsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ScoreWeightsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ScoreWeightsGroupByArgs['orderBy'] }
+        : { orderBy?: ScoreWeightsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ScoreWeightsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetScoreWeightsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ScoreWeights model
+   */
+  readonly fields: ScoreWeightsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ScoreWeights.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ScoreWeightsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ScoreWeights model
+   */
+  interface ScoreWeightsFieldRefs {
+    readonly id: FieldRef<"ScoreWeights", 'String'>
+    readonly key: FieldRef<"ScoreWeights", 'String'>
+    readonly optRobot: FieldRef<"ScoreWeights", 'Float[]'>
+    readonly optAwards: FieldRef<"ScoreWeights", 'Float[]'>
+    readonly actRobot: FieldRef<"ScoreWeights", 'Float[]'>
+    readonly actAwards: FieldRef<"ScoreWeights", 'Float[]'>
+    readonly updatedAt: FieldRef<"ScoreWeights", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ScoreWeights findUnique
+   */
+  export type ScoreWeightsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreWeights
+     */
+    select?: ScoreWeightsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreWeights
+     */
+    omit?: ScoreWeightsOmit<ExtArgs> | null
+    /**
+     * Filter, which ScoreWeights to fetch.
+     */
+    where: ScoreWeightsWhereUniqueInput
+  }
+
+  /**
+   * ScoreWeights findUniqueOrThrow
+   */
+  export type ScoreWeightsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreWeights
+     */
+    select?: ScoreWeightsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreWeights
+     */
+    omit?: ScoreWeightsOmit<ExtArgs> | null
+    /**
+     * Filter, which ScoreWeights to fetch.
+     */
+    where: ScoreWeightsWhereUniqueInput
+  }
+
+  /**
+   * ScoreWeights findFirst
+   */
+  export type ScoreWeightsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreWeights
+     */
+    select?: ScoreWeightsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreWeights
+     */
+    omit?: ScoreWeightsOmit<ExtArgs> | null
+    /**
+     * Filter, which ScoreWeights to fetch.
+     */
+    where?: ScoreWeightsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ScoreWeights to fetch.
+     */
+    orderBy?: ScoreWeightsOrderByWithRelationInput | ScoreWeightsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ScoreWeights.
+     */
+    cursor?: ScoreWeightsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ScoreWeights from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ScoreWeights.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ScoreWeights.
+     */
+    distinct?: ScoreWeightsScalarFieldEnum | ScoreWeightsScalarFieldEnum[]
+  }
+
+  /**
+   * ScoreWeights findFirstOrThrow
+   */
+  export type ScoreWeightsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreWeights
+     */
+    select?: ScoreWeightsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreWeights
+     */
+    omit?: ScoreWeightsOmit<ExtArgs> | null
+    /**
+     * Filter, which ScoreWeights to fetch.
+     */
+    where?: ScoreWeightsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ScoreWeights to fetch.
+     */
+    orderBy?: ScoreWeightsOrderByWithRelationInput | ScoreWeightsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ScoreWeights.
+     */
+    cursor?: ScoreWeightsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ScoreWeights from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ScoreWeights.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ScoreWeights.
+     */
+    distinct?: ScoreWeightsScalarFieldEnum | ScoreWeightsScalarFieldEnum[]
+  }
+
+  /**
+   * ScoreWeights findMany
+   */
+  export type ScoreWeightsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreWeights
+     */
+    select?: ScoreWeightsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreWeights
+     */
+    omit?: ScoreWeightsOmit<ExtArgs> | null
+    /**
+     * Filter, which ScoreWeights to fetch.
+     */
+    where?: ScoreWeightsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ScoreWeights to fetch.
+     */
+    orderBy?: ScoreWeightsOrderByWithRelationInput | ScoreWeightsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ScoreWeights.
+     */
+    cursor?: ScoreWeightsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ScoreWeights from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ScoreWeights.
+     */
+    skip?: number
+    distinct?: ScoreWeightsScalarFieldEnum | ScoreWeightsScalarFieldEnum[]
+  }
+
+  /**
+   * ScoreWeights create
+   */
+  export type ScoreWeightsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreWeights
+     */
+    select?: ScoreWeightsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreWeights
+     */
+    omit?: ScoreWeightsOmit<ExtArgs> | null
+    /**
+     * The data needed to create a ScoreWeights.
+     */
+    data: XOR<ScoreWeightsCreateInput, ScoreWeightsUncheckedCreateInput>
+  }
+
+  /**
+   * ScoreWeights createMany
+   */
+  export type ScoreWeightsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ScoreWeights.
+     */
+    data: ScoreWeightsCreateManyInput | ScoreWeightsCreateManyInput[]
+  }
+
+  /**
+   * ScoreWeights update
+   */
+  export type ScoreWeightsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreWeights
+     */
+    select?: ScoreWeightsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreWeights
+     */
+    omit?: ScoreWeightsOmit<ExtArgs> | null
+    /**
+     * The data needed to update a ScoreWeights.
+     */
+    data: XOR<ScoreWeightsUpdateInput, ScoreWeightsUncheckedUpdateInput>
+    /**
+     * Choose, which ScoreWeights to update.
+     */
+    where: ScoreWeightsWhereUniqueInput
+  }
+
+  /**
+   * ScoreWeights updateMany
+   */
+  export type ScoreWeightsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ScoreWeights.
+     */
+    data: XOR<ScoreWeightsUpdateManyMutationInput, ScoreWeightsUncheckedUpdateManyInput>
+    /**
+     * Filter which ScoreWeights to update
+     */
+    where?: ScoreWeightsWhereInput
+    /**
+     * Limit how many ScoreWeights to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ScoreWeights upsert
+   */
+  export type ScoreWeightsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreWeights
+     */
+    select?: ScoreWeightsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreWeights
+     */
+    omit?: ScoreWeightsOmit<ExtArgs> | null
+    /**
+     * The filter to search for the ScoreWeights to update in case it exists.
+     */
+    where: ScoreWeightsWhereUniqueInput
+    /**
+     * In case the ScoreWeights found by the `where` argument doesn't exist, create a new ScoreWeights with this data.
+     */
+    create: XOR<ScoreWeightsCreateInput, ScoreWeightsUncheckedCreateInput>
+    /**
+     * In case the ScoreWeights was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ScoreWeightsUpdateInput, ScoreWeightsUncheckedUpdateInput>
+  }
+
+  /**
+   * ScoreWeights delete
+   */
+  export type ScoreWeightsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreWeights
+     */
+    select?: ScoreWeightsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreWeights
+     */
+    omit?: ScoreWeightsOmit<ExtArgs> | null
+    /**
+     * Filter which ScoreWeights to delete.
+     */
+    where: ScoreWeightsWhereUniqueInput
+  }
+
+  /**
+   * ScoreWeights deleteMany
+   */
+  export type ScoreWeightsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ScoreWeights to delete
+     */
+    where?: ScoreWeightsWhereInput
+    /**
+     * Limit how many ScoreWeights to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ScoreWeights findRaw
+   */
+  export type ScoreWeightsFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * ScoreWeights aggregateRaw
+   */
+  export type ScoreWeightsAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * ScoreWeights without action
+   */
+  export type ScoreWeightsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreWeights
+     */
+    select?: ScoreWeightsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreWeights
+     */
+    omit?: ScoreWeightsOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -20524,6 +23938,56 @@ export namespace Prisma {
   };
 
   export type RatingScalarFieldEnum = (typeof RatingScalarFieldEnum)[keyof typeof RatingScalarFieldEnum]
+
+
+  export const TeamEventResultScalarFieldEnum: {
+    id: 'id',
+    teamNumber: 'teamNumber',
+    eventKey: 'eventKey',
+    year: 'year',
+    eventType: 'eventType',
+    startDate: 'startDate',
+    qualRank: 'qualRank',
+    numTeams: 'numTeams',
+    allianceSeed: 'allianceSeed',
+    pickRole: 'pickRole',
+    elimMatchesPlayed: 'elimMatchesPlayed',
+    einsteinWins: 'einsteinWins',
+    opponents: 'opponents',
+    updatedAt: 'updatedAt'
+  };
+
+  export type TeamEventResultScalarFieldEnum = (typeof TeamEventResultScalarFieldEnum)[keyof typeof TeamEventResultScalarFieldEnum]
+
+
+  export const TeamScoreScalarFieldEnum: {
+    id: 'id',
+    teamNumber: 'teamNumber',
+    year: 'year',
+    stdXrobot: 'stdXrobot',
+    stdXawards: 'stdXawards',
+    stdXval: 'stdXval',
+    fullXrobot: 'fullXrobot',
+    fullXawards: 'fullXawards',
+    fullXval: 'fullXval',
+    xsos: 'xsos',
+    updatedAt: 'updatedAt'
+  };
+
+  export type TeamScoreScalarFieldEnum = (typeof TeamScoreScalarFieldEnum)[keyof typeof TeamScoreScalarFieldEnum]
+
+
+  export const ScoreWeightsScalarFieldEnum: {
+    id: 'id',
+    key: 'key',
+    optRobot: 'optRobot',
+    optAwards: 'optAwards',
+    actRobot: 'actRobot',
+    actAwards: 'actAwards',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ScoreWeightsScalarFieldEnum = (typeof ScoreWeightsScalarFieldEnum)[keyof typeof ScoreWeightsScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -21642,6 +25106,255 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Rating"> | Date | string
   }
 
+  export type TeamEventResultWhereInput = {
+    AND?: TeamEventResultWhereInput | TeamEventResultWhereInput[]
+    OR?: TeamEventResultWhereInput[]
+    NOT?: TeamEventResultWhereInput | TeamEventResultWhereInput[]
+    id?: StringFilter<"TeamEventResult"> | string
+    teamNumber?: IntFilter<"TeamEventResult"> | number
+    eventKey?: StringFilter<"TeamEventResult"> | string
+    year?: IntFilter<"TeamEventResult"> | number
+    eventType?: IntFilter<"TeamEventResult"> | number
+    startDate?: StringNullableFilter<"TeamEventResult"> | string | null
+    qualRank?: IntNullableFilter<"TeamEventResult"> | number | null
+    numTeams?: IntNullableFilter<"TeamEventResult"> | number | null
+    allianceSeed?: IntNullableFilter<"TeamEventResult"> | number | null
+    pickRole?: StringNullableFilter<"TeamEventResult"> | string | null
+    elimMatchesPlayed?: IntFilter<"TeamEventResult"> | number
+    einsteinWins?: IntFilter<"TeamEventResult"> | number
+    opponents?: IntNullableListFilter<"TeamEventResult">
+    updatedAt?: DateTimeFilter<"TeamEventResult"> | Date | string
+  }
+
+  export type TeamEventResultOrderByWithRelationInput = {
+    id?: SortOrder
+    teamNumber?: SortOrder
+    eventKey?: SortOrder
+    year?: SortOrder
+    eventType?: SortOrder
+    startDate?: SortOrder
+    qualRank?: SortOrder
+    numTeams?: SortOrder
+    allianceSeed?: SortOrder
+    pickRole?: SortOrder
+    elimMatchesPlayed?: SortOrder
+    einsteinWins?: SortOrder
+    opponents?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TeamEventResultWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    teamNumber_eventKey?: TeamEventResultTeamNumberEventKeyCompoundUniqueInput
+    AND?: TeamEventResultWhereInput | TeamEventResultWhereInput[]
+    OR?: TeamEventResultWhereInput[]
+    NOT?: TeamEventResultWhereInput | TeamEventResultWhereInput[]
+    teamNumber?: IntFilter<"TeamEventResult"> | number
+    eventKey?: StringFilter<"TeamEventResult"> | string
+    year?: IntFilter<"TeamEventResult"> | number
+    eventType?: IntFilter<"TeamEventResult"> | number
+    startDate?: StringNullableFilter<"TeamEventResult"> | string | null
+    qualRank?: IntNullableFilter<"TeamEventResult"> | number | null
+    numTeams?: IntNullableFilter<"TeamEventResult"> | number | null
+    allianceSeed?: IntNullableFilter<"TeamEventResult"> | number | null
+    pickRole?: StringNullableFilter<"TeamEventResult"> | string | null
+    elimMatchesPlayed?: IntFilter<"TeamEventResult"> | number
+    einsteinWins?: IntFilter<"TeamEventResult"> | number
+    opponents?: IntNullableListFilter<"TeamEventResult">
+    updatedAt?: DateTimeFilter<"TeamEventResult"> | Date | string
+  }, "id" | "teamNumber_eventKey">
+
+  export type TeamEventResultOrderByWithAggregationInput = {
+    id?: SortOrder
+    teamNumber?: SortOrder
+    eventKey?: SortOrder
+    year?: SortOrder
+    eventType?: SortOrder
+    startDate?: SortOrder
+    qualRank?: SortOrder
+    numTeams?: SortOrder
+    allianceSeed?: SortOrder
+    pickRole?: SortOrder
+    elimMatchesPlayed?: SortOrder
+    einsteinWins?: SortOrder
+    opponents?: SortOrder
+    updatedAt?: SortOrder
+    _count?: TeamEventResultCountOrderByAggregateInput
+    _avg?: TeamEventResultAvgOrderByAggregateInput
+    _max?: TeamEventResultMaxOrderByAggregateInput
+    _min?: TeamEventResultMinOrderByAggregateInput
+    _sum?: TeamEventResultSumOrderByAggregateInput
+  }
+
+  export type TeamEventResultScalarWhereWithAggregatesInput = {
+    AND?: TeamEventResultScalarWhereWithAggregatesInput | TeamEventResultScalarWhereWithAggregatesInput[]
+    OR?: TeamEventResultScalarWhereWithAggregatesInput[]
+    NOT?: TeamEventResultScalarWhereWithAggregatesInput | TeamEventResultScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"TeamEventResult"> | string
+    teamNumber?: IntWithAggregatesFilter<"TeamEventResult"> | number
+    eventKey?: StringWithAggregatesFilter<"TeamEventResult"> | string
+    year?: IntWithAggregatesFilter<"TeamEventResult"> | number
+    eventType?: IntWithAggregatesFilter<"TeamEventResult"> | number
+    startDate?: StringNullableWithAggregatesFilter<"TeamEventResult"> | string | null
+    qualRank?: IntNullableWithAggregatesFilter<"TeamEventResult"> | number | null
+    numTeams?: IntNullableWithAggregatesFilter<"TeamEventResult"> | number | null
+    allianceSeed?: IntNullableWithAggregatesFilter<"TeamEventResult"> | number | null
+    pickRole?: StringNullableWithAggregatesFilter<"TeamEventResult"> | string | null
+    elimMatchesPlayed?: IntWithAggregatesFilter<"TeamEventResult"> | number
+    einsteinWins?: IntWithAggregatesFilter<"TeamEventResult"> | number
+    opponents?: IntNullableListFilter<"TeamEventResult">
+    updatedAt?: DateTimeWithAggregatesFilter<"TeamEventResult"> | Date | string
+  }
+
+  export type TeamScoreWhereInput = {
+    AND?: TeamScoreWhereInput | TeamScoreWhereInput[]
+    OR?: TeamScoreWhereInput[]
+    NOT?: TeamScoreWhereInput | TeamScoreWhereInput[]
+    id?: StringFilter<"TeamScore"> | string
+    teamNumber?: IntFilter<"TeamScore"> | number
+    year?: IntFilter<"TeamScore"> | number
+    stdXrobot?: FloatFilter<"TeamScore"> | number
+    stdXawards?: FloatFilter<"TeamScore"> | number
+    stdXval?: FloatFilter<"TeamScore"> | number
+    fullXrobot?: FloatFilter<"TeamScore"> | number
+    fullXawards?: FloatFilter<"TeamScore"> | number
+    fullXval?: FloatFilter<"TeamScore"> | number
+    xsos?: FloatNullableFilter<"TeamScore"> | number | null
+    updatedAt?: DateTimeFilter<"TeamScore"> | Date | string
+  }
+
+  export type TeamScoreOrderByWithRelationInput = {
+    id?: SortOrder
+    teamNumber?: SortOrder
+    year?: SortOrder
+    stdXrobot?: SortOrder
+    stdXawards?: SortOrder
+    stdXval?: SortOrder
+    fullXrobot?: SortOrder
+    fullXawards?: SortOrder
+    fullXval?: SortOrder
+    xsos?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TeamScoreWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    teamNumber_year?: TeamScoreTeamNumberYearCompoundUniqueInput
+    AND?: TeamScoreWhereInput | TeamScoreWhereInput[]
+    OR?: TeamScoreWhereInput[]
+    NOT?: TeamScoreWhereInput | TeamScoreWhereInput[]
+    teamNumber?: IntFilter<"TeamScore"> | number
+    year?: IntFilter<"TeamScore"> | number
+    stdXrobot?: FloatFilter<"TeamScore"> | number
+    stdXawards?: FloatFilter<"TeamScore"> | number
+    stdXval?: FloatFilter<"TeamScore"> | number
+    fullXrobot?: FloatFilter<"TeamScore"> | number
+    fullXawards?: FloatFilter<"TeamScore"> | number
+    fullXval?: FloatFilter<"TeamScore"> | number
+    xsos?: FloatNullableFilter<"TeamScore"> | number | null
+    updatedAt?: DateTimeFilter<"TeamScore"> | Date | string
+  }, "id" | "teamNumber_year">
+
+  export type TeamScoreOrderByWithAggregationInput = {
+    id?: SortOrder
+    teamNumber?: SortOrder
+    year?: SortOrder
+    stdXrobot?: SortOrder
+    stdXawards?: SortOrder
+    stdXval?: SortOrder
+    fullXrobot?: SortOrder
+    fullXawards?: SortOrder
+    fullXval?: SortOrder
+    xsos?: SortOrder
+    updatedAt?: SortOrder
+    _count?: TeamScoreCountOrderByAggregateInput
+    _avg?: TeamScoreAvgOrderByAggregateInput
+    _max?: TeamScoreMaxOrderByAggregateInput
+    _min?: TeamScoreMinOrderByAggregateInput
+    _sum?: TeamScoreSumOrderByAggregateInput
+  }
+
+  export type TeamScoreScalarWhereWithAggregatesInput = {
+    AND?: TeamScoreScalarWhereWithAggregatesInput | TeamScoreScalarWhereWithAggregatesInput[]
+    OR?: TeamScoreScalarWhereWithAggregatesInput[]
+    NOT?: TeamScoreScalarWhereWithAggregatesInput | TeamScoreScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"TeamScore"> | string
+    teamNumber?: IntWithAggregatesFilter<"TeamScore"> | number
+    year?: IntWithAggregatesFilter<"TeamScore"> | number
+    stdXrobot?: FloatWithAggregatesFilter<"TeamScore"> | number
+    stdXawards?: FloatWithAggregatesFilter<"TeamScore"> | number
+    stdXval?: FloatWithAggregatesFilter<"TeamScore"> | number
+    fullXrobot?: FloatWithAggregatesFilter<"TeamScore"> | number
+    fullXawards?: FloatWithAggregatesFilter<"TeamScore"> | number
+    fullXval?: FloatWithAggregatesFilter<"TeamScore"> | number
+    xsos?: FloatNullableWithAggregatesFilter<"TeamScore"> | number | null
+    updatedAt?: DateTimeWithAggregatesFilter<"TeamScore"> | Date | string
+  }
+
+  export type ScoreWeightsWhereInput = {
+    AND?: ScoreWeightsWhereInput | ScoreWeightsWhereInput[]
+    OR?: ScoreWeightsWhereInput[]
+    NOT?: ScoreWeightsWhereInput | ScoreWeightsWhereInput[]
+    id?: StringFilter<"ScoreWeights"> | string
+    key?: StringFilter<"ScoreWeights"> | string
+    optRobot?: FloatNullableListFilter<"ScoreWeights">
+    optAwards?: FloatNullableListFilter<"ScoreWeights">
+    actRobot?: FloatNullableListFilter<"ScoreWeights">
+    actAwards?: FloatNullableListFilter<"ScoreWeights">
+    updatedAt?: DateTimeFilter<"ScoreWeights"> | Date | string
+  }
+
+  export type ScoreWeightsOrderByWithRelationInput = {
+    id?: SortOrder
+    key?: SortOrder
+    optRobot?: SortOrder
+    optAwards?: SortOrder
+    actRobot?: SortOrder
+    actAwards?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ScoreWeightsWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    key?: string
+    AND?: ScoreWeightsWhereInput | ScoreWeightsWhereInput[]
+    OR?: ScoreWeightsWhereInput[]
+    NOT?: ScoreWeightsWhereInput | ScoreWeightsWhereInput[]
+    optRobot?: FloatNullableListFilter<"ScoreWeights">
+    optAwards?: FloatNullableListFilter<"ScoreWeights">
+    actRobot?: FloatNullableListFilter<"ScoreWeights">
+    actAwards?: FloatNullableListFilter<"ScoreWeights">
+    updatedAt?: DateTimeFilter<"ScoreWeights"> | Date | string
+  }, "id" | "key">
+
+  export type ScoreWeightsOrderByWithAggregationInput = {
+    id?: SortOrder
+    key?: SortOrder
+    optRobot?: SortOrder
+    optAwards?: SortOrder
+    actRobot?: SortOrder
+    actAwards?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ScoreWeightsCountOrderByAggregateInput
+    _avg?: ScoreWeightsAvgOrderByAggregateInput
+    _max?: ScoreWeightsMaxOrderByAggregateInput
+    _min?: ScoreWeightsMinOrderByAggregateInput
+    _sum?: ScoreWeightsSumOrderByAggregateInput
+  }
+
+  export type ScoreWeightsScalarWhereWithAggregatesInput = {
+    AND?: ScoreWeightsScalarWhereWithAggregatesInput | ScoreWeightsScalarWhereWithAggregatesInput[]
+    OR?: ScoreWeightsScalarWhereWithAggregatesInput[]
+    NOT?: ScoreWeightsScalarWhereWithAggregatesInput | ScoreWeightsScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ScoreWeights"> | string
+    key?: StringWithAggregatesFilter<"ScoreWeights"> | string
+    optRobot?: FloatNullableListFilter<"ScoreWeights">
+    optAwards?: FloatNullableListFilter<"ScoreWeights">
+    actRobot?: FloatNullableListFilter<"ScoreWeights">
+    actAwards?: FloatNullableListFilter<"ScoreWeights">
+    updatedAt?: DateTimeWithAggregatesFilter<"ScoreWeights"> | Date | string
+  }
+
   export type PostCreateInput = {
     id?: string
     name: string
@@ -22671,6 +26384,281 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type TeamEventResultCreateInput = {
+    id?: string
+    teamNumber: number
+    eventKey: string
+    year: number
+    eventType: number
+    startDate?: string | null
+    qualRank?: number | null
+    numTeams?: number | null
+    allianceSeed?: number | null
+    pickRole?: string | null
+    elimMatchesPlayed?: number
+    einsteinWins?: number
+    opponents?: TeamEventResultCreateopponentsInput | number[]
+    updatedAt?: Date | string
+  }
+
+  export type TeamEventResultUncheckedCreateInput = {
+    id?: string
+    teamNumber: number
+    eventKey: string
+    year: number
+    eventType: number
+    startDate?: string | null
+    qualRank?: number | null
+    numTeams?: number | null
+    allianceSeed?: number | null
+    pickRole?: string | null
+    elimMatchesPlayed?: number
+    einsteinWins?: number
+    opponents?: TeamEventResultCreateopponentsInput | number[]
+    updatedAt?: Date | string
+  }
+
+  export type TeamEventResultUpdateInput = {
+    teamNumber?: IntFieldUpdateOperationsInput | number
+    eventKey?: StringFieldUpdateOperationsInput | string
+    year?: IntFieldUpdateOperationsInput | number
+    eventType?: IntFieldUpdateOperationsInput | number
+    startDate?: NullableStringFieldUpdateOperationsInput | string | null
+    qualRank?: NullableIntFieldUpdateOperationsInput | number | null
+    numTeams?: NullableIntFieldUpdateOperationsInput | number | null
+    allianceSeed?: NullableIntFieldUpdateOperationsInput | number | null
+    pickRole?: NullableStringFieldUpdateOperationsInput | string | null
+    elimMatchesPlayed?: IntFieldUpdateOperationsInput | number
+    einsteinWins?: IntFieldUpdateOperationsInput | number
+    opponents?: TeamEventResultUpdateopponentsInput | number[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TeamEventResultUncheckedUpdateInput = {
+    teamNumber?: IntFieldUpdateOperationsInput | number
+    eventKey?: StringFieldUpdateOperationsInput | string
+    year?: IntFieldUpdateOperationsInput | number
+    eventType?: IntFieldUpdateOperationsInput | number
+    startDate?: NullableStringFieldUpdateOperationsInput | string | null
+    qualRank?: NullableIntFieldUpdateOperationsInput | number | null
+    numTeams?: NullableIntFieldUpdateOperationsInput | number | null
+    allianceSeed?: NullableIntFieldUpdateOperationsInput | number | null
+    pickRole?: NullableStringFieldUpdateOperationsInput | string | null
+    elimMatchesPlayed?: IntFieldUpdateOperationsInput | number
+    einsteinWins?: IntFieldUpdateOperationsInput | number
+    opponents?: TeamEventResultUpdateopponentsInput | number[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TeamEventResultCreateManyInput = {
+    id?: string
+    teamNumber: number
+    eventKey: string
+    year: number
+    eventType: number
+    startDate?: string | null
+    qualRank?: number | null
+    numTeams?: number | null
+    allianceSeed?: number | null
+    pickRole?: string | null
+    elimMatchesPlayed?: number
+    einsteinWins?: number
+    opponents?: TeamEventResultCreateopponentsInput | number[]
+    updatedAt?: Date | string
+  }
+
+  export type TeamEventResultUpdateManyMutationInput = {
+    teamNumber?: IntFieldUpdateOperationsInput | number
+    eventKey?: StringFieldUpdateOperationsInput | string
+    year?: IntFieldUpdateOperationsInput | number
+    eventType?: IntFieldUpdateOperationsInput | number
+    startDate?: NullableStringFieldUpdateOperationsInput | string | null
+    qualRank?: NullableIntFieldUpdateOperationsInput | number | null
+    numTeams?: NullableIntFieldUpdateOperationsInput | number | null
+    allianceSeed?: NullableIntFieldUpdateOperationsInput | number | null
+    pickRole?: NullableStringFieldUpdateOperationsInput | string | null
+    elimMatchesPlayed?: IntFieldUpdateOperationsInput | number
+    einsteinWins?: IntFieldUpdateOperationsInput | number
+    opponents?: TeamEventResultUpdateopponentsInput | number[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TeamEventResultUncheckedUpdateManyInput = {
+    teamNumber?: IntFieldUpdateOperationsInput | number
+    eventKey?: StringFieldUpdateOperationsInput | string
+    year?: IntFieldUpdateOperationsInput | number
+    eventType?: IntFieldUpdateOperationsInput | number
+    startDate?: NullableStringFieldUpdateOperationsInput | string | null
+    qualRank?: NullableIntFieldUpdateOperationsInput | number | null
+    numTeams?: NullableIntFieldUpdateOperationsInput | number | null
+    allianceSeed?: NullableIntFieldUpdateOperationsInput | number | null
+    pickRole?: NullableStringFieldUpdateOperationsInput | string | null
+    elimMatchesPlayed?: IntFieldUpdateOperationsInput | number
+    einsteinWins?: IntFieldUpdateOperationsInput | number
+    opponents?: TeamEventResultUpdateopponentsInput | number[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TeamScoreCreateInput = {
+    id?: string
+    teamNumber: number
+    year: number
+    stdXrobot?: number
+    stdXawards?: number
+    stdXval?: number
+    fullXrobot?: number
+    fullXawards?: number
+    fullXval?: number
+    xsos?: number | null
+    updatedAt?: Date | string
+  }
+
+  export type TeamScoreUncheckedCreateInput = {
+    id?: string
+    teamNumber: number
+    year: number
+    stdXrobot?: number
+    stdXawards?: number
+    stdXval?: number
+    fullXrobot?: number
+    fullXawards?: number
+    fullXval?: number
+    xsos?: number | null
+    updatedAt?: Date | string
+  }
+
+  export type TeamScoreUpdateInput = {
+    teamNumber?: IntFieldUpdateOperationsInput | number
+    year?: IntFieldUpdateOperationsInput | number
+    stdXrobot?: FloatFieldUpdateOperationsInput | number
+    stdXawards?: FloatFieldUpdateOperationsInput | number
+    stdXval?: FloatFieldUpdateOperationsInput | number
+    fullXrobot?: FloatFieldUpdateOperationsInput | number
+    fullXawards?: FloatFieldUpdateOperationsInput | number
+    fullXval?: FloatFieldUpdateOperationsInput | number
+    xsos?: NullableFloatFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TeamScoreUncheckedUpdateInput = {
+    teamNumber?: IntFieldUpdateOperationsInput | number
+    year?: IntFieldUpdateOperationsInput | number
+    stdXrobot?: FloatFieldUpdateOperationsInput | number
+    stdXawards?: FloatFieldUpdateOperationsInput | number
+    stdXval?: FloatFieldUpdateOperationsInput | number
+    fullXrobot?: FloatFieldUpdateOperationsInput | number
+    fullXawards?: FloatFieldUpdateOperationsInput | number
+    fullXval?: FloatFieldUpdateOperationsInput | number
+    xsos?: NullableFloatFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TeamScoreCreateManyInput = {
+    id?: string
+    teamNumber: number
+    year: number
+    stdXrobot?: number
+    stdXawards?: number
+    stdXval?: number
+    fullXrobot?: number
+    fullXawards?: number
+    fullXval?: number
+    xsos?: number | null
+    updatedAt?: Date | string
+  }
+
+  export type TeamScoreUpdateManyMutationInput = {
+    teamNumber?: IntFieldUpdateOperationsInput | number
+    year?: IntFieldUpdateOperationsInput | number
+    stdXrobot?: FloatFieldUpdateOperationsInput | number
+    stdXawards?: FloatFieldUpdateOperationsInput | number
+    stdXval?: FloatFieldUpdateOperationsInput | number
+    fullXrobot?: FloatFieldUpdateOperationsInput | number
+    fullXawards?: FloatFieldUpdateOperationsInput | number
+    fullXval?: FloatFieldUpdateOperationsInput | number
+    xsos?: NullableFloatFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TeamScoreUncheckedUpdateManyInput = {
+    teamNumber?: IntFieldUpdateOperationsInput | number
+    year?: IntFieldUpdateOperationsInput | number
+    stdXrobot?: FloatFieldUpdateOperationsInput | number
+    stdXawards?: FloatFieldUpdateOperationsInput | number
+    stdXval?: FloatFieldUpdateOperationsInput | number
+    fullXrobot?: FloatFieldUpdateOperationsInput | number
+    fullXawards?: FloatFieldUpdateOperationsInput | number
+    fullXval?: FloatFieldUpdateOperationsInput | number
+    xsos?: NullableFloatFieldUpdateOperationsInput | number | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ScoreWeightsCreateInput = {
+    id?: string
+    key?: string
+    optRobot?: ScoreWeightsCreateoptRobotInput | number[]
+    optAwards?: ScoreWeightsCreateoptAwardsInput | number[]
+    actRobot?: ScoreWeightsCreateactRobotInput | number[]
+    actAwards?: ScoreWeightsCreateactAwardsInput | number[]
+    updatedAt?: Date | string
+  }
+
+  export type ScoreWeightsUncheckedCreateInput = {
+    id?: string
+    key?: string
+    optRobot?: ScoreWeightsCreateoptRobotInput | number[]
+    optAwards?: ScoreWeightsCreateoptAwardsInput | number[]
+    actRobot?: ScoreWeightsCreateactRobotInput | number[]
+    actAwards?: ScoreWeightsCreateactAwardsInput | number[]
+    updatedAt?: Date | string
+  }
+
+  export type ScoreWeightsUpdateInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    optRobot?: ScoreWeightsUpdateoptRobotInput | number[]
+    optAwards?: ScoreWeightsUpdateoptAwardsInput | number[]
+    actRobot?: ScoreWeightsUpdateactRobotInput | number[]
+    actAwards?: ScoreWeightsUpdateactAwardsInput | number[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ScoreWeightsUncheckedUpdateInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    optRobot?: ScoreWeightsUpdateoptRobotInput | number[]
+    optAwards?: ScoreWeightsUpdateoptAwardsInput | number[]
+    actRobot?: ScoreWeightsUpdateactRobotInput | number[]
+    actAwards?: ScoreWeightsUpdateactAwardsInput | number[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ScoreWeightsCreateManyInput = {
+    id?: string
+    key?: string
+    optRobot?: ScoreWeightsCreateoptRobotInput | number[]
+    optAwards?: ScoreWeightsCreateoptAwardsInput | number[]
+    actRobot?: ScoreWeightsCreateactRobotInput | number[]
+    actAwards?: ScoreWeightsCreateactAwardsInput | number[]
+    updatedAt?: Date | string
+  }
+
+  export type ScoreWeightsUpdateManyMutationInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    optRobot?: ScoreWeightsUpdateoptRobotInput | number[]
+    optAwards?: ScoreWeightsUpdateoptAwardsInput | number[]
+    actRobot?: ScoreWeightsUpdateactRobotInput | number[]
+    actAwards?: ScoreWeightsUpdateactAwardsInput | number[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ScoreWeightsUncheckedUpdateManyInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    optRobot?: ScoreWeightsUpdateoptRobotInput | number[]
+    optAwards?: ScoreWeightsUpdateoptAwardsInput | number[]
+    actRobot?: ScoreWeightsUpdateactRobotInput | number[]
+    actAwards?: ScoreWeightsUpdateactAwardsInput | number[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -23535,6 +27523,255 @@ export namespace Prisma {
     stars?: SortOrder
   }
 
+  export type TeamEventResultTeamNumberEventKeyCompoundUniqueInput = {
+    teamNumber: number
+    eventKey: string
+  }
+
+  export type TeamEventResultCountOrderByAggregateInput = {
+    id?: SortOrder
+    teamNumber?: SortOrder
+    eventKey?: SortOrder
+    year?: SortOrder
+    eventType?: SortOrder
+    startDate?: SortOrder
+    qualRank?: SortOrder
+    numTeams?: SortOrder
+    allianceSeed?: SortOrder
+    pickRole?: SortOrder
+    elimMatchesPlayed?: SortOrder
+    einsteinWins?: SortOrder
+    opponents?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TeamEventResultAvgOrderByAggregateInput = {
+    teamNumber?: SortOrder
+    year?: SortOrder
+    eventType?: SortOrder
+    qualRank?: SortOrder
+    numTeams?: SortOrder
+    allianceSeed?: SortOrder
+    elimMatchesPlayed?: SortOrder
+    einsteinWins?: SortOrder
+    opponents?: SortOrder
+  }
+
+  export type TeamEventResultMaxOrderByAggregateInput = {
+    id?: SortOrder
+    teamNumber?: SortOrder
+    eventKey?: SortOrder
+    year?: SortOrder
+    eventType?: SortOrder
+    startDate?: SortOrder
+    qualRank?: SortOrder
+    numTeams?: SortOrder
+    allianceSeed?: SortOrder
+    pickRole?: SortOrder
+    elimMatchesPlayed?: SortOrder
+    einsteinWins?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TeamEventResultMinOrderByAggregateInput = {
+    id?: SortOrder
+    teamNumber?: SortOrder
+    eventKey?: SortOrder
+    year?: SortOrder
+    eventType?: SortOrder
+    startDate?: SortOrder
+    qualRank?: SortOrder
+    numTeams?: SortOrder
+    allianceSeed?: SortOrder
+    pickRole?: SortOrder
+    elimMatchesPlayed?: SortOrder
+    einsteinWins?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TeamEventResultSumOrderByAggregateInput = {
+    teamNumber?: SortOrder
+    year?: SortOrder
+    eventType?: SortOrder
+    qualRank?: SortOrder
+    numTeams?: SortOrder
+    allianceSeed?: SortOrder
+    elimMatchesPlayed?: SortOrder
+    einsteinWins?: SortOrder
+    opponents?: SortOrder
+  }
+
+  export type FloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+    isSet?: boolean
+  }
+
+  export type TeamScoreTeamNumberYearCompoundUniqueInput = {
+    teamNumber: number
+    year: number
+  }
+
+  export type TeamScoreCountOrderByAggregateInput = {
+    id?: SortOrder
+    teamNumber?: SortOrder
+    year?: SortOrder
+    stdXrobot?: SortOrder
+    stdXawards?: SortOrder
+    stdXval?: SortOrder
+    fullXrobot?: SortOrder
+    fullXawards?: SortOrder
+    fullXval?: SortOrder
+    xsos?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TeamScoreAvgOrderByAggregateInput = {
+    teamNumber?: SortOrder
+    year?: SortOrder
+    stdXrobot?: SortOrder
+    stdXawards?: SortOrder
+    stdXval?: SortOrder
+    fullXrobot?: SortOrder
+    fullXawards?: SortOrder
+    fullXval?: SortOrder
+    xsos?: SortOrder
+  }
+
+  export type TeamScoreMaxOrderByAggregateInput = {
+    id?: SortOrder
+    teamNumber?: SortOrder
+    year?: SortOrder
+    stdXrobot?: SortOrder
+    stdXawards?: SortOrder
+    stdXval?: SortOrder
+    fullXrobot?: SortOrder
+    fullXawards?: SortOrder
+    fullXval?: SortOrder
+    xsos?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TeamScoreMinOrderByAggregateInput = {
+    id?: SortOrder
+    teamNumber?: SortOrder
+    year?: SortOrder
+    stdXrobot?: SortOrder
+    stdXawards?: SortOrder
+    stdXval?: SortOrder
+    fullXrobot?: SortOrder
+    fullXawards?: SortOrder
+    fullXval?: SortOrder
+    xsos?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TeamScoreSumOrderByAggregateInput = {
+    teamNumber?: SortOrder
+    year?: SortOrder
+    stdXrobot?: SortOrder
+    stdXawards?: SortOrder
+    stdXval?: SortOrder
+    fullXrobot?: SortOrder
+    fullXawards?: SortOrder
+    fullXval?: SortOrder
+    xsos?: SortOrder
+  }
+
+  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+    isSet?: boolean
+  }
+
+  export type FloatNullableListFilter<$PrismaModel = never> = {
+    equals?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    has?: number | FloatFieldRefInput<$PrismaModel> | null
+    hasEvery?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    hasSome?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
+  export type ScoreWeightsCountOrderByAggregateInput = {
+    id?: SortOrder
+    key?: SortOrder
+    optRobot?: SortOrder
+    optAwards?: SortOrder
+    actRobot?: SortOrder
+    actAwards?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ScoreWeightsAvgOrderByAggregateInput = {
+    optRobot?: SortOrder
+    optAwards?: SortOrder
+    actRobot?: SortOrder
+    actAwards?: SortOrder
+  }
+
+  export type ScoreWeightsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    key?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ScoreWeightsMinOrderByAggregateInput = {
+    id?: SortOrder
+    key?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ScoreWeightsSumOrderByAggregateInput = {
+    optRobot?: SortOrder
+    optAwards?: SortOrder
+    actRobot?: SortOrder
+    actAwards?: SortOrder
+  }
+
   export type UserCreateNestedOneWithoutPostsInput = {
     create?: XOR<UserCreateWithoutPostsInput, UserUncheckedCreateWithoutPostsInput>
     connectOrCreate?: UserCreateOrConnectWithoutPostsInput
@@ -23815,6 +28052,68 @@ export namespace Prisma {
     push?: string | string[]
   }
 
+  export type TeamEventResultCreateopponentsInput = {
+    set: number[]
+  }
+
+  export type TeamEventResultUpdateopponentsInput = {
+    set?: number[]
+    push?: number | number[]
+  }
+
+  export type FloatFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+    unset?: boolean
+  }
+
+  export type ScoreWeightsCreateoptRobotInput = {
+    set: number[]
+  }
+
+  export type ScoreWeightsCreateoptAwardsInput = {
+    set: number[]
+  }
+
+  export type ScoreWeightsCreateactRobotInput = {
+    set: number[]
+  }
+
+  export type ScoreWeightsCreateactAwardsInput = {
+    set: number[]
+  }
+
+  export type ScoreWeightsUpdateoptRobotInput = {
+    set?: number[]
+    push?: number | number[]
+  }
+
+  export type ScoreWeightsUpdateoptAwardsInput = {
+    set?: number[]
+    push?: number | number[]
+  }
+
+  export type ScoreWeightsUpdateactRobotInput = {
+    set?: number[]
+    push?: number | number[]
+  }
+
+  export type ScoreWeightsUpdateactAwardsInput = {
+    set?: number[]
+    push?: number | number[]
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -24034,6 +28333,39 @@ export namespace Prisma {
     awardType?: IntFilter<"AwardEntry"> | number
     name?: StringFilter<"AwardEntry"> | string
     year?: IntFilter<"AwardEntry"> | number
+  }
+
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+    isSet?: boolean
   }
 
   export type UserCreateWithoutPostsInput = {
@@ -24396,17 +28728,6 @@ export namespace Prisma {
     where: AwardEntryWhereInput
   }
 
-  export type FloatFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatFilter<$PrismaModel> | number
-  }
-
   export type AccountCreateManyUserInput = {
     id?: string
     type: string
@@ -24525,14 +28846,6 @@ export namespace Prisma {
     awardType?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     year?: IntFieldUpdateOperationsInput | number
-  }
-
-  export type FloatFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
 
