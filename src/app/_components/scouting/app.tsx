@@ -368,6 +368,26 @@ function ScoutingBoard() {
         ? `data:image/png;base64,${b64}`
         : `https://www.thebluealliance.com/avatar/${year}/frc${number}.png`;
 
+    // Precomputed SLFF score columns from the board query (null until backfilled).
+    const scoreFields = (
+      score:
+        | {
+            xval: number;
+            xrobot: number;
+            xawards: number;
+            xsos: number | null;
+            yearVals: Record<number, number | null>;
+          }
+        | null
+        | undefined,
+    ) => ({
+      xVal: score?.xval ?? 0,
+      xRobot: score?.xrobot ?? 0,
+      xAwards: score?.xawards ?? 0,
+      xsos: score?.xsos ?? null,
+      yearVals: score?.yearVals ?? {},
+    });
+
     // Pick fields for a row: editable single pick on a region board, else a
     // read-only aggregate of all owners across boards.
     const pickFor = (number: number) => {
@@ -399,11 +419,11 @@ function ScoutingBoard() {
           name: t.nickname ?? t.name ?? `Team ${t.number}`,
           region: eventChip,
           avatarUrl: buildAvatarUrl(data.year, t.number, t.avatarB64),
-          xVal: 0,
+          ...scoreFields(t.score),
           epa: t.epa ?? 0,
           stars: ratingsByTeam.get(t.number) ?? 0,
           ...pickFor(t.number),
-          awardLog: bucketAwards(t.awards),
+          awardLog: bucketAwards(t.awards, t.picks),
         };
       });
     }
@@ -419,11 +439,11 @@ function ScoutingBoard() {
           name: t.nickname ?? t.name ?? `Team ${t.number}`,
           region: districtChip,
           avatarUrl: buildAvatarUrl(data.year, t.number, t.avatarB64),
-          xVal: 0,
+          ...scoreFields(t.score),
           epa: t.epa ?? 0,
           stars: ratingsByTeam.get(t.number) ?? 0,
           ...pickFor(t.number),
-          awardLog: bucketAwards(t.awards),
+          awardLog: bucketAwards(t.awards, t.picks),
         };
       });
     }
@@ -436,11 +456,11 @@ function ScoutingBoard() {
         name: t.nickname ?? t.name ?? `Team ${t.number}`,
         region: t.districtAbbr ? t.districtAbbr.toUpperCase() : "—",
         avatarUrl: buildAvatarUrl(data.year, t.number, t.avatarB64),
-        xVal: 0,
+        ...scoreFields(t.score),
         epa: t.epa ?? 0,
         stars: ratingsByTeam.get(t.number) ?? 0,
         ...pickFor(t.number),
-        awardLog: bucketAwards(t.awards),
+        awardLog: bucketAwards(t.awards, t.picks),
       };
     });
   }, [

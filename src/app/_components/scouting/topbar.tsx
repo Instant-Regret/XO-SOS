@@ -346,10 +346,115 @@ function DraftersModal({
   );
 }
 
+// Editor for the weighted-4-year prediction weights, opened from the account
+// menu. Weights are editable but "Reset to optimal" restores the fitted values.
+function WeightsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const utils = api.useUtils();
+  const weightsQ = api.frc.weights.useQuery(undefined, { enabled: open });
+  const [robot, setRobot] = useState<number[]>([0.5, 0.3, 0.15, 0.05]);
+  const [awards, setAwards] = useState<number[]>([0.5, 0.3, 0.15, 0.05]);
+
+  useEffect(() => {
+    if (open && weightsQ.data) {
+      setRobot(weightsQ.data.actRobot);
+      setAwards(weightsQ.data.actAwards);
+    }
+  }, [open, weightsQ.data]);
+
+  const invalidateBoards = async () => {
+    await Promise.all([
+      utils.frc.boardForDistrict.invalidate(),
+      utils.frc.boardForEvent.invalidate(),
+      utils.frc.topTeamsByYear.invalidate(),
+      utils.frc.weights.invalidate(),
+    ]);
+  };
+
+  const save = api.frc.setWeights.useMutation({
+    onSuccess: async () => {
+      await invalidateBoards();
+      onClose();
+    },
+  });
+  const reset = api.frc.resetWeights.useMutation({
+    onSuccess: async () => {
+      await invalidateBoards();
+    },
+  });
+
+  if (!open) return null;
+
+  const opt = weightsQ.data;
+  const editRow = (
+    label: string,
+    values: number[],
+    set: (v: number[]) => void,
+    optimal: number[] | undefined,
+  ) => (
+    <div className="weights-group">
+      <div className="weights-group-label">{label}</div>
+      <div className="weights-inputs">
+        {values.map((v, i) => (
+          <label className="weights-cell" key={i}>
+            <span className="weights-cell-label">Y−{i + 1}</span>
+            <input
+              className="pop-input"
+              type="number"
+              step="0.01"
+              value={v}
+              onChange={(e) =>
+                set(values.map((x, j) => (j === i ? Number(e.target.value) : x)))
+              }
+            />
+            {optimal && (
+              <span className="weights-opt">opt {optimal[i]!.toFixed(2)}</span>
+            )}
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-title">Prediction weights</div>
+        <div className="modal-sub">
+          XVAL blends the last four seasons’ values. These weights are the
+          regression-fit optimum; edit to taste, then reset to restore them.
+        </div>
+        {editRow("XROBOT", robot, setRobot, opt?.optRobot)}
+        {editRow("XAWARDS", awards, setAwards, opt?.optAwards)}
+        <div className="modal-actions">
+          <button
+            className="link"
+            disabled={reset.isPending}
+            onClick={() => reset.mutate()}
+          >
+            {reset.isPending ? "Resetting…" : "Reset to optimal"}
+          </button>
+          <div style={{ flex: 1 }} />
+          <button className="btn" onClick={onClose}>
+            Cancel
+          </button>
+          <button
+            className="btn btn-primary"
+            disabled={save.isPending}
+            onClick={() => save.mutate({ robot, awards })}
+          >
+            {save.isPending ? "Saving…" : "Save"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function AccountMenu({ year }: { year: number }) {
   const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
   const [draftersOpen, setDraftersOpen] = useState(false);
+  const [weightsOpen, setWeightsOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     const h = (e: MouseEvent) => {
@@ -426,8 +531,14 @@ export function AccountMenu({ year }: { year: number }) {
           >
             <IconList /> Drafting teams
           </button>
-          <button className="menu-item">
-            <IconGear /> Preferences
+          <button
+            className="menu-item"
+            onClick={() => {
+              setWeightsOpen(true);
+              setOpen(false);
+            }}
+          >
+            <IconGear /> Prediction weights
           </button>
           <div className="menu-sep" />
           <button
@@ -443,6 +554,7 @@ export function AccountMenu({ year }: { year: number }) {
         open={draftersOpen}
         onClose={() => setDraftersOpen(false)}
       />
+      <WeightsModal open={weightsOpen} onClose={() => setWeightsOpen(false)} />
     </div>
   );
 }

@@ -1435,9 +1435,43 @@ body {
 }
 .modal-actions {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: 8px;
   margin-top: 8px;
+}
+
+/* Prediction-weights editor */
+.weights-group {
+  margin-top: 14px;
+}
+.weights-group-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+  margin-bottom: 6px;
+}
+.weights-inputs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.weights-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.weights-cell-label {
+  font-size: 11px;
+  color: var(--ink-3);
+}
+.weights-cell .pop-input {
+  width: 100%;
+}
+.weights-opt {
+  font-size: 10px;
+  color: var(--ink-3);
 }
 
 /* ============= Responsive ============= */

@@ -5,6 +5,108 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { getActiveWeights, predict, type Weights4 } from "~/server/lib/scoring-fit";
+
+// ---- Score columns (XVAL / XROBOT / XAWARDS / XSOS + per-year history) ----
+
+type ScoreRow = {
+  teamNumber: number;
+  year: number;
+  stdXrobot: number;
+  stdXawards: number;
+  stdXval: number;
+  fullXrobot: number;
+  fullXawards: number;
+  fullXval: number;
+  xsos: number | null;
+};
+
+export type TeamScoreColumns = {
+  // Main columns. On std boards these are the weighted-4-year predictions; on
+  // champs-division boards ("full") they're the actual full-season values.
+  xval: number;
+  xrobot: number;
+  xawards: number;
+  xsos: number | null;
+  // Raw XVAL per season for the 5 per-year columns (window-dependent).
+  yearVals: Record<number, number | null>;
+};
+
+// Turn stored TeamScore rows into per-team display columns. Pure so each board
+// query can fetch the rows however it likes and share this shaping.
+function buildScoreColumns(
+  scores: ScoreRow[],
+  weights: { robot: Weights4; awards: Weights4 },
+  numbers: number[],
+  year: number,
+  window: "std" | "full",
+): Map<number, TeamScoreColumns> {
+  const byTeam = new Map<number, Map<number, ScoreRow>>();
+  for (const s of scores) {
+    const m = byTeam.get(s.teamNumber) ?? new Map<number, ScoreRow>();
+    m.set(s.year, s);
+    byTeam.set(s.teamNumber, m);
+  }
+
+  const out = new Map<number, TeamScoreColumns>();
+  for (const n of numbers) {
+    const ys = byTeam.get(n) ?? new Map<number, ScoreRow>();
+    const cur = ys.get(year);
+
+    const yearVals: Record<number, number | null> = {};
+    for (let y = year - 4; y <= year; y++) {
+      const s = ys.get(y);
+      yearVals[y] = s ? (window === "full" ? s.fullXval : s.stdXval) : null;
+    }
+
+    let xval: number;
+    let xrobot: number;
+    let xawards: number;
+    if (window === "full") {
+      xrobot = cur?.fullXrobot ?? 0;
+      xawards = cur?.fullXawards ?? 0;
+      xval = cur?.fullXval ?? 0;
+    } else {
+      const priorsR = [1, 2, 3, 4].map(
+        (k) => ys.get(year - k)?.stdXrobot ?? 0,
+      ) as [number, number, number, number];
+      const priorsA = [1, 2, 3, 4].map(
+        (k) => ys.get(year - k)?.stdXawards ?? 0,
+      ) as [number, number, number, number];
+      xrobot = predict(weights.robot, priorsR);
+      xawards = predict(weights.awards, priorsA);
+      xval = xrobot + xawards;
+    }
+
+    out.set(n, {
+      xval: Math.round(xval * 10) / 10,
+      xrobot: Math.round(xrobot * 10) / 10,
+      xawards: Math.round(xawards * 10) / 10,
+      xsos: cur?.xsos ?? null,
+      yearVals,
+    });
+  }
+  return out;
+}
+
+// Per-team alliance selection by event, for the event-wins tooltip.
+function buildPickMap(
+  results: {
+    teamNumber: number;
+    eventKey: string;
+    allianceSeed: number | null;
+    pickRole: string | null;
+  }[],
+): Map<number, Record<string, { seed: number; role: string }>> {
+  const m = new Map<number, Record<string, { seed: number; role: string }>>();
+  for (const r of results) {
+    if (r.allianceSeed == null || r.pickRole == null) continue;
+    const rec = m.get(r.teamNumber) ?? {};
+    rec[r.eventKey] = { seed: r.allianceSeed, role: r.pickRole };
+    m.set(r.teamNumber, rec);
+  }
+  return m;
+}
 
 const yearInput = z.object({ year: z.number().int() });
 const districtInput = z.object({ districtKey: z.string().min(1) });
@@ -182,24 +284,38 @@ export const frcRouter = createTRPCRouter({
       }
       const numbers = link.teamNumbers;
 
-      const [teams, epaDocs, awardDocs, avatarDocs] = await Promise.all([
-        ctx.db.team.findMany({
-          where: { number: { in: numbers } },
-          orderBy: { number: "asc" },
-        }),
-        ctx.db.teamEpa.findMany({
-          where: { teamNumber: { in: numbers } },
-          select: { teamNumber: true, epas: true },
-        }),
-        ctx.db.award.findMany({
-          where: { teamNumber: { in: numbers } },
-          select: { teamNumber: true, awards: true },
-        }),
-        ctx.db.teamAvatar.findMany({
-          where: { teamNumber: { in: numbers } },
-          select: { teamNumber: true, avatars: true },
-        }),
-      ]);
+      const [teams, epaDocs, awardDocs, avatarDocs, scoreRows, weights, resultRows] =
+        await Promise.all([
+          ctx.db.team.findMany({
+            where: { number: { in: numbers } },
+            orderBy: { number: "asc" },
+          }),
+          ctx.db.teamEpa.findMany({
+            where: { teamNumber: { in: numbers } },
+            select: { teamNumber: true, epas: true },
+          }),
+          ctx.db.award.findMany({
+            where: { teamNumber: { in: numbers } },
+            select: { teamNumber: true, awards: true },
+          }),
+          ctx.db.teamAvatar.findMany({
+            where: { teamNumber: { in: numbers } },
+            select: { teamNumber: true, avatars: true },
+          }),
+          ctx.db.teamScore.findMany({
+            where: { teamNumber: { in: numbers }, year: { gte: year - 4, lte: year } },
+          }),
+          getActiveWeights(),
+          ctx.db.teamEventResult.findMany({
+            where: { teamNumber: { in: numbers }, allianceSeed: { not: null } },
+            select: {
+              teamNumber: true,
+              eventKey: true,
+              allianceSeed: true,
+              pickRole: true,
+            },
+          }),
+        ]);
 
       const epaByTeam = new Map<number, number | null>();
       for (const row of epaDocs) {
@@ -227,6 +343,9 @@ export const frcRouter = createTRPCRouter({
         avatarByTeam.set(row.teamNumber, fallback?.base64 ?? null);
       }
 
+      const scoreByTeam = buildScoreColumns(scoreRows, weights, numbers, year, "std");
+      const pickByTeam = buildPickMap(resultRows);
+
       return {
         year,
         districtKey: input.districtKey,
@@ -241,6 +360,8 @@ export const frcRouter = createTRPCRouter({
           epa: epaByTeam.get(t.number) ?? null,
           avatarB64: avatarByTeam.get(t.number) ?? null,
           awards: awardsByTeam.get(t.number) ?? [],
+          score: scoreByTeam.get(t.number) ?? null,
+          picks: pickByTeam.get(t.number) ?? {},
         })),
       };
     }),
@@ -269,21 +390,38 @@ export const frcRouter = createTRPCRouter({
         return { year: input.year, teams: [] };
       }
 
-      const [teams, awardDocs, avatarDocs, districtLinks] = await Promise.all([
-        ctx.db.team.findMany({ where: { number: { in: numbers } } }),
-        ctx.db.award.findMany({
-          where: { teamNumber: { in: numbers } },
-          select: { teamNumber: true, awards: true },
-        }),
-        ctx.db.teamAvatar.findMany({
-          where: { teamNumber: { in: numbers } },
-          select: { teamNumber: true, avatars: true },
-        }),
-        ctx.db.districtTeam.findMany({
-          where: { districtKey: { startsWith: String(input.year) } },
-          select: { districtKey: true, teamNumbers: true },
-        }),
-      ]);
+      const [teams, awardDocs, avatarDocs, districtLinks, scoreRows, weights, resultRows] =
+        await Promise.all([
+          ctx.db.team.findMany({ where: { number: { in: numbers } } }),
+          ctx.db.award.findMany({
+            where: { teamNumber: { in: numbers } },
+            select: { teamNumber: true, awards: true },
+          }),
+          ctx.db.teamAvatar.findMany({
+            where: { teamNumber: { in: numbers } },
+            select: { teamNumber: true, avatars: true },
+          }),
+          ctx.db.districtTeam.findMany({
+            where: { districtKey: { startsWith: String(input.year) } },
+            select: { districtKey: true, teamNumbers: true },
+          }),
+          ctx.db.teamScore.findMany({
+            where: {
+              teamNumber: { in: numbers },
+              year: { gte: input.year - 4, lte: input.year },
+            },
+          }),
+          getActiveWeights(),
+          ctx.db.teamEventResult.findMany({
+            where: { teamNumber: { in: numbers }, allianceSeed: { not: null } },
+            select: {
+              teamNumber: true,
+              eventKey: true,
+              allianceSeed: true,
+              pickRole: true,
+            },
+          }),
+        ]);
 
       // The districtKey is "{year}{abbr}" (e.g. "2024chs"); strip the year
       // prefix to get the chip text. Scoping the findMany above to the year
@@ -316,6 +454,15 @@ export const frcRouter = createTRPCRouter({
         avatarByTeam.set(row.teamNumber, fallback?.base64 ?? null);
       }
 
+      const scoreByTeam = buildScoreColumns(
+        scoreRows,
+        weights,
+        numbers,
+        input.year,
+        "std",
+      );
+      const pickByTeam = buildPickMap(resultRows);
+
       return {
         year: input.year,
         teams: ranked.map((r) => {
@@ -332,6 +479,8 @@ export const frcRouter = createTRPCRouter({
             epa: r.epa,
             avatarB64: avatarByTeam.get(r.teamNumber) ?? null,
             awards: awardsByTeam.get(r.teamNumber) ?? [],
+            score: scoreByTeam.get(r.teamNumber) ?? null,
+            picks: pickByTeam.get(r.teamNumber) ?? {},
           };
         }),
       };
@@ -381,24 +530,49 @@ export const frcRouter = createTRPCRouter({
       }
       const numbers = link.teamNumbers;
 
-      const [teams, epaDocs, awardDocs, avatarDocs] = await Promise.all([
-        ctx.db.team.findMany({
-          where: { number: { in: numbers } },
-          orderBy: { number: "asc" },
-        }),
-        ctx.db.teamEpa.findMany({
-          where: { teamNumber: { in: numbers } },
-          select: { teamNumber: true, epas: true },
-        }),
-        ctx.db.award.findMany({
-          where: { teamNumber: { in: numbers } },
-          select: { teamNumber: true, awards: true },
-        }),
-        ctx.db.teamAvatar.findMany({
-          where: { teamNumber: { in: numbers } },
-          select: { teamNumber: true, avatars: true },
-        }),
-      ]);
+      const [teams, epaDocs, awardDocs, avatarDocs, scoreRows, weights, event, resultRows] =
+        await Promise.all([
+          ctx.db.team.findMany({
+            where: { number: { in: numbers } },
+            orderBy: { number: "asc" },
+          }),
+          ctx.db.teamEpa.findMany({
+            where: { teamNumber: { in: numbers } },
+            select: { teamNumber: true, epas: true },
+          }),
+          ctx.db.award.findMany({
+            where: { teamNumber: { in: numbers } },
+            select: { teamNumber: true, awards: true },
+          }),
+          ctx.db.teamAvatar.findMany({
+            where: { teamNumber: { in: numbers } },
+            select: { teamNumber: true, avatars: true },
+          }),
+          ctx.db.teamScore.findMany({
+            where: { teamNumber: { in: numbers }, year: { gte: year - 4, lte: year } },
+          }),
+          getActiveWeights(),
+          ctx.db.event.findUnique({
+            where: { key: input.eventKey },
+            select: { eventType: true },
+          }),
+          ctx.db.teamEventResult.findMany({
+            where: { teamNumber: { in: numbers }, allianceSeed: { not: null } },
+            select: {
+              teamNumber: true,
+              eventKey: true,
+              allianceSeed: true,
+              pickRole: true,
+            },
+          }),
+        ]);
+
+      // Championship divisions (3) / Einstein (4) score on the full season, per
+      // the team's rule; every other board uses the standard draft window.
+      const window: "std" | "full" =
+        event && (event.eventType === 3 || event.eventType === 4)
+          ? "full"
+          : "std";
 
       const epaByTeam = new Map<number, number | null>();
       for (const row of epaDocs) {
@@ -424,6 +598,9 @@ export const frcRouter = createTRPCRouter({
         avatarByTeam.set(row.teamNumber, fallback?.base64 ?? null);
       }
 
+      const scoreByTeam = buildScoreColumns(scoreRows, weights, numbers, year, window);
+      const pickByTeam = buildPickMap(resultRows);
+
       return {
         year,
         eventKey: input.eventKey,
@@ -438,6 +615,8 @@ export const frcRouter = createTRPCRouter({
           epa: epaByTeam.get(t.number) ?? null,
           avatarB64: avatarByTeam.get(t.number) ?? null,
           awards: awardsByTeam.get(t.number) ?? [],
+          score: scoreByTeam.get(t.number) ?? null,
+          picks: pickByTeam.get(t.number) ?? {},
         })),
       };
     }),
@@ -645,4 +824,50 @@ export const frcRouter = createTRPCRouter({
         update: { stars: input.stars, updatedBy },
       });
     }),
+
+  // ---- Prediction weights (editable, with reset-to-optimal) ----
+
+  // Current optimal + active weights for the weighted-4-year prediction.
+  weights: publicProcedure.query(async ({ ctx }) => {
+    const w = await ctx.db.scoreWeights.findUnique({ where: { key: "default" } });
+    const fb = [0.5, 0.3, 0.15, 0.05];
+    return {
+      optRobot: w?.optRobot?.length === 4 ? w.optRobot : fb,
+      optAwards: w?.optAwards?.length === 4 ? w.optAwards : fb,
+      actRobot: w?.actRobot?.length === 4 ? w.actRobot : fb,
+      actAwards: w?.actAwards?.length === 4 ? w.actAwards : fb,
+    };
+  }),
+
+  // Save edited active weights (opt* untouched, so "reset" can restore them).
+  setWeights: protectedProcedure
+    .input(
+      z.object({
+        robot: z.array(z.number()).length(4),
+        awards: z.array(z.number()).length(4),
+      }),
+    )
+    .mutation(({ ctx, input }) =>
+      ctx.db.scoreWeights.upsert({
+        where: { key: "default" },
+        create: {
+          key: "default",
+          optRobot: input.robot,
+          optAwards: input.awards,
+          actRobot: input.robot,
+          actAwards: input.awards,
+        },
+        update: { actRobot: input.robot, actAwards: input.awards },
+      }),
+    ),
+
+  // Reset active weights to the fitted optimum.
+  resetWeights: protectedProcedure.mutation(async ({ ctx }) => {
+    const w = await ctx.db.scoreWeights.findUnique({ where: { key: "default" } });
+    if (!w) return null;
+    return ctx.db.scoreWeights.update({
+      where: { key: "default" },
+      data: { actRobot: w.optRobot, actAwards: w.optAwards },
+    });
+  }),
 });

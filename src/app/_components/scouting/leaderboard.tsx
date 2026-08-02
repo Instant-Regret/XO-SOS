@@ -4,11 +4,24 @@ import { ColHeader } from "./col-header";
 import { AwardsCell, PickPill, StarRating, TeamMark } from "./primitives";
 import type { ExtraColumn, Filters, Sort, TeamView } from "./types";
 
-// All "extra" columns are placeholders right now: xRobot/xAwards/xSOS aren't in
-// Mongo and the per-year finish columns have no source either, so every cell
-// renders a long dash.
-function extraValue(_team: TeamView, _col: ExtraColumn) {
-  return "—";
+// Extra-column cell text. XROBOT/XAWARDS are the predicted (or full-season)
+// point values; XSOS is a 0-100 schedule percentile; the y{year} columns are
+// that season's raw XVAL. Missing data renders a long dash.
+function extraValue(team: TeamView, col: ExtraColumn): string {
+  switch (col.key) {
+    case "xrobot":
+      return team.xRobot ? team.xRobot.toFixed(1) : "—";
+    case "xawards":
+      return team.xAwards ? team.xAwards.toFixed(1) : "—";
+    case "xsos":
+      return team.xsos == null ? "—" : String(team.xsos);
+    default: {
+      const y = col.year;
+      if (y == null) return "—";
+      const v = team.yearVals[y];
+      return v == null ? "—" : v.toFixed(1);
+    }
+  }
 }
 
 export function Leaderboard({
@@ -49,6 +62,9 @@ export function Leaderboard({
   // percentage bar would peg every team at 100%. Scale each bar against the
   // strongest team in view instead so the bars are actually comparable.
   const maxEpa = Math.max(1, ...allTeams.map((t) => t.epa));
+  // XVAL point totals aren't a 0-100 scale, so size the bar against the
+  // strongest team in view (same treatment as EPA).
+  const maxX = Math.max(1, ...allTeams.map((t) => t.xVal));
   const toggleSort = (key: string) => {
     setSort((s) =>
       s.key === key
@@ -296,7 +312,12 @@ export function Leaderboard({
               <div className="col-xval">
                 <div className="xval-num">{t.xVal.toFixed(1)}</div>
                 <div className="xval-bar">
-                  <div className="xval-fill" style={{ width: `${t.xVal}%` }} />
+                  <div
+                    className="xval-fill"
+                    style={{
+                      width: `${Math.max(0, Math.min(100, (t.xVal / maxX) * 100))}%`,
+                    }}
+                  />
                 </div>
               </div>
               <div className="col-epa epa-col">
