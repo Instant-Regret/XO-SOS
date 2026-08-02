@@ -1,6 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { AwardEntry, AwardLog, PickStatus } from "./data";
 import { BannerSvg, TrophySvg, WrenchSvg } from "./icons";
 
@@ -160,36 +161,51 @@ function AwardIcon({
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const popRef = useRef<HTMLDivElement | null>(null);
-  const [shift, setShift] = useState(0);
-  const [placement, setPlacement] = useState<"top" | "bottom">("top");
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Fixed-viewport coords for the portalled tooltip; null until measured.
+  const [pos, setPos] = useState<{
+    left: number;
+    top: number;
+    placement: "top" | "bottom";
+  } | null>(null);
 
+  const show = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    setOpen(true);
+  };
+  // Small delay so moving from the icon to the tooltip (a 6px gap) doesn't
+  // close it — lets you hover in to scroll a long list.
+  const hide = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => setOpen(false), 90);
+  };
+
+  // The tooltip is rendered in a portal on <body> with fixed positioning so it
+  // escapes the leaderboard's scroll container (which clips overflow). Placement
+  // is chosen against the viewport, where fixed elements actually live.
   useLayoutEffect(() => {
     if (!open) {
-      setShift(0);
-      setPlacement("top");
+      setPos(null);
       return;
     }
-    const pop = popRef.current;
     const wrap = wrapRef.current;
-    if (!pop || !wrap) return;
+    const pop = popRef.current;
+    if (!wrap || !pop) return;
+    const icon = wrap.getBoundingClientRect();
     const rect = pop.getBoundingClientRect();
-    const trigger = wrap.getBoundingClientRect();
-    const vw = window.innerWidth;
     const margin = 8;
-
-    // Horizontal: nudge back on-screen.
-    let dx = 0;
-    if (rect.right > vw - margin) dx = vw - margin - rect.right;
-    else if (rect.left < margin) dx = margin - rect.left;
-    setShift(dx);
-
-    // Vertical: prefer showing above, but flip below when there isn't room
-    // above and there's more room below (so tall tooltips aren't clipped).
-    const spaceAbove = trigger.top - margin;
-    const spaceBelow = window.innerHeight - trigger.bottom - margin;
-    setPlacement(
-      rect.height > spaceAbove && spaceBelow > spaceAbove ? "bottom" : "top",
+    const spaceAbove = icon.top - margin;
+    const spaceBelow = window.innerHeight - icon.bottom - margin;
+    const placement =
+      rect.height > spaceAbove && spaceBelow > spaceAbove ? "bottom" : "top";
+    const top = placement === "top" ? icon.top - 6 : icon.bottom + 6;
+    const half = rect.width / 2;
+    let left = icon.left + icon.width / 2;
+    left = Math.min(
+      window.innerWidth - margin - half,
+      Math.max(margin + half, left),
     );
+    setPos({ left, top, placement });
   }, [open]);
 
   if (!entries || entries.length === 0) return null;
@@ -202,35 +218,46 @@ function AwardIcon({
     <div
       ref={wrapRef}
       className={`award-icon award-${subkind ?? kind}`}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
+      onMouseEnter={show}
+      onMouseLeave={hide}
     >
       {svg}
       <span className="banner-count">{entries.length}</span>
-      {open && (
-        <div
-          ref={popRef}
-          className={`award-pop award-pop-${placement}`}
-          style={{ transform: `translateX(calc(-50% + ${shift}px))` }}
-        >
-          <div className="award-pop-title">{label}</div>
-          <ul className="award-pop-list">
-            {groups.map((g) => (
-              <li key={g.year}>
-                <span className="award-pop-year">{g.year}</span>
-                <div className="award-pop-events">
-                  {g.items.map((e, i) => (
-                    <div key={i} className="award-pop-event-row">
-                      <span className="award-pop-event">{e.event}</span>
-                      {e.name && <span className="award-pop-sub">{e.name}</span>}
-                    </div>
-                  ))}
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {open &&
+        createPortal(
+          <div
+            ref={popRef}
+            className="award-pop award-pop-fixed"
+            style={{
+              position: "fixed",
+              left: pos?.left ?? -9999,
+              top: pos?.top ?? -9999,
+              bottom: "auto",
+              transform: `translate(-50%, ${(pos?.placement ?? "top") === "top" ? "-100%" : "0"})`,
+              visibility: pos ? "visible" : "hidden",
+            }}
+            onMouseEnter={show}
+            onMouseLeave={hide}
+          >
+            <div className="award-pop-title">{label}</div>
+            <ul className="award-pop-list">
+              {groups.map((g) => (
+                <li key={g.year}>
+                  <span className="award-pop-year">{g.year}</span>
+                  <div className="award-pop-events">
+                    {g.items.map((e, i) => (
+                      <div key={i} className="award-pop-event-row">
+                        <span className="award-pop-event">{e.event}</span>
+                        {e.name && <span className="award-pop-sub">{e.name}</span>}
+                      </div>
+                    ))}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
