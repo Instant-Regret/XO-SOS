@@ -251,6 +251,13 @@ exports.Prisma.DraftScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.SyncCursorScalarFieldEnum = {
+  id: 'id',
+  path: 'path',
+  etag: 'etag',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.RatingScalarFieldEnum = {
   id: 'id',
   year: 'year',
@@ -288,6 +295,7 @@ exports.Prisma.ModelName = {
   SyncLog: 'SyncLog',
   Pick: 'Pick',
   Draft: 'Draft',
+  SyncCursor: 'SyncCursor',
   Rating: 'Rating'
 };
 

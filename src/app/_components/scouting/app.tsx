@@ -164,8 +164,17 @@ function ScoutingBoard() {
         abbreviation: d.abbreviation,
         displayName: d.displayName,
         year: d.year,
+        years: d.years,
       })),
     [allDistrictsQ.data],
+  );
+
+  // Only offer regions that actually have teams for the selected season, so
+  // users can't land on an empty board (e.g. mexico/northeast only exist in
+  // 2025).
+  const regionsForYear = useMemo(
+    () => allDistricts.filter((d) => d.years.includes(selectedYear)),
+    [allDistricts, selectedYear],
   );
 
   // Region selection is purely by abbreviation; the per-year districtKey is
@@ -339,7 +348,7 @@ function ScoutingBoard() {
       if (selectedEventKey !== null) setSelectedEventKey(null);
       return;
     }
-    const exact = allDistricts.find(
+    const exact = regionsForYear.find(
       (d) =>
         d.abbreviation.toLowerCase() === q ||
         d.key.toLowerCase() === q ||
@@ -349,7 +358,7 @@ function ScoutingBoard() {
       setSelectedAbbr(exact.abbreviation);
       setSelectedEventKey(null);
     }
-  }, [search, allDistricts, selectedAbbr, selectedEventKey]);
+  }, [search, regionsForYear, selectedAbbr, selectedEventKey]);
 
   // Build the row view from whichever tRPC payload is active (district board
   // when one is selected, else global top-100) plus local pick/star state.
@@ -534,7 +543,7 @@ function ScoutingBoard() {
         <SearchBar
           value={search}
           onChange={setSearch}
-          districts={allDistricts}
+          districts={regionsForYear}
           events={allEventsQ.data ?? []}
           loading={allDistrictsQ.isLoading}
           onPickDistrict={(d) => {

@@ -921,6 +921,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  /* Never let a tall award history overflow the viewport — scroll instead. */
+  max-height: 60vh;
+  overflow-y: auto;
 }
 .award-pop-list li {
   display: grid;

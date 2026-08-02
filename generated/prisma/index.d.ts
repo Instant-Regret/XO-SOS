@@ -109,6 +109,11 @@ export type Pick = $Result.DefaultSelection<Prisma.$PickPayload>
  */
 export type Draft = $Result.DefaultSelection<Prisma.$DraftPayload>
 /**
+ * Model SyncCursor
+ * 
+ */
+export type SyncCursor = $Result.DefaultSelection<Prisma.$SyncCursorPayload>
+/**
  * Model Rating
  * 
  */
@@ -358,6 +363,16 @@ export class PrismaClient<
     * ```
     */
   get draft(): Prisma.DraftDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.syncCursor`: Exposes CRUD operations for the **SyncCursor** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SyncCursors
+    * const syncCursors = await prisma.syncCursor.findMany()
+    * ```
+    */
+  get syncCursor(): Prisma.SyncCursorDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.rating`: Exposes CRUD operations for the **Rating** model.
@@ -825,6 +840,7 @@ export namespace Prisma {
     SyncLog: 'SyncLog',
     Pick: 'Pick',
     Draft: 'Draft',
+    SyncCursor: 'SyncCursor',
     Rating: 'Rating'
   };
 
@@ -844,7 +860,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "post" | "account" | "session" | "user" | "verificationToken" | "district" | "event" | "team" | "teamEpa" | "eventTeam" | "districtTeam" | "teamAvatar" | "award" | "syncLog" | "pick" | "draft" | "rating"
+      modelProps: "post" | "account" | "session" | "user" | "verificationToken" | "district" | "event" | "team" | "teamEpa" | "eventTeam" | "districtTeam" | "teamAvatar" | "award" | "syncLog" | "pick" | "draft" | "syncCursor" | "rating"
       txIsolationLevel: never
     }
     model: {
@@ -2032,6 +2048,80 @@ export namespace Prisma {
           }
         }
       }
+      SyncCursor: {
+        payload: Prisma.$SyncCursorPayload<ExtArgs>
+        fields: Prisma.SyncCursorFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SyncCursorFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncCursorPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SyncCursorFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncCursorPayload>
+          }
+          findFirst: {
+            args: Prisma.SyncCursorFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncCursorPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SyncCursorFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncCursorPayload>
+          }
+          findMany: {
+            args: Prisma.SyncCursorFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncCursorPayload>[]
+          }
+          create: {
+            args: Prisma.SyncCursorCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncCursorPayload>
+          }
+          createMany: {
+            args: Prisma.SyncCursorCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.SyncCursorDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncCursorPayload>
+          }
+          update: {
+            args: Prisma.SyncCursorUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncCursorPayload>
+          }
+          deleteMany: {
+            args: Prisma.SyncCursorDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SyncCursorUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.SyncCursorUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncCursorPayload>
+          }
+          aggregate: {
+            args: Prisma.SyncCursorAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSyncCursor>
+          }
+          groupBy: {
+            args: Prisma.SyncCursorGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SyncCursorGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.SyncCursorFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.SyncCursorAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.SyncCursorCountArgs<ExtArgs>
+            result: $Utils.Optional<SyncCursorCountAggregateOutputType> | number
+          }
+        }
+      }
       Rating: {
         payload: Prisma.$RatingPayload<ExtArgs>
         fields: Prisma.RatingFieldRefs
@@ -2201,6 +2291,7 @@ export namespace Prisma {
     syncLog?: SyncLogOmit
     pick?: PickOmit
     draft?: DraftOmit
+    syncCursor?: SyncCursorOmit
     rating?: RatingOmit
   }
 
@@ -18319,6 +18410,927 @@ export namespace Prisma {
 
 
   /**
+   * Model SyncCursor
+   */
+
+  export type AggregateSyncCursor = {
+    _count: SyncCursorCountAggregateOutputType | null
+    _min: SyncCursorMinAggregateOutputType | null
+    _max: SyncCursorMaxAggregateOutputType | null
+  }
+
+  export type SyncCursorMinAggregateOutputType = {
+    id: string | null
+    path: string | null
+    etag: string | null
+    updatedAt: Date | null
+  }
+
+  export type SyncCursorMaxAggregateOutputType = {
+    id: string | null
+    path: string | null
+    etag: string | null
+    updatedAt: Date | null
+  }
+
+  export type SyncCursorCountAggregateOutputType = {
+    id: number
+    path: number
+    etag: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type SyncCursorMinAggregateInputType = {
+    id?: true
+    path?: true
+    etag?: true
+    updatedAt?: true
+  }
+
+  export type SyncCursorMaxAggregateInputType = {
+    id?: true
+    path?: true
+    etag?: true
+    updatedAt?: true
+  }
+
+  export type SyncCursorCountAggregateInputType = {
+    id?: true
+    path?: true
+    etag?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type SyncCursorAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SyncCursor to aggregate.
+     */
+    where?: SyncCursorWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SyncCursors to fetch.
+     */
+    orderBy?: SyncCursorOrderByWithRelationInput | SyncCursorOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SyncCursorWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SyncCursors from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SyncCursors.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SyncCursors
+    **/
+    _count?: true | SyncCursorCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SyncCursorMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SyncCursorMaxAggregateInputType
+  }
+
+  export type GetSyncCursorAggregateType<T extends SyncCursorAggregateArgs> = {
+        [P in keyof T & keyof AggregateSyncCursor]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSyncCursor[P]>
+      : GetScalarType<T[P], AggregateSyncCursor[P]>
+  }
+
+
+
+
+  export type SyncCursorGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SyncCursorWhereInput
+    orderBy?: SyncCursorOrderByWithAggregationInput | SyncCursorOrderByWithAggregationInput[]
+    by: SyncCursorScalarFieldEnum[] | SyncCursorScalarFieldEnum
+    having?: SyncCursorScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SyncCursorCountAggregateInputType | true
+    _min?: SyncCursorMinAggregateInputType
+    _max?: SyncCursorMaxAggregateInputType
+  }
+
+  export type SyncCursorGroupByOutputType = {
+    id: string
+    path: string
+    etag: string
+    updatedAt: Date
+    _count: SyncCursorCountAggregateOutputType | null
+    _min: SyncCursorMinAggregateOutputType | null
+    _max: SyncCursorMaxAggregateOutputType | null
+  }
+
+  type GetSyncCursorGroupByPayload<T extends SyncCursorGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SyncCursorGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SyncCursorGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SyncCursorGroupByOutputType[P]>
+            : GetScalarType<T[P], SyncCursorGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SyncCursorSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    path?: boolean
+    etag?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["syncCursor"]>
+
+
+
+  export type SyncCursorSelectScalar = {
+    id?: boolean
+    path?: boolean
+    etag?: boolean
+    updatedAt?: boolean
+  }
+
+  export type SyncCursorOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "path" | "etag" | "updatedAt", ExtArgs["result"]["syncCursor"]>
+
+  export type $SyncCursorPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SyncCursor"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      path: string
+      etag: string
+      updatedAt: Date
+    }, ExtArgs["result"]["syncCursor"]>
+    composites: {}
+  }
+
+  type SyncCursorGetPayload<S extends boolean | null | undefined | SyncCursorDefaultArgs> = $Result.GetResult<Prisma.$SyncCursorPayload, S>
+
+  type SyncCursorCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SyncCursorFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SyncCursorCountAggregateInputType | true
+    }
+
+  export interface SyncCursorDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SyncCursor'], meta: { name: 'SyncCursor' } }
+    /**
+     * Find zero or one SyncCursor that matches the filter.
+     * @param {SyncCursorFindUniqueArgs} args - Arguments to find a SyncCursor
+     * @example
+     * // Get one SyncCursor
+     * const syncCursor = await prisma.syncCursor.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SyncCursorFindUniqueArgs>(args: SelectSubset<T, SyncCursorFindUniqueArgs<ExtArgs>>): Prisma__SyncCursorClient<$Result.GetResult<Prisma.$SyncCursorPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SyncCursor that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SyncCursorFindUniqueOrThrowArgs} args - Arguments to find a SyncCursor
+     * @example
+     * // Get one SyncCursor
+     * const syncCursor = await prisma.syncCursor.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SyncCursorFindUniqueOrThrowArgs>(args: SelectSubset<T, SyncCursorFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SyncCursorClient<$Result.GetResult<Prisma.$SyncCursorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SyncCursor that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SyncCursorFindFirstArgs} args - Arguments to find a SyncCursor
+     * @example
+     * // Get one SyncCursor
+     * const syncCursor = await prisma.syncCursor.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SyncCursorFindFirstArgs>(args?: SelectSubset<T, SyncCursorFindFirstArgs<ExtArgs>>): Prisma__SyncCursorClient<$Result.GetResult<Prisma.$SyncCursorPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SyncCursor that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SyncCursorFindFirstOrThrowArgs} args - Arguments to find a SyncCursor
+     * @example
+     * // Get one SyncCursor
+     * const syncCursor = await prisma.syncCursor.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SyncCursorFindFirstOrThrowArgs>(args?: SelectSubset<T, SyncCursorFindFirstOrThrowArgs<ExtArgs>>): Prisma__SyncCursorClient<$Result.GetResult<Prisma.$SyncCursorPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SyncCursors that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SyncCursorFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SyncCursors
+     * const syncCursors = await prisma.syncCursor.findMany()
+     * 
+     * // Get first 10 SyncCursors
+     * const syncCursors = await prisma.syncCursor.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const syncCursorWithIdOnly = await prisma.syncCursor.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SyncCursorFindManyArgs>(args?: SelectSubset<T, SyncCursorFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SyncCursorPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SyncCursor.
+     * @param {SyncCursorCreateArgs} args - Arguments to create a SyncCursor.
+     * @example
+     * // Create one SyncCursor
+     * const SyncCursor = await prisma.syncCursor.create({
+     *   data: {
+     *     // ... data to create a SyncCursor
+     *   }
+     * })
+     * 
+     */
+    create<T extends SyncCursorCreateArgs>(args: SelectSubset<T, SyncCursorCreateArgs<ExtArgs>>): Prisma__SyncCursorClient<$Result.GetResult<Prisma.$SyncCursorPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SyncCursors.
+     * @param {SyncCursorCreateManyArgs} args - Arguments to create many SyncCursors.
+     * @example
+     * // Create many SyncCursors
+     * const syncCursor = await prisma.syncCursor.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SyncCursorCreateManyArgs>(args?: SelectSubset<T, SyncCursorCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a SyncCursor.
+     * @param {SyncCursorDeleteArgs} args - Arguments to delete one SyncCursor.
+     * @example
+     * // Delete one SyncCursor
+     * const SyncCursor = await prisma.syncCursor.delete({
+     *   where: {
+     *     // ... filter to delete one SyncCursor
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SyncCursorDeleteArgs>(args: SelectSubset<T, SyncCursorDeleteArgs<ExtArgs>>): Prisma__SyncCursorClient<$Result.GetResult<Prisma.$SyncCursorPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SyncCursor.
+     * @param {SyncCursorUpdateArgs} args - Arguments to update one SyncCursor.
+     * @example
+     * // Update one SyncCursor
+     * const syncCursor = await prisma.syncCursor.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SyncCursorUpdateArgs>(args: SelectSubset<T, SyncCursorUpdateArgs<ExtArgs>>): Prisma__SyncCursorClient<$Result.GetResult<Prisma.$SyncCursorPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SyncCursors.
+     * @param {SyncCursorDeleteManyArgs} args - Arguments to filter SyncCursors to delete.
+     * @example
+     * // Delete a few SyncCursors
+     * const { count } = await prisma.syncCursor.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SyncCursorDeleteManyArgs>(args?: SelectSubset<T, SyncCursorDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SyncCursors.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SyncCursorUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SyncCursors
+     * const syncCursor = await prisma.syncCursor.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SyncCursorUpdateManyArgs>(args: SelectSubset<T, SyncCursorUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one SyncCursor.
+     * @param {SyncCursorUpsertArgs} args - Arguments to update or create a SyncCursor.
+     * @example
+     * // Update or create a SyncCursor
+     * const syncCursor = await prisma.syncCursor.upsert({
+     *   create: {
+     *     // ... data to create a SyncCursor
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SyncCursor we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SyncCursorUpsertArgs>(args: SelectSubset<T, SyncCursorUpsertArgs<ExtArgs>>): Prisma__SyncCursorClient<$Result.GetResult<Prisma.$SyncCursorPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SyncCursors that matches the filter.
+     * @param {SyncCursorFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const syncCursor = await prisma.syncCursor.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: SyncCursorFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a SyncCursor.
+     * @param {SyncCursorAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const syncCursor = await prisma.syncCursor.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: SyncCursorAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of SyncCursors.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SyncCursorCountArgs} args - Arguments to filter SyncCursors to count.
+     * @example
+     * // Count the number of SyncCursors
+     * const count = await prisma.syncCursor.count({
+     *   where: {
+     *     // ... the filter for the SyncCursors we want to count
+     *   }
+     * })
+    **/
+    count<T extends SyncCursorCountArgs>(
+      args?: Subset<T, SyncCursorCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SyncCursorCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SyncCursor.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SyncCursorAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SyncCursorAggregateArgs>(args: Subset<T, SyncCursorAggregateArgs>): Prisma.PrismaPromise<GetSyncCursorAggregateType<T>>
+
+    /**
+     * Group by SyncCursor.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SyncCursorGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SyncCursorGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SyncCursorGroupByArgs['orderBy'] }
+        : { orderBy?: SyncCursorGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SyncCursorGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSyncCursorGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SyncCursor model
+   */
+  readonly fields: SyncCursorFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SyncCursor.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SyncCursorClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SyncCursor model
+   */
+  interface SyncCursorFieldRefs {
+    readonly id: FieldRef<"SyncCursor", 'String'>
+    readonly path: FieldRef<"SyncCursor", 'String'>
+    readonly etag: FieldRef<"SyncCursor", 'String'>
+    readonly updatedAt: FieldRef<"SyncCursor", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SyncCursor findUnique
+   */
+  export type SyncCursorFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncCursor
+     */
+    select?: SyncCursorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncCursor
+     */
+    omit?: SyncCursorOmit<ExtArgs> | null
+    /**
+     * Filter, which SyncCursor to fetch.
+     */
+    where: SyncCursorWhereUniqueInput
+  }
+
+  /**
+   * SyncCursor findUniqueOrThrow
+   */
+  export type SyncCursorFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncCursor
+     */
+    select?: SyncCursorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncCursor
+     */
+    omit?: SyncCursorOmit<ExtArgs> | null
+    /**
+     * Filter, which SyncCursor to fetch.
+     */
+    where: SyncCursorWhereUniqueInput
+  }
+
+  /**
+   * SyncCursor findFirst
+   */
+  export type SyncCursorFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncCursor
+     */
+    select?: SyncCursorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncCursor
+     */
+    omit?: SyncCursorOmit<ExtArgs> | null
+    /**
+     * Filter, which SyncCursor to fetch.
+     */
+    where?: SyncCursorWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SyncCursors to fetch.
+     */
+    orderBy?: SyncCursorOrderByWithRelationInput | SyncCursorOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SyncCursors.
+     */
+    cursor?: SyncCursorWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SyncCursors from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SyncCursors.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SyncCursors.
+     */
+    distinct?: SyncCursorScalarFieldEnum | SyncCursorScalarFieldEnum[]
+  }
+
+  /**
+   * SyncCursor findFirstOrThrow
+   */
+  export type SyncCursorFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncCursor
+     */
+    select?: SyncCursorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncCursor
+     */
+    omit?: SyncCursorOmit<ExtArgs> | null
+    /**
+     * Filter, which SyncCursor to fetch.
+     */
+    where?: SyncCursorWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SyncCursors to fetch.
+     */
+    orderBy?: SyncCursorOrderByWithRelationInput | SyncCursorOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SyncCursors.
+     */
+    cursor?: SyncCursorWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SyncCursors from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SyncCursors.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SyncCursors.
+     */
+    distinct?: SyncCursorScalarFieldEnum | SyncCursorScalarFieldEnum[]
+  }
+
+  /**
+   * SyncCursor findMany
+   */
+  export type SyncCursorFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncCursor
+     */
+    select?: SyncCursorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncCursor
+     */
+    omit?: SyncCursorOmit<ExtArgs> | null
+    /**
+     * Filter, which SyncCursors to fetch.
+     */
+    where?: SyncCursorWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SyncCursors to fetch.
+     */
+    orderBy?: SyncCursorOrderByWithRelationInput | SyncCursorOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SyncCursors.
+     */
+    cursor?: SyncCursorWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SyncCursors from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SyncCursors.
+     */
+    skip?: number
+    distinct?: SyncCursorScalarFieldEnum | SyncCursorScalarFieldEnum[]
+  }
+
+  /**
+   * SyncCursor create
+   */
+  export type SyncCursorCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncCursor
+     */
+    select?: SyncCursorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncCursor
+     */
+    omit?: SyncCursorOmit<ExtArgs> | null
+    /**
+     * The data needed to create a SyncCursor.
+     */
+    data: XOR<SyncCursorCreateInput, SyncCursorUncheckedCreateInput>
+  }
+
+  /**
+   * SyncCursor createMany
+   */
+  export type SyncCursorCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SyncCursors.
+     */
+    data: SyncCursorCreateManyInput | SyncCursorCreateManyInput[]
+  }
+
+  /**
+   * SyncCursor update
+   */
+  export type SyncCursorUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncCursor
+     */
+    select?: SyncCursorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncCursor
+     */
+    omit?: SyncCursorOmit<ExtArgs> | null
+    /**
+     * The data needed to update a SyncCursor.
+     */
+    data: XOR<SyncCursorUpdateInput, SyncCursorUncheckedUpdateInput>
+    /**
+     * Choose, which SyncCursor to update.
+     */
+    where: SyncCursorWhereUniqueInput
+  }
+
+  /**
+   * SyncCursor updateMany
+   */
+  export type SyncCursorUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SyncCursors.
+     */
+    data: XOR<SyncCursorUpdateManyMutationInput, SyncCursorUncheckedUpdateManyInput>
+    /**
+     * Filter which SyncCursors to update
+     */
+    where?: SyncCursorWhereInput
+    /**
+     * Limit how many SyncCursors to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SyncCursor upsert
+   */
+  export type SyncCursorUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncCursor
+     */
+    select?: SyncCursorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncCursor
+     */
+    omit?: SyncCursorOmit<ExtArgs> | null
+    /**
+     * The filter to search for the SyncCursor to update in case it exists.
+     */
+    where: SyncCursorWhereUniqueInput
+    /**
+     * In case the SyncCursor found by the `where` argument doesn't exist, create a new SyncCursor with this data.
+     */
+    create: XOR<SyncCursorCreateInput, SyncCursorUncheckedCreateInput>
+    /**
+     * In case the SyncCursor was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SyncCursorUpdateInput, SyncCursorUncheckedUpdateInput>
+  }
+
+  /**
+   * SyncCursor delete
+   */
+  export type SyncCursorDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncCursor
+     */
+    select?: SyncCursorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncCursor
+     */
+    omit?: SyncCursorOmit<ExtArgs> | null
+    /**
+     * Filter which SyncCursor to delete.
+     */
+    where: SyncCursorWhereUniqueInput
+  }
+
+  /**
+   * SyncCursor deleteMany
+   */
+  export type SyncCursorDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SyncCursors to delete
+     */
+    where?: SyncCursorWhereInput
+    /**
+     * Limit how many SyncCursors to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SyncCursor findRaw
+   */
+  export type SyncCursorFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * SyncCursor aggregateRaw
+   */
+  export type SyncCursorAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * SyncCursor without action
+   */
+  export type SyncCursorDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncCursor
+     */
+    select?: SyncCursorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncCursor
+     */
+    omit?: SyncCursorOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model Rating
    */
 
@@ -19492,6 +20504,16 @@ export namespace Prisma {
   export type DraftScalarFieldEnum = (typeof DraftScalarFieldEnum)[keyof typeof DraftScalarFieldEnum]
 
 
+  export const SyncCursorScalarFieldEnum: {
+    id: 'id',
+    path: 'path',
+    etag: 'etag',
+    updatedAt: 'updatedAt'
+  };
+
+  export type SyncCursorScalarFieldEnum = (typeof SyncCursorScalarFieldEnum)[keyof typeof SyncCursorScalarFieldEnum]
+
+
   export const RatingScalarFieldEnum: {
     id: 'id',
     year: 'year',
@@ -20513,6 +21535,53 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Draft"> | Date | string
   }
 
+  export type SyncCursorWhereInput = {
+    AND?: SyncCursorWhereInput | SyncCursorWhereInput[]
+    OR?: SyncCursorWhereInput[]
+    NOT?: SyncCursorWhereInput | SyncCursorWhereInput[]
+    id?: StringFilter<"SyncCursor"> | string
+    path?: StringFilter<"SyncCursor"> | string
+    etag?: StringFilter<"SyncCursor"> | string
+    updatedAt?: DateTimeFilter<"SyncCursor"> | Date | string
+  }
+
+  export type SyncCursorOrderByWithRelationInput = {
+    id?: SortOrder
+    path?: SortOrder
+    etag?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SyncCursorWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    path?: string
+    AND?: SyncCursorWhereInput | SyncCursorWhereInput[]
+    OR?: SyncCursorWhereInput[]
+    NOT?: SyncCursorWhereInput | SyncCursorWhereInput[]
+    etag?: StringFilter<"SyncCursor"> | string
+    updatedAt?: DateTimeFilter<"SyncCursor"> | Date | string
+  }, "id" | "path">
+
+  export type SyncCursorOrderByWithAggregationInput = {
+    id?: SortOrder
+    path?: SortOrder
+    etag?: SortOrder
+    updatedAt?: SortOrder
+    _count?: SyncCursorCountOrderByAggregateInput
+    _max?: SyncCursorMaxOrderByAggregateInput
+    _min?: SyncCursorMinOrderByAggregateInput
+  }
+
+  export type SyncCursorScalarWhereWithAggregatesInput = {
+    AND?: SyncCursorScalarWhereWithAggregatesInput | SyncCursorScalarWhereWithAggregatesInput[]
+    OR?: SyncCursorScalarWhereWithAggregatesInput[]
+    NOT?: SyncCursorScalarWhereWithAggregatesInput | SyncCursorScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SyncCursor"> | string
+    path?: StringWithAggregatesFilter<"SyncCursor"> | string
+    etag?: StringWithAggregatesFilter<"SyncCursor"> | string
+    updatedAt?: DateTimeWithAggregatesFilter<"SyncCursor"> | Date | string
+  }
+
   export type RatingWhereInput = {
     AND?: RatingWhereInput | RatingWhereInput[]
     OR?: RatingWhereInput[]
@@ -21498,6 +22567,51 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type SyncCursorCreateInput = {
+    id?: string
+    path: string
+    etag: string
+    updatedAt?: Date | string
+  }
+
+  export type SyncCursorUncheckedCreateInput = {
+    id?: string
+    path: string
+    etag: string
+    updatedAt?: Date | string
+  }
+
+  export type SyncCursorUpdateInput = {
+    path?: StringFieldUpdateOperationsInput | string
+    etag?: StringFieldUpdateOperationsInput | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SyncCursorUncheckedUpdateInput = {
+    path?: StringFieldUpdateOperationsInput | string
+    etag?: StringFieldUpdateOperationsInput | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SyncCursorCreateManyInput = {
+    id?: string
+    path: string
+    etag: string
+    updatedAt?: Date | string
+  }
+
+  export type SyncCursorUpdateManyMutationInput = {
+    path?: StringFieldUpdateOperationsInput | string
+    etag?: StringFieldUpdateOperationsInput | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SyncCursorUncheckedUpdateManyInput = {
+    path?: StringFieldUpdateOperationsInput | string
+    etag?: StringFieldUpdateOperationsInput | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type RatingCreateInput = {
     id?: string
     year: number
@@ -22354,6 +23468,27 @@ export namespace Prisma {
 
   export type DraftSumOrderByAggregateInput = {
     year?: SortOrder
+  }
+
+  export type SyncCursorCountOrderByAggregateInput = {
+    id?: SortOrder
+    path?: SortOrder
+    etag?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SyncCursorMaxOrderByAggregateInput = {
+    id?: SortOrder
+    path?: SortOrder
+    etag?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SyncCursorMinOrderByAggregateInput = {
+    id?: SortOrder
+    path?: SortOrder
+    etag?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type RatingYearTeamNumberCompoundUniqueInput = {

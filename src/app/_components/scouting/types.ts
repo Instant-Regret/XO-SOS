@@ -20,6 +20,7 @@ export type DistrictLite = {
   abbreviation: string;
   displayName: string;
   year: number;
+  years: number[]; // seasons this region has teams for
 };
 
 export type EventLite = {

@@ -43,42 +43,62 @@ export const frcRouter = createTRPCRouter({
       abbreviation: string;
       displayName: string;
       year: number;
+      years: Set<number>; // seasons this region actually has a roster for
     };
     const byAbbr = new Map<string, Entry>();
+    const districtAbbrs = new Set(districts.map((d) => d.abbreviation));
 
+    // District rows provide clean display names + newest-year metadata.
     for (const d of districts) {
       const cur = byAbbr.get(d.abbreviation);
-      if (!cur || cur.year < d.year) {
+      if (!cur) {
         byAbbr.set(d.abbreviation, {
           key: d.key,
           abbreviation: d.abbreviation,
           displayName: d.displayName,
           year: d.year,
+          years: new Set(),
         });
+      } else if (d.year > cur.year) {
+        cur.key = d.key;
+        cur.displayName = d.displayName;
+        cur.year = d.year;
       }
     }
 
+    // DistrictTeam keys ("{year}{abbr}") are the source of truth for which
+    // (season, region) pairs actually have teams — this both fills in regions
+    // missing from the District collection and records per-year availability.
     for (const link of links) {
       const year = parseInt(link.districtKey.slice(0, 4), 10);
       const abbr = link.districtKey.slice(4);
       if (!Number.isFinite(year) || !abbr) continue;
-      const cur = byAbbr.get(abbr);
-      if (cur && cur.year >= year) continue;
-      // Either no entry yet, or a newer year exists in DistrictTeam than in
-      // District — fall back to using the abbreviation as the display name.
+      let cur = byAbbr.get(abbr);
       if (!cur) {
-        byAbbr.set(abbr, {
+        cur = {
           key: link.districtKey,
           abbreviation: abbr,
           displayName: abbr.toUpperCase(),
           year,
-        });
+          years: new Set(),
+        };
+        byAbbr.set(abbr, cur);
+      } else if (year > cur.year && !districtAbbrs.has(abbr)) {
+        cur.key = link.districtKey;
+        cur.year = year;
       }
+      cur.years.add(year);
     }
 
-    return [...byAbbr.values()].sort((a, b) =>
-      a.displayName.localeCompare(b.displayName),
-    );
+    return [...byAbbr.values()]
+      .map((e) => ({
+        key: e.key,
+        abbreviation: e.abbreviation,
+        displayName: e.displayName,
+        year: e.year,
+        years: [...e.years].sort((a, b) => b - a),
+      }))
+      .sort((a, b) => a.displayName.localeCompare(b.displayName));
   }),
 
   districtEvents: publicProcedure

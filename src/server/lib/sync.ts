@@ -71,9 +71,18 @@ async function upsertEvent(event: TbaEvent) {
   });
 }
 
-export async function syncDistricts(year: number) {
-  const districts = await tba.districts(year);
-  for (const d of districts) {
+// Returns the district keys for the year (from TBA when changed, else from the
+// DB so the caller can still iterate on an unchanged 304).
+export async function syncDistricts(year: number): Promise<{ key: string }[]> {
+  const path = `/districts/${year}`;
+  const { notModified, data, etag } = await tba.districtsConditional(
+    year,
+    await getEtag(path),
+  );
+  if (notModified || !data) {
+    return db.district.findMany({ where: { year }, select: { key: true } });
+  }
+  for (const d of data) {
     await db.district.upsert({
       where: { key: d.key },
       create: {
@@ -89,44 +98,172 @@ export async function syncDistricts(year: number) {
       },
     });
   }
-  return districts;
+  await setEtag(path, etag);
+  return data.map((d) => ({ key: d.key }));
 }
 
 export async function syncDistrictEvents(districtKey: string) {
-  const events = await tba.districtEvents(districtKey);
-  for (const e of events) await upsertEvent(e);
-  return events;
+  const path = `/district/${districtKey}/events`;
+  const { notModified, data, etag } = await tba.districtEventsConditional(
+    districtKey,
+    await getEtag(path),
+  );
+  if (notModified || !data) return;
+  for (const e of data) await upsertEvent(e);
+  await setEtag(path, etag);
 }
 
 export async function syncDistrictTeams(districtKey: string) {
-  const teams = await tba.districtTeams(districtKey);
-  for (const t of teams) await upsertTeamFromTba(t);
-  const teamNumbers = teams.map((t) => t.team_number);
+  const path = `/district/${districtKey}/teams`;
+  const { notModified, data, etag } = await tba.districtTeamsConditional(
+    districtKey,
+    await getEtag(path),
+  );
+  if (notModified || !data) return;
+  for (const t of data) await upsertTeamFromTba(t);
+  const teamNumbers = data.map((t) => t.team_number);
   await db.districtTeam.upsert({
     where: { districtKey },
     create: { districtKey, teamNumbers },
     update: { teamNumbers },
   });
-  return teams;
+  await setEtag(path, etag);
 }
 
 export async function syncRegionalEvents(year: number) {
-  const events = await tba.events(year);
-  const regionals = events.filter((e) => e.event_type === EVENT_TYPE.REGIONAL);
+  const path = `/events/${year}`;
+  const { notModified, data, etag } = await tba.eventsConditional(
+    year,
+    await getEtag(path),
+  );
+  if (notModified || !data) return;
+  const regionals = data.filter((e) => e.event_type === EVENT_TYPE.REGIONAL);
   for (const e of regionals) await upsertEvent(e);
-  return regionals;
+  await setEtag(path, etag);
+}
+
+// Read/write the stored TBA ETag for a path.
+async function getEtag(path: string): Promise<string | undefined> {
+  const cur = await db.syncCursor.findUnique({
+    where: { path },
+    select: { etag: true },
+  });
+  return cur?.etag;
+}
+async function setEtag(path: string, etag: string | null) {
+  if (!etag) return;
+  await db.syncCursor.upsert({
+    where: { path },
+    create: { path, etag },
+    update: { etag },
+  });
 }
 
 export async function syncEventTeams(eventKey: string) {
-  const teams = await tba.eventTeams(eventKey);
-  for (const t of teams) await upsertTeamFromTba(t);
-  const teamNumbers = teams.map((t) => t.team_number);
-  await db.eventTeam.upsert({
+  const path = `/event/${eventKey}/teams`;
+  const { notModified, data, etag } = await tba.eventTeamsConditional(
+    eventKey,
+    await getEtag(path),
+  );
+  if (notModified || !data) return; // unchanged since last sync
+  const teamNumbers = data.map((t) => t.team_number);
+  // Team metadata is nearly static and maintained by the district sync, so
+  // only create teams we don't already have. Re-upserting every roster team
+  // (many shared across events) is what made changed-event syncs slow on the
+  // free-tier DB.
+  const existing = new Set(
+    (
+      await db.team.findMany({
+        where: { number: { in: teamNumbers } },
+        select: { number: true },
+      })
+    ).map((t) => t.number),
+  );
+  for (const t of data) {
+    if (!existing.has(t.team_number)) await upsertTeamFromTba(t);
+  }
+  // Only rewrite the roster link when it actually changed.
+  const link = await db.eventTeam.findUnique({
     where: { eventKey },
-    create: { eventKey, teamNumbers },
-    update: { teamNumbers },
+    select: { teamNumbers: true },
   });
-  return teams;
+  const sortedNew = JSON.stringify([...teamNumbers].sort((a, b) => a - b));
+  const sortedOld = link
+    ? JSON.stringify([...link.teamNumbers].sort((a, b) => a - b))
+    : null;
+  if (sortedOld !== sortedNew) {
+    await db.eventTeam.upsert({
+      where: { eventKey },
+      create: { eventKey, teamNumbers },
+      update: { teamNumbers },
+    });
+  }
+  await setEtag(path, etag);
+}
+
+// Pull one event's awards and fan them out into each recipient team's Award
+// document, replacing that team's awards *for this event* while keeping awards
+// from other events. Far fewer requests than the per-team endpoint, and
+// conditional so unchanged events are skipped.
+export async function syncEventAwards(eventKey: string) {
+  const path = `/event/${eventKey}/awards`;
+  const { notModified, data, etag } = await tba.eventAwardsConditional(
+    eventKey,
+    await getEtag(path),
+  );
+  if (notModified || !data) return;
+
+  const byTeam = new Map<
+    number,
+    { eventKey: string; awardType: number; name: string; year: number }[]
+  >();
+  for (const award of data) {
+    for (const recipient of award.recipient_list) {
+      if (!recipient.team_key) continue; // individual award, no team
+      const teamNumber = Number(recipient.team_key.replace(/^frc/, ""));
+      if (!Number.isFinite(teamNumber)) continue;
+      const list = byTeam.get(teamNumber) ?? [];
+      list.push({
+        eventKey: award.event_key,
+        awardType: award.award_type,
+        name: award.name,
+        year: award.year,
+      });
+      byTeam.set(teamNumber, list);
+    }
+  }
+
+  const cmp = (
+    a: { year: number; eventKey: string; awardType: number },
+    b: { year: number; eventKey: string; awardType: number },
+  ) =>
+    a.year - b.year ||
+    a.eventKey.localeCompare(b.eventKey) ||
+    a.awardType - b.awardType;
+
+  const existingByTeam = new Map(
+    (
+      await db.award.findMany({
+        where: { teamNumber: { in: [...byTeam.keys()] } },
+        select: { teamNumber: true, awards: true },
+      })
+    ).map((d) => [d.teamNumber, d.awards]),
+  );
+  for (const [teamNumber, eventAwards] of byTeam) {
+    const existingAwards = existingByTeam.get(teamNumber) ?? [];
+    const kept = existingAwards.filter((a) => a.eventKey !== eventKey);
+    const merged = [...kept, ...eventAwards].sort(cmp);
+    // Skip the write when nothing actually changed (e.g. TBA re-issued an ETag
+    // without changing the data).
+    const before = JSON.stringify([...existingAwards].sort(cmp));
+    if (before === JSON.stringify(merged)) continue;
+    await db.award.upsert({
+      where: { teamNumber },
+      create: { teamNumber, awards: merged },
+      update: { awards: merged },
+    });
+  }
+  await setEtag(path, etag);
 }
 
 export async function syncTeamAwards(teamKey: string, year: number) {
@@ -192,7 +329,17 @@ export async function syncTeamAvatar(
     if (existing?.avatars.some((a) => a.year === year)) return;
   }
 
-  const media = await tba.teamMedia(teamKey, year);
+  // Conditional fetch: teams TBA has no avatar for otherwise get re-fetched
+  // every run; the ETag lets those come back as a fast 304 and skip.
+  const path = `/team/${teamKey}/media/${year}`;
+  const {
+    notModified,
+    data: media,
+    etag,
+  } = await tba.teamMediaConditional(teamKey, year, force ? undefined : await getEtag(path));
+  if (notModified || !media) return;
+  await setEtag(path, etag);
+
   const avatar = media.find((m) => m.type === "avatar");
   const base64Raw =
     (avatar?.details && (avatar.details as { base64Image?: unknown }).base64Image) ?? null;
@@ -271,6 +418,27 @@ async function upsertTeamEpa(
   });
 }
 
+// Write only the EPA values that actually changed for the year — one bulk read
+// to diff, then upsert just the differences. On an unchanged day this writes
+// nothing.
+async function writeChangedEpas(
+  year: number,
+  teamYears: { team: number; epaUnitless: number | null }[],
+) {
+  const existing = new Map<number, number>();
+  for (const row of await db.teamEpa.findMany({
+    select: { teamNumber: true, epas: true },
+  })) {
+    const e = row.epas.find((x) => x.year === year);
+    if (e) existing.set(row.teamNumber, e.epaUnitless);
+  }
+  const changed = teamYears.filter(
+    (t) => t.epaUnitless !== null && existing.get(t.team) !== t.epaUnitless,
+  );
+  await pool(changed, 10, async (t) => upsertTeamEpa(t.team, year, t.epaUnitless!));
+  return changed.length;
+}
+
 export async function syncTeamEpa(teamNumber: number, year: number) {
   const result = await getTeamYear(teamNumber, year);
   if (!result) return;
@@ -293,11 +461,8 @@ export async function syncAllEpas() {
   const year = syncYear();
   return logSync(`syncEpas:${year}`, async () => {
     const teamYears = await getAllTeamYears(year);
-    const withEpa = teamYears.filter((t) => t.epaUnitless !== null);
-    await pool(withEpa, 10, async (t) =>
-      upsertTeamEpa(t.team, year, t.epaUnitless!),
-    );
-    return { year, fetched: teamYears.length, updated: withEpa.length };
+    const updated = await writeChangedEpas(year, teamYears);
+    return { year, fetched: teamYears.length, updated };
   });
 }
 
@@ -331,45 +496,53 @@ async function logSync<T>(task: string, fn: () => Promise<T>): Promise<T> {
 export async function syncAll() {
   const year = syncYear();
   return logSync(`syncAll:${year}`, async () => {
-    const districts = await syncDistricts(year);
+    const phase = async <T>(label: string, fn: () => Promise<T>): Promise<T> => {
+      const t = Date.now();
+      const r = await fn();
+      console.log(`[sync] ${label}: ${Date.now() - t}ms`);
+      return r;
+    };
 
-    for (const d of districts) {
-      await syncDistrictEvents(d.key);
-      await syncDistrictTeams(d.key);
-    }
+    const districts = await phase("districts+districtData", async () => {
+      const ds = await syncDistricts(year);
+      await Promise.all([
+        pool(ds, 8, async (d) => {
+          await syncDistrictEvents(d.key);
+          await syncDistrictTeams(d.key);
+        }),
+        syncRegionalEvents(year),
+      ]);
+      return ds;
+    });
 
-    await syncRegionalEvents(year);
-
-    // Pull every event we now know about for this year so we cover regional
-    // teams plus district-event-level rosters.
     const events = await db.event.findMany({
       where: { year },
       select: { key: true },
     });
-    await pool(events, 4, async (e) => {
-      await syncEventTeams(e.key);
-    });
 
-    const teams = await db.team.findMany({ select: { number: true, key: true } });
-
-    await pool(teams, 4, async (t) => {
-      await syncTeamAwards(t.key, year);
-    });
-
-    // EPAs via the bulk endpoint (one request per ~1000 teams) so Statbotics
-    // rate-limiting can't leave teams with stale values. DB writes run in
-    // parallel against our own Mongo.
-    const teamYears = await getAllTeamYears(year);
-    await pool(
-      teamYears.filter((t) => t.epaUnitless !== null),
-      10,
-      async (t) => upsertTeamEpa(t.team, year, t.epaUnitless!),
+    await phase("eventTeams", () =>
+      pool(events, 12, async (e) => {
+        await syncEventTeams(e.key);
+      }),
     );
 
-    await pool(teams, 4, async (t) => {
-      await syncTeamAvatar(t.key, t.number, year);
-    });
+    await phase("eventAwards", () =>
+      pool(events, 12, async (e) => {
+        await syncEventAwards(e.key);
+      }),
+    );
 
-    return { year, districts: districts.length, teams: teams.length, events: events.length };
+    await phase("epas", async () => {
+      const teamYears = await getAllTeamYears(year);
+      await writeChangedEpas(year, teamYears);
+    });
+    const teamCount = await db.team.count();
+
+    // Avatars are intentionally NOT synced here: they change rarely and the UI
+    // falls back to TBA's avatar URL when there's no cached copy, so keeping
+    // them out of the daily sync keeps it well under the serverless timeout.
+    // Refresh them occasionally via /api/cron/avatars (seedAvatars).
+
+    return { year, districts: districts.length, teams: teamCount, events: events.length };
   });
 }
