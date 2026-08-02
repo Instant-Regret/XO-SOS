@@ -8,9 +8,9 @@ import { TRPCReactProvider } from "~/trpc/react";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "XO Sauce — Scouting Board",
+  title: "XOSOS — Scouting Board",
   description: "FRC scouting dashboard",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  icons: [{ rel: "icon", url: "/xosos.png" }],
 };
 
 const inter = Inter({
