@@ -167,17 +167,18 @@ function AwardIcon({
     left: number;
     top: number;
     placement: "top" | "bottom";
+    maxHeight: number;
   } | null>(null);
 
   const show = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
     setOpen(true);
   };
-  // Small delay so moving from the icon to the tooltip (a 6px gap) doesn't
-  // close it — lets you hover in to scroll a long list.
+  // Delay so moving from the icon to the tooltip (a 6px gap) doesn't close it —
+  // lets you hover in to scroll a long list.
   const hide = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
-    closeTimer.current = setTimeout(() => setOpen(false), 90);
+    closeTimer.current = setTimeout(() => setOpen(false), 160);
   };
 
   // The tooltip is rendered in a portal on <body> with fixed positioning so it
@@ -199,13 +200,20 @@ function AwardIcon({
     const placement =
       rect.height > spaceAbove && spaceBelow > spaceAbove ? "bottom" : "top";
     const top = placement === "top" ? icon.top - 6 : icon.bottom + 6;
+    // Cap the tooltip to the room available on the chosen side so a long award
+    // history never runs off the top or bottom of the screen (it scrolls
+    // within instead).
+    const maxHeight =
+      placement === "top"
+        ? icon.top - 6 - margin
+        : window.innerHeight - margin - (icon.bottom + 6);
     const half = rect.width / 2;
     let left = icon.left + icon.width / 2;
     left = Math.min(
       window.innerWidth - margin - half,
       Math.max(margin + half, left),
     );
-    setPos({ left, top, placement });
+    setPos({ left, top, placement, maxHeight });
   }, [open]);
 
   if (!entries || entries.length === 0) return null;
@@ -233,6 +241,7 @@ function AwardIcon({
               left: pos?.left ?? -9999,
               top: pos?.top ?? -9999,
               bottom: "auto",
+              maxHeight: pos?.maxHeight,
               transform: `translate(-50%, ${(pos?.placement ?? "top") === "top" ? "-100%" : "0"})`,
               visibility: pos ? "visible" : "hidden",
             }}
