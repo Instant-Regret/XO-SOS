@@ -227,7 +227,7 @@ function AwardIcon({
         createPortal(
           <div
             ref={popRef}
-            className="award-pop award-pop-fixed"
+            className="award-pop award-pop-fixed theme-dark"
             style={{
               position: "fixed",
               left: pos?.left ?? -9999,
