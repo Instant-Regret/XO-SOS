@@ -914,6 +914,22 @@ body {
   margin-bottom: 6px;
   font-family: var(--font-inter), Inter, sans-serif;
 }
+/* The portalled tooltip gets a max-height cap (inline, = available space);
+   lay it out as a column so the title stays put and the list scrolls. */
+.award-pop-fixed {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.award-pop-fixed .award-pop-title {
+  flex: 0 0 auto;
+}
+.award-pop-fixed .award-pop-list {
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
 .award-pop-list {
   list-style: none;
   padding: 0;
