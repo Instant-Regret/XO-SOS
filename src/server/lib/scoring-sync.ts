@@ -23,6 +23,30 @@ const contextFor = (t: number): ScoreContext =>
 
 const teamNum = (key: string) => Number(key.replace(/^frc/, ""));
 
+// Bounded-concurrency map (mirrors sync.ts pool) so the many small per-team
+// upserts run in parallel instead of one Atlas round-trip at a time.
+async function pool<T>(
+  items: T[],
+  concurrency: number,
+  worker: (item: T) => Promise<void>,
+): Promise<void> {
+  const queue = [...items];
+  const runners = Array.from(
+    { length: Math.min(concurrency, queue.length) },
+    async () => {
+      while (queue.length) {
+        const item = queue.shift()!;
+        try {
+          await worker(item);
+        } catch (err) {
+          console.error("[scoring] item failed:", err);
+        }
+      }
+    },
+  );
+  await Promise.all(runners);
+}
+
 // ---- ETag cursor helpers (mirror sync.ts) ----
 async function getEtag(path: string): Promise<string | undefined> {
   const cur = await db.syncCursor.findUnique({
@@ -132,7 +156,7 @@ export async function syncEventResults(ev: EventLite): Promise<boolean> {
     ...matchTeams,
   ]);
 
-  for (const number of allTeams) {
+  await pool([...allTeams], 16, async (number) => {
     const key = `frc${number}`;
     const mm = parseTeamMatches(matches, key);
     const ally = allyByTeam.get(number);
@@ -164,7 +188,7 @@ export async function syncEventResults(ev: EventLite): Promise<boolean> {
         opponents: mm.opponents,
       },
     });
-  }
+  });
 
   await Promise.all([
     setEtag(rPath, rankRes.etag),
@@ -353,26 +377,27 @@ export async function computeYearScores(year: number) {
     ).map((s) => [s.teamNumber, s]),
   );
 
-  for (const [team, c] of computed) {
+  await pool([...computed.entries()], 24, async ([team, c]) => {
     const xsos =
       c.difficulty == null
         ? null
         : percentile(regionByTeam.get(team) ?? "_none", c.difficulty);
     const prev = existing.get(team);
+    const rounded = round(c);
     const same =
       prev &&
-      prev.stdXval === c.stdXval &&
-      prev.fullXval === c.fullXval &&
-      prev.stdXrobot === c.stdXrobot &&
-      prev.stdXawards === c.stdXawards &&
+      prev.stdXval === rounded.stdXval &&
+      prev.fullXval === rounded.fullXval &&
+      prev.stdXrobot === rounded.stdXrobot &&
+      prev.stdXawards === rounded.stdXawards &&
       prev.xsos === xsos;
-    if (same) continue;
+    if (same) return;
     await db.teamScore.upsert({
       where: { teamNumber_year: { teamNumber: team, year } },
-      create: { teamNumber: team, year, ...round(c), xsos },
-      update: { ...round(c), xsos },
+      create: { teamNumber: team, year, ...rounded, xsos },
+      update: { ...rounded, xsos },
     });
-  }
+  });
 }
 
 // Round stored floats to 2 dp for stable diffing.
