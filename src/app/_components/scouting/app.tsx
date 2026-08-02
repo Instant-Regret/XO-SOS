@@ -69,10 +69,10 @@ export function ScoutingApp() {
     <div className="auth-gate theme-dark">
       <div className="auth-card">
         <div className="logo-mark auth-logo">
-          <span>X</span>
-          <span>O</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="logo-img" src="/xosos.png" alt="XOSOS" />
         </div>
-        <div className="auth-title">XO Sauce</div>
+        <div className="auth-title">XOSOS</div>
         <div className="auth-sub">Scouting Board</div>
         {status === "loading" ? (
           <div className="auth-loading">Loading…</div>
