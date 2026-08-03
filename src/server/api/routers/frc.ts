@@ -6,13 +6,16 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { getActiveWeights, predict, type Weights4 } from "~/server/lib/scoring-fit";
-import { eventBreakdown, eventPoints } from "~/server/lib/scoring-sync";
+import { eventBreakdown } from "~/server/lib/scoring-sync";
 
 // ---- Score columns (XVAL / XROBOT / XAWARDS / XSOS + per-year history) ----
 
 type ScoreRow = {
   teamNumber: number;
   year: number;
+  stdXrobot: number;
+  stdXawards: number;
+  stdXval: number;
   regXrobot: number;
   regXawards: number;
   regXval: number;
@@ -22,6 +25,7 @@ type ScoreRow = {
   fullXrobot: number;
   fullXawards: number;
   fullXval: number;
+  diffStd: number | null;
   diffReg: number | null;
   diffDct: number | null;
 };
@@ -46,10 +50,10 @@ export type TeamScoreColumns = {
   };
 };
 
-// Score window: "reg" = region view (regionals, or 50% of district events),
-// "dct" = first 2 + district championship (district boards), "full" = every
-// event (champs pages).
-type ScoreWindow = "reg" | "dct" | "full";
+// Score window: "std" = first 2 events any type (global leaderboard), "reg" =
+// regional groupings (regionals one-play, or 50% district), "dct" = official
+// district (first 2 district + dcmp), "full" = every event (champs pages).
+type ScoreWindow = "std" | "reg" | "dct" | "full";
 
 // Turn stored TeamScore rows into per-team display columns. Pure so each board
 // query can fetch the rows however it likes and share this shaping.
@@ -62,13 +66,31 @@ function buildScoreColumns(
 ): Map<number, TeamScoreColumns> {
   // Per-window field accessors.
   const valOf = (s: ScoreRow) =>
-    window === "full" ? s.fullXval : window === "dct" ? s.dctXval : s.regXval;
+    window === "full"
+      ? s.fullXval
+      : window === "dct"
+        ? s.dctXval
+        : window === "reg"
+          ? s.regXval
+          : s.stdXval;
   const robotOf = (s: ScoreRow) =>
-    window === "full" ? s.fullXrobot : window === "dct" ? s.dctXrobot : s.regXrobot;
+    window === "full"
+      ? s.fullXrobot
+      : window === "dct"
+        ? s.dctXrobot
+        : window === "reg"
+          ? s.regXrobot
+          : s.stdXrobot;
   const awardsOf = (s: ScoreRow) =>
-    window === "full" ? s.fullXawards : window === "dct" ? s.dctXawards : s.regXawards;
-  // dct boards rank difficulty over the dcmp-inclusive window; others over reg.
-  const diffOf = (s: ScoreRow) => (window === "dct" ? s.diffDct : s.diffReg);
+    window === "full"
+      ? s.fullXawards
+      : window === "dct"
+        ? s.dctXawards
+        : window === "reg"
+          ? s.regXawards
+          : s.stdXawards;
+  const diffOf = (s: ScoreRow) =>
+    window === "dct" ? s.diffDct : window === "reg" ? s.diffReg : s.diffStd;
 
   const byTeam = new Map<number, Map<number, ScoreRow>>();
   for (const s of scores) {
@@ -106,7 +128,13 @@ function buildScoreColumns(
 
     const f1 = (x: number) => (Math.round(x * 10) / 10).toFixed(1);
     const windowName =
-      window === "full" ? "full season" : window === "dct" ? "district (+dcmp)" : "region";
+      window === "full"
+        ? "full season"
+        : window === "dct"
+          ? "district (+dcmp)"
+          : window === "reg"
+            ? "regional grouping"
+            : "global (first 2)";
 
     let xval: number;
     let xrobot: number;
@@ -214,13 +242,35 @@ function mergeYearBreakdown(
         .map((a) => ({ awardType: a.awardType, name: a.name }));
       return { r, b: eventBreakdown({ ...r, opponents: [] }, aw) };
     });
-    const qualifying = scored
-      .filter((s) => isQual(s.r.eventType))
-      .sort((a, b) => (a.r.startDate ?? "").localeCompare(b.r.startDate ?? ""));
-    const first2 = qualifying.slice(0, 2);
+    const byDate = (a: { r: YearResult }, b: { r: YearResult }) =>
+      (a.r.startDate ?? "").localeCompare(b.r.startDate ?? "");
+    const first2 = scored.filter((s) => isQual(s.r.eventType)).sort(byDate).slice(0, 2);
+    const district2 = scored.filter((s) => s.r.eventType === 1).sort(byDate).slice(0, 2);
+    const regional2 = scored.filter((s) => s.r.eventType === 0).sort(byDate).slice(0, 2);
     const dcmp = scored.filter((s) => isDcmp(s.r.eventType));
-    const windowEvents =
-      window === "full" ? scored : window === "dct" ? [...first2, ...dcmp] : first2;
+
+    let windowEvents: typeof scored;
+    let note = "";
+    if (window === "full") {
+      windowEvents = scored;
+    } else if (window === "dct") {
+      windowEvents = [...district2, ...dcmp];
+      if (district2.length === 1 && dcmp.length === 0) note = " · one-play → ×1.6 +14";
+    } else if (window === "reg") {
+      if (regional2.length >= 2) {
+        windowEvents = regional2;
+      } else if (regional2.length === 1) {
+        windowEvents = regional2;
+        note = " · one-play → ×1.6 +14";
+      } else {
+        windowEvents = district2;
+        note = " · 50% of district, then ×1.6 +14";
+      }
+    } else {
+      // std
+      windowEvents = first2;
+      if (first2.length === 1 && dcmp.length === 0) note = " · one-play → ×1.6 +14";
+    }
     if (windowEvents.length === 0) continue;
 
     const parts = windowEvents.map(
@@ -228,11 +278,7 @@ function mergeYearBreakdown(
         `${s.r.eventKey}: seed ${s.b.seeding} + pick ${s.b.picking} + play ${s.b.playoff} + aw ${s.b.awards} = ${s.b.xrobot + s.b.xawards}`,
     );
     const total = windowEvents.reduce((t, s) => t + s.b.xrobot + s.b.xawards, 0);
-    const onePlay =
-      window !== "full" && first2.length === 1 && dcmp.length === 0
-        ? " · one-play → ×1.6 +14"
-        : "";
-    col.debug.yearVals[year] = `${year} [${window}]  ${parts.join("   |   ")}   →  Σ ${total}${onePlay}`;
+    col.debug.yearVals[year] = `${year} [${window}]  ${parts.join("   |   ")}   →  Σ ${total}${note}`;
   }
 }
 
@@ -511,8 +557,15 @@ export const frcRouter = createTRPCRouter({
         avatarByTeam.set(row.teamNumber, fallback?.base64 ?? null);
       }
 
-      // District boards score the district-championship window (first 2 + dcmp).
-      const scoreByTeam = buildScoreColumns(scoreRows, weights, numbers, year, "dct");
+      // Official districts (a District row exists) score the district window
+      // (first 2 district events + dcmp). Regional groupings like "west" have no
+      // District row → the regional window (regionals one-play / 50% district).
+      const districtMeta = await ctx.db.district.findUnique({
+        where: { key: input.districtKey },
+        select: { key: true },
+      });
+      const window: ScoreWindow = districtMeta ? "dct" : "reg";
+      const scoreByTeam = buildScoreColumns(scoreRows, weights, numbers, year, window);
       const yearResults = await ctx.db.teamEventResult.findMany({
         where: { teamNumber: { in: numbers }, year },
         select: {
@@ -527,7 +580,7 @@ export const frcRouter = createTRPCRouter({
           elimWins: true,
         },
       });
-      mergeYearBreakdown(scoreByTeam, yearResults, awardsByTeam, year, "dct");
+      mergeYearBreakdown(scoreByTeam, yearResults, awardsByTeam, year, window);
       const pickByTeam = buildPickMap(resultRows);
 
       return {
@@ -654,7 +707,7 @@ export const frcRouter = createTRPCRouter({
         weights,
         numbers,
         input.year,
-        "reg",
+        "std",
       );
       const yearResults = await ctx.db.teamEventResult.findMany({
         where: { teamNumber: { in: numbers }, year: input.year },
@@ -670,7 +723,7 @@ export const frcRouter = createTRPCRouter({
           elimWins: true,
         },
       });
-      mergeYearBreakdown(scoreByTeam, yearResults, awardsByTeam, input.year, "reg");
+      mergeYearBreakdown(scoreByTeam, yearResults, awardsByTeam, input.year, "std");
       const pickByTeam = buildPickMap(resultRows);
 
       return {
@@ -777,12 +830,12 @@ export const frcRouter = createTRPCRouter({
           }),
         ]);
 
-      // Championship divisions (3) / Einstein (4) score on the full season, per
-      // the team's rule; every other event board uses the region window.
-      const window: "reg" | "full" =
-        event && (event.eventType === 3 || event.eventType === 4)
-          ? "full"
-          : "reg";
+      // Window by event kind: champs divisions/Einstein (3/4) → full season;
+      // regionals (0) → regional window; district events + dcmps (1/2/5) → the
+      // district window.
+      const et = event?.eventType;
+      const window: ScoreWindow =
+        et === 3 || et === 4 ? "full" : et === 0 ? "reg" : "dct";
 
       const epaByTeam = new Map<number, number | null>();
       for (const row of epaDocs) {
@@ -836,79 +889,6 @@ export const frcRouter = createTRPCRouter({
       });
       mergeYearBreakdown(scoreByTeam, yearResults, awardsByTeam, year, window);
       const pickByTeam = buildPickMap(resultRows);
-
-      // Narrow rule: a DISTRICT team that traveled to a single regional is
-      // valued — ON THAT REGIONAL's board only — by a one-play projection of
-      // its showing here (base = this event's points), not by its district
-      // events. Regional-only teams and every other board are untouched.
-      if (event?.eventType === 0) {
-        const eventsByTeam = new Map<number, typeof yearResults>();
-        for (const r of yearResults) {
-          const list = eventsByTeam.get(r.teamNumber) ?? [];
-          list.push(r);
-          eventsByTeam.set(r.teamNumber, list);
-        }
-        const f1 = (x: number) => (Math.round(x * 10) / 10).toFixed(1);
-        const byDate = (a: (typeof yearResults)[number], b: (typeof yearResults)[number]) =>
-          (a.startDate ?? "").localeCompare(b.startDate ?? "");
-        // Points for one of this team's events (regular context on a regional).
-        const ptsFor = (n: number, r: (typeof yearResults)[number]) => {
-          const evAwards = (awardsByTeam.get(n) ?? [])
-            .filter((a) => a.eventKey === r.eventKey && a.year === year)
-            .map((a) => ({ awardType: a.awardType, name: a.name }));
-          return eventPoints({ ...r, opponents: [] }, evAwards);
-        };
-        for (const n of numbers) {
-          const evs = eventsByTeam.get(n) ?? [];
-          const regionals = evs.filter((e) => e.eventType === 0);
-          const hasDistrict = evs.some((e) => e.eventType === 1);
-          // Only single-regional district teams; multi-regional teams are normal.
-          if (!hasDistrict || regionals.length > 1) continue;
-          const here = evs.find(
-            (e) => e.eventType === 0 && e.eventKey === input.eventKey,
-          );
-
-          // Base = this regional's showing, or (no regional result) 50% of the
-          // first 2 district plays.
-          let baseR: number;
-          let baseA: number;
-          let baseNote: string;
-          if (here) {
-            const b = ptsFor(n, here);
-            baseR = b.xrobot;
-            baseA = b.xawards;
-            baseNote = `regional ${here.eventKey}`;
-          } else {
-            const d2 = evs.filter((e) => e.eventType === 1).sort(byDate).slice(0, 2);
-            baseR = 0.5 * d2.reduce((s, r) => s + ptsFor(n, r).xrobot, 0);
-            baseA = 0.5 * d2.reduce((s, r) => s + ptsFor(n, r).xawards, 0);
-            baseNote = `50% of ${d2.map((d) => d.eventKey).join(" + ") || "district"}`;
-          }
-
-          const xrobot = Math.round((1.6 * baseR + 14) * 10) / 10;
-          const xawards = Math.round((1.6 * baseA + 14) * 10) / 10;
-          const xval = Math.round((xrobot + xawards) * 10) / 10;
-          const prev = scoreByTeam.get(n);
-          scoreByTeam.set(n, {
-            xval,
-            xrobot,
-            xawards,
-            xsos: prev?.xsos ?? null,
-            yearVals: { ...(prev?.yearVals ?? {}), [year]: xval },
-            debug: {
-              window: "region · single-regional district team",
-              xrobot: `XROBOT one-play: 1.6×${f1(baseR)} + 14 = ${f1(xrobot)}  (base: ${baseNote})`,
-              xawards: `XAWARDS one-play: 1.6×${f1(baseA)} + 14 = ${f1(xawards)}  (base: ${baseNote})`,
-              xval: `XVAL = ${f1(xrobot)} + ${f1(xawards)} = ${f1(xval)}`,
-              xsos: prev?.debug?.xsos ?? "XSOS: —",
-              yearVals: {
-                ...(prev?.debug?.yearVals ?? {}),
-                [year]: `${year}: one-play, base ${baseNote} → ${f1(xval)}`,
-              },
-            },
-          });
-        }
-      }
 
       return {
         year,
