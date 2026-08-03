@@ -475,12 +475,33 @@ function ScoutingBoard() {
     selectedEventKey,
   ]);
 
+  // Resolve a sort key (including the extra columns, whose keys don't match the
+  // TeamView property names) to a comparable value. Missing numbers sort last.
+  const sortValue = (t: TeamView, key: string): number | string | undefined => {
+    switch (key) {
+      case "xrobot":
+        return t.xRobot;
+      case "xawards":
+        return t.xAwards;
+      case "xsos":
+        return t.xsos ?? -Infinity;
+      default:
+        if (/^y\d{4}$/.test(key)) {
+          return t.yearVals[Number(key.slice(1))] ?? -Infinity;
+        }
+        return (t as unknown as Record<string, unknown>)[key] as
+          | number
+          | string
+          | undefined;
+    }
+  };
+
   const sorted = useMemo(() => {
     const arr = [...teamsForYear];
     const { key, dir } = sort;
     arr.sort((a, b) => {
-      const av = (a as unknown as Record<string, unknown>)[key];
-      const bv = (b as unknown as Record<string, unknown>)[key];
+      const av = sortValue(a, key);
+      const bv = sortValue(b, key);
       if (av === undefined || bv === undefined) return 0;
       if (typeof av === "number" && typeof bv === "number") {
         return dir === "desc" ? bv - av : av - bv;

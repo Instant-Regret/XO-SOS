@@ -600,6 +600,20 @@ export async function rescoreYears(years: number[]) {
   return results;
 }
 
+// Recompute TeamScore for a range of years from already-synced results — no
+// TBA fetch. Use after a change to the scoring/compute logic. Run offline.
+export async function recomputeYears(years: number[]) {
+  const out: Array<{ year: number }> = [];
+  for (const year of years) {
+    await logSync(`recompute:${year}`, async () => {
+      await computeYearScores(year);
+      return { year };
+    });
+    out.push({ year });
+  }
+  return out;
+}
+
 // One-time offline backfill: pull + score a range of prior seasons so the
 // weighted-4-year predictions have history. Run locally (no Vercel timeout).
 export async function backfillYears(years: number[]) {

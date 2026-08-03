@@ -15,15 +15,19 @@ type ScoreRow = {
   stdXrobot: number;
   stdXawards: number;
   stdXval: number;
+  dctXrobot: number;
+  dctXawards: number;
+  dctXval: number;
   fullXrobot: number;
   fullXawards: number;
   fullXval: number;
   xsos: number | null;
+  xsosDct: number | null;
 };
 
 export type TeamScoreColumns = {
-  // Main columns. On std boards these are the weighted-4-year predictions; on
-  // champs-division boards ("full") they're the actual full-season values.
+  // Main columns. On std/dct boards these are the weighted-4-year predictions;
+  // on champs-division boards ("full") they're the actual full-season values.
   xval: number;
   xrobot: number;
   xawards: number;
@@ -32,6 +36,10 @@ export type TeamScoreColumns = {
   yearVals: Record<number, number | null>;
 };
 
+// Score window: "std" = first 2 events (region/global/event), "dct" = first 2 +
+// district championship (district boards), "full" = every event (champs pages).
+type ScoreWindow = "std" | "dct" | "full";
+
 // Turn stored TeamScore rows into per-team display columns. Pure so each board
 // query can fetch the rows however it likes and share this shaping.
 function buildScoreColumns(
@@ -39,8 +47,17 @@ function buildScoreColumns(
   weights: { robot: Weights4; awards: Weights4 },
   numbers: number[],
   year: number,
-  window: "std" | "full",
+  window: ScoreWindow,
 ): Map<number, TeamScoreColumns> {
+  // Per-window field accessors.
+  const valOf = (s: ScoreRow) =>
+    window === "full" ? s.fullXval : window === "dct" ? s.dctXval : s.stdXval;
+  const robotOf = (s: ScoreRow) =>
+    window === "full" ? s.fullXrobot : window === "dct" ? s.dctXrobot : s.stdXrobot;
+  const awardsOf = (s: ScoreRow) =>
+    window === "full" ? s.fullXawards : window === "dct" ? s.dctXawards : s.stdXawards;
+  const xsosOf = (s: ScoreRow) => (window === "dct" ? s.xsosDct : s.xsos);
+
   const byTeam = new Map<number, Map<number, ScoreRow>>();
   for (const s of scores) {
     const m = byTeam.get(s.teamNumber) ?? new Map<number, ScoreRow>();
@@ -56,7 +73,7 @@ function buildScoreColumns(
     const yearVals: Record<number, number | null> = {};
     for (let y = year - 4; y <= year; y++) {
       const s = ys.get(y);
-      yearVals[y] = s ? (window === "full" ? s.fullXval : s.stdXval) : null;
+      yearVals[y] = s ? valOf(s) : null;
     }
 
     let xval: number;
@@ -67,12 +84,15 @@ function buildScoreColumns(
       xawards = cur?.fullXawards ?? 0;
       xval = cur?.fullXval ?? 0;
     } else {
-      const priorsR = [1, 2, 3, 4].map(
-        (k) => ys.get(year - k)?.stdXrobot ?? 0,
-      ) as [number, number, number, number];
-      const priorsA = [1, 2, 3, 4].map(
-        (k) => ys.get(year - k)?.stdXawards ?? 0,
-      ) as [number, number, number, number];
+      // Predict from the same window's prior-year values.
+      const priorsR = [1, 2, 3, 4].map((k) => {
+        const s = ys.get(year - k);
+        return s ? robotOf(s) : 0;
+      }) as [number, number, number, number];
+      const priorsA = [1, 2, 3, 4].map((k) => {
+        const s = ys.get(year - k);
+        return s ? awardsOf(s) : 0;
+      }) as [number, number, number, number];
       xrobot = predict(weights.robot, priorsR);
       xawards = predict(weights.awards, priorsA);
       xval = xrobot + xawards;
@@ -82,7 +102,7 @@ function buildScoreColumns(
       xval: Math.round(xval * 10) / 10,
       xrobot: Math.round(xrobot * 10) / 10,
       xawards: Math.round(xawards * 10) / 10,
-      xsos: cur?.xsos ?? null,
+      xsos: cur ? xsosOf(cur) : null,
       yearVals,
     });
   }
@@ -343,7 +363,8 @@ export const frcRouter = createTRPCRouter({
         avatarByTeam.set(row.teamNumber, fallback?.base64 ?? null);
       }
 
-      const scoreByTeam = buildScoreColumns(scoreRows, weights, numbers, year, "std");
+      // District boards score the district-championship window (first 2 + dcmp).
+      const scoreByTeam = buildScoreColumns(scoreRows, weights, numbers, year, "dct");
       const pickByTeam = buildPickMap(resultRows);
 
       return {

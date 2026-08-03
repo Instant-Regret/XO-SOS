@@ -5,7 +5,6 @@ import { tba, type TbaMatch } from "~/server/lib/tba";
 import {
   awardPoints,
   PLAYOFF_POINTS_PER_WIN,
-  onePlaySecondEventPoints,
   pickingPoints,
   seedingPoints,
   type ScoreContext,
@@ -250,18 +249,14 @@ function eventPoints(
 /**
  * Recompute TeamScore for every team with results in `year`. Reads
  * TeamEventResult + Award + TeamEpa. Diff-before-write: only touches changed
- * teams. Computes both windows (std = first 2 + dcmp, full = all events) and the
- * XSOS percentile within region.
+ * teams. Computes three windows (std = first 2, dct = first 2 + dcmp, full =
+ * all events) and the global XSOS percentile per window.
  */
 export async function computeYearScores(year: number) {
-  const [results, awardDocs, epaDocs, districtLinks] = await Promise.all([
+  const [results, awardDocs, epaDocs] = await Promise.all([
     db.teamEventResult.findMany({ where: { year } }),
     db.award.findMany({ select: { teamNumber: true, awards: true } }),
     db.teamEpa.findMany({ select: { teamNumber: true, epas: true } }),
-    db.districtTeam.findMany({
-      where: { districtKey: { startsWith: String(year) } },
-      select: { districtKey: true, teamNumbers: true },
-    }),
   ]);
 
   // team -> epa (this year), for XSOS.
@@ -281,14 +276,6 @@ export async function computeYearScores(year: number) {
       awardsByTeamEvent.set(k, list);
     }
   }
-  // team -> region (first district it appears in this year), for XSOS grouping.
-  const regionByTeam = new Map<number, string>();
-  for (const link of districtLinks) {
-    for (const n of link.teamNumbers) {
-      if (!regionByTeam.has(n)) regionByTeam.set(n, link.districtKey);
-    }
-  }
-
   // Group results by team.
   const byTeam = new Map<number, ResultRow[]>();
   for (const r of results) {
@@ -297,15 +284,34 @@ export async function computeYearScores(year: number) {
     byTeam.set(r.teamNumber, list);
   }
 
-  // First pass: raw scores + schedule difficulty per team.
+  // Mean EPA of every co-competitor over a set of events (schedule difficulty).
+  const difficultyOf = (
+    events: { r: ResultRow }[],
+  ): number | null => {
+    const opps = new Set<number>();
+    for (const e of events) for (const o of e.r.opponents) opps.add(o);
+    const epas = [...opps]
+      .map((o) => epaByTeam.get(o))
+      .filter((v): v is number => v != null);
+    return epas.length > 0 ? epas.reduce((a, b) => a + b, 0) / epas.length : null;
+  };
+
+  // First pass: raw scores (three windows) + schedule difficulty per team.
+  //   std = a team's first 2 events        (region / global / event boards)
+  //   dct = first 2 events + dcmp           (district boards only)
+  //   full = every event                    (champs-division event pages)
   type Computed = {
     stdXrobot: number;
     stdXawards: number;
     stdXval: number;
+    dctXrobot: number;
+    dctXawards: number;
+    dctXval: number;
     fullXrobot: number;
     fullXawards: number;
     fullXval: number;
-    difficulty: number | null; // mean opponent EPA over std window
+    diffStd: number | null;
+    diffDct: number | null;
   };
   const computed = new Map<number, Computed>();
 
@@ -324,63 +330,53 @@ export async function computeYearScores(year: number) {
       { xrobot: 0, xawards: 0 },
     );
 
-    // std window: a team's first 2 events + dcmp (the district championship).
-    // Per-event math validated against the real SLFF draft totals; SLFF's
-    // regional draft omits dcmp, but this board intentionally includes it.
     const qualifying = scored
       .filter((s) => isQualifying(s.r.eventType))
       .sort((a, b) => (a.r.startDate ?? "").localeCompare(b.r.startDate ?? ""));
     const first2 = qualifying.slice(0, 2);
     const dcmp = scored.filter((s) => isDcmp(s.r.eventType));
-    const stdEvents = [...first2, ...dcmp];
 
-    let stdXrobot = stdEvents.reduce((s, e) => s + e.pts.xrobot, 0);
-    let stdXawards = stdEvents.reduce((s, e) => s + e.pts.xawards, 0);
+    // std window: first 2 events only.
+    let stdXrobot = first2.reduce((s, e) => s + e.pts.xrobot, 0);
+    let stdXawards = first2.reduce((s, e) => s + e.pts.xawards, 0);
 
-    // One-play team: only one qualifying event, no dcmp — project a 2nd event.
+    // One-play team: only one event all season — project a 2nd event.
     if (first2.length === 1 && dcmp.length === 0) {
-      const firstXval = first2[0]!.pts.xval;
-      const bonus = onePlaySecondEventPoints(firstXval); // 0.6*first + 14
-      // Keep XVAL = XROBOT + XAWARDS: scale both by 1.6, put the flat +14 on robot.
-      stdXrobot = 1.6 * first2[0]!.pts.xrobot + 14;
+      stdXrobot = 1.6 * first2[0]!.pts.xrobot + 14; // 0.6*first + first + flat 14
       stdXawards = 1.6 * first2[0]!.pts.xawards;
-      void bonus;
     }
 
-    // Schedule difficulty over the std-window events: mean opponent EPA.
-    const opps = new Set<number>();
-    for (const e of stdEvents) for (const o of e.r.opponents) opps.add(o);
-    const oppEpas = [...opps]
-      .map((o) => epaByTeam.get(o))
-      .filter((v): v is number => v != null);
-    const difficulty =
-      oppEpas.length > 0 ? oppEpas.reduce((a, b) => a + b, 0) / oppEpas.length : null;
+    // dct window: std + the district championship (0 extra for regional teams).
+    const dctXrobot = stdXrobot + dcmp.reduce((s, e) => s + e.pts.xrobot, 0);
+    const dctXawards = stdXawards + dcmp.reduce((s, e) => s + e.pts.xawards, 0);
 
     computed.set(team, {
       stdXrobot,
       stdXawards,
       stdXval: stdXrobot + stdXawards,
+      dctXrobot,
+      dctXawards,
+      dctXval: dctXrobot + dctXawards,
       fullXrobot: full.xrobot,
       fullXawards: full.xawards,
       fullXval: full.xrobot + full.xawards,
-      difficulty,
+      diffStd: difficultyOf(first2),
+      diffDct: difficultyOf([...first2, ...dcmp]),
     });
   }
 
-  // Second pass: XSOS = percentile of difficulty within region.
-  const byRegion = new Map<string, number[]>();
-  for (const [team, c] of computed) {
-    if (c.difficulty == null) continue;
-    const region = regionByTeam.get(team) ?? "_none";
-    const arr = byRegion.get(region) ?? [];
-    arr.push(c.difficulty);
-    byRegion.set(region, arr);
-  }
-  for (const arr of byRegion.values()) arr.sort((a, b) => a - b);
-  const percentile = (region: string, value: number) => {
-    const arr = byRegion.get(region);
-    if (!arr || arr.length < 2) return null;
-    // fraction of teams with a strictly-lower difficulty (higher = harder).
+  // Second pass: XSOS = GLOBAL percentile of schedule difficulty across the
+  // whole season (higher = harder). One value per window so the district view
+  // (which includes dcmp opponents) reads a different, dcmp-aware percentile.
+  const sortedAsc = (pick: (c: Computed) => number | null) =>
+    [...computed.values()]
+      .map(pick)
+      .filter((v): v is number => v != null)
+      .sort((a, b) => a - b);
+  const stdDiffs = sortedAsc((c) => c.diffStd);
+  const dctDiffs = sortedAsc((c) => c.diffDct);
+  const pct = (arr: number[], value: number | null): number | null => {
+    if (value == null || arr.length < 2) return null;
     let below = 0;
     for (const v of arr) if (v < value) below++;
     return Math.round((below / (arr.length - 1)) * 100);
@@ -394,24 +390,24 @@ export async function computeYearScores(year: number) {
   );
 
   await pool([...computed.entries()], 24, async ([team, c]) => {
-    const xsos =
-      c.difficulty == null
-        ? null
-        : percentile(regionByTeam.get(team) ?? "_none", c.difficulty);
+    const xsos = pct(stdDiffs, c.diffStd);
+    const xsosDct = pct(dctDiffs, c.diffDct);
     const prev = existing.get(team);
     const rounded = round(c);
     const same =
       prev &&
       prev.stdXval === rounded.stdXval &&
+      prev.dctXval === rounded.dctXval &&
       prev.fullXval === rounded.fullXval &&
       prev.stdXrobot === rounded.stdXrobot &&
       prev.stdXawards === rounded.stdXawards &&
-      prev.xsos === xsos;
+      prev.xsos === xsos &&
+      prev.xsosDct === xsosDct;
     if (same) return;
     await db.teamScore.upsert({
       where: { teamNumber_year: { teamNumber: team, year } },
-      create: { teamNumber: team, year, ...rounded, xsos },
-      update: { ...rounded, xsos },
+      create: { teamNumber: team, year, ...rounded, xsos, xsosDct },
+      update: { ...rounded, xsos, xsosDct },
     });
   });
 }
@@ -421,6 +417,9 @@ function round(c: {
   stdXrobot: number;
   stdXawards: number;
   stdXval: number;
+  dctXrobot: number;
+  dctXawards: number;
+  dctXval: number;
   fullXrobot: number;
   fullXawards: number;
   fullXval: number;
@@ -430,6 +429,9 @@ function round(c: {
     stdXrobot: r(c.stdXrobot),
     stdXawards: r(c.stdXawards),
     stdXval: r(c.stdXval),
+    dctXrobot: r(c.dctXrobot),
+    dctXawards: r(c.dctXawards),
+    dctXval: r(c.dctXval),
     fullXrobot: r(c.fullXrobot),
     fullXawards: r(c.fullXawards),
     fullXval: r(c.fullXval),

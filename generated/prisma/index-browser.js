@@ -292,10 +292,14 @@ exports.Prisma.TeamScoreScalarFieldEnum = {
   stdXrobot: 'stdXrobot',
   stdXawards: 'stdXawards',
   stdXval: 'stdXval',
+  dctXrobot: 'dctXrobot',
+  dctXawards: 'dctXawards',
+  dctXval: 'dctXval',
   fullXrobot: 'fullXrobot',
   fullXawards: 'fullXawards',
   fullXval: 'fullXval',
   xsos: 'xsos',
+  xsosDct: 'xsosDct',
   updatedAt: 'updatedAt'
 };
 

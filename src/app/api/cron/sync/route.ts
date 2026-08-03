@@ -1,7 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { env } from "~/env";
-import { backfillYears, rescoreYears, syncAll, syncAllEpas } from "~/server/lib/sync";
+import {
+  backfillYears,
+  recomputeYears,
+  rescoreYears,
+  syncAll,
+  syncAllEpas,
+} from "~/server/lib/sync";
 import { fitWeights } from "~/server/lib/scoring-fit";
 
 export const runtime = "nodejs";
@@ -50,6 +56,18 @@ export async function GET(req: NextRequest) {
         );
       }
       result = await rescoreYears(years);
+    } else if (task === "recompute") {
+      const years = (params.get("years") ?? "")
+        .split(",")
+        .map((y) => Number(y.trim()))
+        .filter((y) => Number.isInteger(y) && y > 2000);
+      if (years.length === 0) {
+        return NextResponse.json(
+          { ok: false, error: "recompute needs ?years=YYYY,YYYY" },
+          { status: 400 },
+        );
+      }
+      result = await recomputeYears(years);
     } else if (task === "fit") {
       result = await fitWeights();
     } else {

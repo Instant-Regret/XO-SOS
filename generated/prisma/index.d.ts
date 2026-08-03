@@ -21714,10 +21714,14 @@ export namespace Prisma {
     stdXrobot: number | null
     stdXawards: number | null
     stdXval: number | null
+    dctXrobot: number | null
+    dctXawards: number | null
+    dctXval: number | null
     fullXrobot: number | null
     fullXawards: number | null
     fullXval: number | null
     xsos: number | null
+    xsosDct: number | null
   }
 
   export type TeamScoreSumAggregateOutputType = {
@@ -21726,10 +21730,14 @@ export namespace Prisma {
     stdXrobot: number | null
     stdXawards: number | null
     stdXval: number | null
+    dctXrobot: number | null
+    dctXawards: number | null
+    dctXval: number | null
     fullXrobot: number | null
     fullXawards: number | null
     fullXval: number | null
     xsos: number | null
+    xsosDct: number | null
   }
 
   export type TeamScoreMinAggregateOutputType = {
@@ -21739,10 +21747,14 @@ export namespace Prisma {
     stdXrobot: number | null
     stdXawards: number | null
     stdXval: number | null
+    dctXrobot: number | null
+    dctXawards: number | null
+    dctXval: number | null
     fullXrobot: number | null
     fullXawards: number | null
     fullXval: number | null
     xsos: number | null
+    xsosDct: number | null
     updatedAt: Date | null
   }
 
@@ -21753,10 +21765,14 @@ export namespace Prisma {
     stdXrobot: number | null
     stdXawards: number | null
     stdXval: number | null
+    dctXrobot: number | null
+    dctXawards: number | null
+    dctXval: number | null
     fullXrobot: number | null
     fullXawards: number | null
     fullXval: number | null
     xsos: number | null
+    xsosDct: number | null
     updatedAt: Date | null
   }
 
@@ -21767,10 +21783,14 @@ export namespace Prisma {
     stdXrobot: number
     stdXawards: number
     stdXval: number
+    dctXrobot: number
+    dctXawards: number
+    dctXval: number
     fullXrobot: number
     fullXawards: number
     fullXval: number
     xsos: number
+    xsosDct: number
     updatedAt: number
     _all: number
   }
@@ -21782,10 +21802,14 @@ export namespace Prisma {
     stdXrobot?: true
     stdXawards?: true
     stdXval?: true
+    dctXrobot?: true
+    dctXawards?: true
+    dctXval?: true
     fullXrobot?: true
     fullXawards?: true
     fullXval?: true
     xsos?: true
+    xsosDct?: true
   }
 
   export type TeamScoreSumAggregateInputType = {
@@ -21794,10 +21818,14 @@ export namespace Prisma {
     stdXrobot?: true
     stdXawards?: true
     stdXval?: true
+    dctXrobot?: true
+    dctXawards?: true
+    dctXval?: true
     fullXrobot?: true
     fullXawards?: true
     fullXval?: true
     xsos?: true
+    xsosDct?: true
   }
 
   export type TeamScoreMinAggregateInputType = {
@@ -21807,10 +21835,14 @@ export namespace Prisma {
     stdXrobot?: true
     stdXawards?: true
     stdXval?: true
+    dctXrobot?: true
+    dctXawards?: true
+    dctXval?: true
     fullXrobot?: true
     fullXawards?: true
     fullXval?: true
     xsos?: true
+    xsosDct?: true
     updatedAt?: true
   }
 
@@ -21821,10 +21853,14 @@ export namespace Prisma {
     stdXrobot?: true
     stdXawards?: true
     stdXval?: true
+    dctXrobot?: true
+    dctXawards?: true
+    dctXval?: true
     fullXrobot?: true
     fullXawards?: true
     fullXval?: true
     xsos?: true
+    xsosDct?: true
     updatedAt?: true
   }
 
@@ -21835,10 +21871,14 @@ export namespace Prisma {
     stdXrobot?: true
     stdXawards?: true
     stdXval?: true
+    dctXrobot?: true
+    dctXawards?: true
+    dctXval?: true
     fullXrobot?: true
     fullXawards?: true
     fullXval?: true
     xsos?: true
+    xsosDct?: true
     updatedAt?: true
     _all?: true
   }
@@ -21936,10 +21976,14 @@ export namespace Prisma {
     stdXrobot: number
     stdXawards: number
     stdXval: number
+    dctXrobot: number
+    dctXawards: number
+    dctXval: number
     fullXrobot: number
     fullXawards: number
     fullXval: number
     xsos: number | null
+    xsosDct: number | null
     updatedAt: Date
     _count: TeamScoreCountAggregateOutputType | null
     _avg: TeamScoreAvgAggregateOutputType | null
@@ -21969,10 +22013,14 @@ export namespace Prisma {
     stdXrobot?: boolean
     stdXawards?: boolean
     stdXval?: boolean
+    dctXrobot?: boolean
+    dctXawards?: boolean
+    dctXval?: boolean
     fullXrobot?: boolean
     fullXawards?: boolean
     fullXval?: boolean
     xsos?: boolean
+    xsosDct?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["teamScore"]>
 
@@ -21985,14 +22033,18 @@ export namespace Prisma {
     stdXrobot?: boolean
     stdXawards?: boolean
     stdXval?: boolean
+    dctXrobot?: boolean
+    dctXawards?: boolean
+    dctXval?: boolean
     fullXrobot?: boolean
     fullXawards?: boolean
     fullXval?: boolean
     xsos?: boolean
+    xsosDct?: boolean
     updatedAt?: boolean
   }
 
-  export type TeamScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "teamNumber" | "year" | "stdXrobot" | "stdXawards" | "stdXval" | "fullXrobot" | "fullXawards" | "fullXval" | "xsos" | "updatedAt", ExtArgs["result"]["teamScore"]>
+  export type TeamScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "teamNumber" | "year" | "stdXrobot" | "stdXawards" | "stdXval" | "dctXrobot" | "dctXawards" | "dctXval" | "fullXrobot" | "fullXawards" | "fullXval" | "xsos" | "xsosDct" | "updatedAt", ExtArgs["result"]["teamScore"]>
 
   export type $TeamScorePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "TeamScore"
@@ -22004,10 +22056,14 @@ export namespace Prisma {
       stdXrobot: number
       stdXawards: number
       stdXval: number
+      dctXrobot: number
+      dctXawards: number
+      dctXval: number
       fullXrobot: number
       fullXawards: number
       fullXval: number
       xsos: number | null
+      xsosDct: number | null
       updatedAt: Date
     }, ExtArgs["result"]["teamScore"]>
     composites: {}
@@ -22407,10 +22463,14 @@ export namespace Prisma {
     readonly stdXrobot: FieldRef<"TeamScore", 'Float'>
     readonly stdXawards: FieldRef<"TeamScore", 'Float'>
     readonly stdXval: FieldRef<"TeamScore", 'Float'>
+    readonly dctXrobot: FieldRef<"TeamScore", 'Float'>
+    readonly dctXawards: FieldRef<"TeamScore", 'Float'>
+    readonly dctXval: FieldRef<"TeamScore", 'Float'>
     readonly fullXrobot: FieldRef<"TeamScore", 'Float'>
     readonly fullXawards: FieldRef<"TeamScore", 'Float'>
     readonly fullXval: FieldRef<"TeamScore", 'Float'>
     readonly xsos: FieldRef<"TeamScore", 'Float'>
+    readonly xsosDct: FieldRef<"TeamScore", 'Float'>
     readonly updatedAt: FieldRef<"TeamScore", 'DateTime'>
   }
     
@@ -23983,10 +24043,14 @@ export namespace Prisma {
     stdXrobot: 'stdXrobot',
     stdXawards: 'stdXawards',
     stdXval: 'stdXval',
+    dctXrobot: 'dctXrobot',
+    dctXawards: 'dctXawards',
+    dctXval: 'dctXval',
     fullXrobot: 'fullXrobot',
     fullXawards: 'fullXawards',
     fullXval: 'fullXval',
     xsos: 'xsos',
+    xsosDct: 'xsosDct',
     updatedAt: 'updatedAt'
   };
 
@@ -25237,10 +25301,14 @@ export namespace Prisma {
     stdXrobot?: FloatFilter<"TeamScore"> | number
     stdXawards?: FloatFilter<"TeamScore"> | number
     stdXval?: FloatFilter<"TeamScore"> | number
+    dctXrobot?: FloatFilter<"TeamScore"> | number
+    dctXawards?: FloatFilter<"TeamScore"> | number
+    dctXval?: FloatFilter<"TeamScore"> | number
     fullXrobot?: FloatFilter<"TeamScore"> | number
     fullXawards?: FloatFilter<"TeamScore"> | number
     fullXval?: FloatFilter<"TeamScore"> | number
     xsos?: FloatNullableFilter<"TeamScore"> | number | null
+    xsosDct?: FloatNullableFilter<"TeamScore"> | number | null
     updatedAt?: DateTimeFilter<"TeamScore"> | Date | string
   }
 
@@ -25251,10 +25319,14 @@ export namespace Prisma {
     stdXrobot?: SortOrder
     stdXawards?: SortOrder
     stdXval?: SortOrder
+    dctXrobot?: SortOrder
+    dctXawards?: SortOrder
+    dctXval?: SortOrder
     fullXrobot?: SortOrder
     fullXawards?: SortOrder
     fullXval?: SortOrder
     xsos?: SortOrder
+    xsosDct?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -25269,10 +25341,14 @@ export namespace Prisma {
     stdXrobot?: FloatFilter<"TeamScore"> | number
     stdXawards?: FloatFilter<"TeamScore"> | number
     stdXval?: FloatFilter<"TeamScore"> | number
+    dctXrobot?: FloatFilter<"TeamScore"> | number
+    dctXawards?: FloatFilter<"TeamScore"> | number
+    dctXval?: FloatFilter<"TeamScore"> | number
     fullXrobot?: FloatFilter<"TeamScore"> | number
     fullXawards?: FloatFilter<"TeamScore"> | number
     fullXval?: FloatFilter<"TeamScore"> | number
     xsos?: FloatNullableFilter<"TeamScore"> | number | null
+    xsosDct?: FloatNullableFilter<"TeamScore"> | number | null
     updatedAt?: DateTimeFilter<"TeamScore"> | Date | string
   }, "id" | "teamNumber_year">
 
@@ -25283,10 +25359,14 @@ export namespace Prisma {
     stdXrobot?: SortOrder
     stdXawards?: SortOrder
     stdXval?: SortOrder
+    dctXrobot?: SortOrder
+    dctXawards?: SortOrder
+    dctXval?: SortOrder
     fullXrobot?: SortOrder
     fullXawards?: SortOrder
     fullXval?: SortOrder
     xsos?: SortOrder
+    xsosDct?: SortOrder
     updatedAt?: SortOrder
     _count?: TeamScoreCountOrderByAggregateInput
     _avg?: TeamScoreAvgOrderByAggregateInput
@@ -25305,10 +25385,14 @@ export namespace Prisma {
     stdXrobot?: FloatWithAggregatesFilter<"TeamScore"> | number
     stdXawards?: FloatWithAggregatesFilter<"TeamScore"> | number
     stdXval?: FloatWithAggregatesFilter<"TeamScore"> | number
+    dctXrobot?: FloatWithAggregatesFilter<"TeamScore"> | number
+    dctXawards?: FloatWithAggregatesFilter<"TeamScore"> | number
+    dctXval?: FloatWithAggregatesFilter<"TeamScore"> | number
     fullXrobot?: FloatWithAggregatesFilter<"TeamScore"> | number
     fullXawards?: FloatWithAggregatesFilter<"TeamScore"> | number
     fullXval?: FloatWithAggregatesFilter<"TeamScore"> | number
     xsos?: FloatNullableWithAggregatesFilter<"TeamScore"> | number | null
+    xsosDct?: FloatNullableWithAggregatesFilter<"TeamScore"> | number | null
     updatedAt?: DateTimeWithAggregatesFilter<"TeamScore"> | Date | string
   }
 
@@ -26534,10 +26618,14 @@ export namespace Prisma {
     stdXrobot?: number
     stdXawards?: number
     stdXval?: number
+    dctXrobot?: number
+    dctXawards?: number
+    dctXval?: number
     fullXrobot?: number
     fullXawards?: number
     fullXval?: number
     xsos?: number | null
+    xsosDct?: number | null
     updatedAt?: Date | string
   }
 
@@ -26548,10 +26636,14 @@ export namespace Prisma {
     stdXrobot?: number
     stdXawards?: number
     stdXval?: number
+    dctXrobot?: number
+    dctXawards?: number
+    dctXval?: number
     fullXrobot?: number
     fullXawards?: number
     fullXval?: number
     xsos?: number | null
+    xsosDct?: number | null
     updatedAt?: Date | string
   }
 
@@ -26561,10 +26653,14 @@ export namespace Prisma {
     stdXrobot?: FloatFieldUpdateOperationsInput | number
     stdXawards?: FloatFieldUpdateOperationsInput | number
     stdXval?: FloatFieldUpdateOperationsInput | number
+    dctXrobot?: FloatFieldUpdateOperationsInput | number
+    dctXawards?: FloatFieldUpdateOperationsInput | number
+    dctXval?: FloatFieldUpdateOperationsInput | number
     fullXrobot?: FloatFieldUpdateOperationsInput | number
     fullXawards?: FloatFieldUpdateOperationsInput | number
     fullXval?: FloatFieldUpdateOperationsInput | number
     xsos?: NullableFloatFieldUpdateOperationsInput | number | null
+    xsosDct?: NullableFloatFieldUpdateOperationsInput | number | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -26574,10 +26670,14 @@ export namespace Prisma {
     stdXrobot?: FloatFieldUpdateOperationsInput | number
     stdXawards?: FloatFieldUpdateOperationsInput | number
     stdXval?: FloatFieldUpdateOperationsInput | number
+    dctXrobot?: FloatFieldUpdateOperationsInput | number
+    dctXawards?: FloatFieldUpdateOperationsInput | number
+    dctXval?: FloatFieldUpdateOperationsInput | number
     fullXrobot?: FloatFieldUpdateOperationsInput | number
     fullXawards?: FloatFieldUpdateOperationsInput | number
     fullXval?: FloatFieldUpdateOperationsInput | number
     xsos?: NullableFloatFieldUpdateOperationsInput | number | null
+    xsosDct?: NullableFloatFieldUpdateOperationsInput | number | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -26588,10 +26688,14 @@ export namespace Prisma {
     stdXrobot?: number
     stdXawards?: number
     stdXval?: number
+    dctXrobot?: number
+    dctXawards?: number
+    dctXval?: number
     fullXrobot?: number
     fullXawards?: number
     fullXval?: number
     xsos?: number | null
+    xsosDct?: number | null
     updatedAt?: Date | string
   }
 
@@ -26601,10 +26705,14 @@ export namespace Prisma {
     stdXrobot?: FloatFieldUpdateOperationsInput | number
     stdXawards?: FloatFieldUpdateOperationsInput | number
     stdXval?: FloatFieldUpdateOperationsInput | number
+    dctXrobot?: FloatFieldUpdateOperationsInput | number
+    dctXawards?: FloatFieldUpdateOperationsInput | number
+    dctXval?: FloatFieldUpdateOperationsInput | number
     fullXrobot?: FloatFieldUpdateOperationsInput | number
     fullXawards?: FloatFieldUpdateOperationsInput | number
     fullXval?: FloatFieldUpdateOperationsInput | number
     xsos?: NullableFloatFieldUpdateOperationsInput | number | null
+    xsosDct?: NullableFloatFieldUpdateOperationsInput | number | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -26614,10 +26722,14 @@ export namespace Prisma {
     stdXrobot?: FloatFieldUpdateOperationsInput | number
     stdXawards?: FloatFieldUpdateOperationsInput | number
     stdXval?: FloatFieldUpdateOperationsInput | number
+    dctXrobot?: FloatFieldUpdateOperationsInput | number
+    dctXawards?: FloatFieldUpdateOperationsInput | number
+    dctXval?: FloatFieldUpdateOperationsInput | number
     fullXrobot?: FloatFieldUpdateOperationsInput | number
     fullXawards?: FloatFieldUpdateOperationsInput | number
     fullXval?: FloatFieldUpdateOperationsInput | number
     xsos?: NullableFloatFieldUpdateOperationsInput | number | null
+    xsosDct?: NullableFloatFieldUpdateOperationsInput | number | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -27669,10 +27781,14 @@ export namespace Prisma {
     stdXrobot?: SortOrder
     stdXawards?: SortOrder
     stdXval?: SortOrder
+    dctXrobot?: SortOrder
+    dctXawards?: SortOrder
+    dctXval?: SortOrder
     fullXrobot?: SortOrder
     fullXawards?: SortOrder
     fullXval?: SortOrder
     xsos?: SortOrder
+    xsosDct?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -27682,10 +27798,14 @@ export namespace Prisma {
     stdXrobot?: SortOrder
     stdXawards?: SortOrder
     stdXval?: SortOrder
+    dctXrobot?: SortOrder
+    dctXawards?: SortOrder
+    dctXval?: SortOrder
     fullXrobot?: SortOrder
     fullXawards?: SortOrder
     fullXval?: SortOrder
     xsos?: SortOrder
+    xsosDct?: SortOrder
   }
 
   export type TeamScoreMaxOrderByAggregateInput = {
@@ -27695,10 +27815,14 @@ export namespace Prisma {
     stdXrobot?: SortOrder
     stdXawards?: SortOrder
     stdXval?: SortOrder
+    dctXrobot?: SortOrder
+    dctXawards?: SortOrder
+    dctXval?: SortOrder
     fullXrobot?: SortOrder
     fullXawards?: SortOrder
     fullXval?: SortOrder
     xsos?: SortOrder
+    xsosDct?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -27709,10 +27833,14 @@ export namespace Prisma {
     stdXrobot?: SortOrder
     stdXawards?: SortOrder
     stdXval?: SortOrder
+    dctXrobot?: SortOrder
+    dctXawards?: SortOrder
+    dctXval?: SortOrder
     fullXrobot?: SortOrder
     fullXawards?: SortOrder
     fullXval?: SortOrder
     xsos?: SortOrder
+    xsosDct?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -27722,10 +27850,14 @@ export namespace Prisma {
     stdXrobot?: SortOrder
     stdXawards?: SortOrder
     stdXval?: SortOrder
+    dctXrobot?: SortOrder
+    dctXawards?: SortOrder
+    dctXval?: SortOrder
     fullXrobot?: SortOrder
     fullXawards?: SortOrder
     fullXval?: SortOrder
     xsos?: SortOrder
+    xsosDct?: SortOrder
   }
 
   export type FloatWithAggregatesFilter<$PrismaModel = never> = {

@@ -65,6 +65,42 @@ export function Leaderboard({
   // XVAL point totals aren't a 0-100 scale, so size the bar against the
   // strongest team in view (same treatment as EPA).
   const maxX = Math.max(1, ...allTeams.map((t) => t.xVal));
+
+  // Numeric value behind each extra column, for the heatmap gradient.
+  const extraNumeric = (t: TeamView, col: ExtraColumn): number | null => {
+    switch (col.key) {
+      case "xrobot":
+        return t.xRobot || null;
+      case "xawards":
+        return t.xAwards || null;
+      case "xsos":
+        return t.xsos;
+      default:
+        return col.year != null ? t.yearVals[col.year] ?? null : null;
+    }
+  };
+  // Per-column min/max across the ranked field so each column's gradient is
+  // self-scaled (conditional-formatting style).
+  const extraRanges = new Map<string, { min: number; max: number }>();
+  for (const col of extraColumns) {
+    let min = Infinity;
+    let max = -Infinity;
+    for (const t of allTeams) {
+      const v = extraNumeric(t, col);
+      if (v == null) continue;
+      if (v < min) min = v;
+      if (v > max) max = v;
+    }
+    extraRanges.set(col.key, { min, max });
+  }
+  // Transparent accent tint scaling with the value (6%→40% of the accent).
+  const extraBg = (t: TeamView, col: ExtraColumn): string | undefined => {
+    const v = extraNumeric(t, col);
+    const range = extraRanges.get(col.key);
+    if (v == null || !range || range.max <= range.min) return undefined;
+    const norm = (v - range.min) / (range.max - range.min);
+    return `color-mix(in oklch, var(--accent) ${Math.round(6 + norm * 34)}%, transparent)`;
+  };
   const toggleSort = (key: string) => {
     setSort((s) =>
       s.key === key
@@ -260,6 +296,7 @@ export function Leaderboard({
                 sortKey={c.key}
                 sortState={sort}
                 onSort={toggleSort}
+                align="right"
               />
             </div>
           ))}
@@ -361,7 +398,11 @@ export function Leaderboard({
                 )}
               </div>
               {extraColumns.map((c) => (
-                <div key={c.key} className="col-extra extra-cell">
+                <div
+                  key={c.key}
+                  className="col-extra extra-cell"
+                  style={{ background: extraBg(t, c) }}
+                >
                   {extraValue(t, c)}
                 </div>
               ))}

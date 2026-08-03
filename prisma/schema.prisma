@@ -258,13 +258,17 @@ model TeamScore {
     id         String   @id @default(auto()) @map("_id") @db.ObjectId
     teamNumber Int
     year       Int
-    stdXrobot  Float    @default(0)
+    stdXrobot  Float    @default(0) // first 2 events (region / global / event boards)
     stdXawards Float    @default(0)
     stdXval    Float    @default(0)
-    fullXrobot Float    @default(0)
+    dctXrobot  Float    @default(0) // first 2 events + dcmp (district boards)
+    dctXawards Float    @default(0)
+    dctXval    Float    @default(0)
+    fullXrobot Float    @default(0) // every event (champs-division event pages)
     fullXawards Float   @default(0)
     fullXval   Float    @default(0)
-    xsos       Float? // strength-of-schedule percentile (0-100) within region
+    xsos       Float? // schedule percentile (0-100), std window, global
+    xsosDct    Float? // schedule percentile, dct window (district view)
     updatedAt  DateTime @updatedAt
 
     @@unique([teamNumber, year])
