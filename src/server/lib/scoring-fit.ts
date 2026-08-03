@@ -120,15 +120,15 @@ export async function fitWeights(seedActive = true): Promise<{
   rows: number;
 }> {
   const scores = await db.teamScore.findMany({
-    select: { teamNumber: true, year: true, regXrobot: true, regXawards: true },
+    select: { teamNumber: true, year: true, stdXrobot: true, stdXawards: true },
   });
   const years = [...new Set(scores.map((s) => s.year))].sort((a, b) => a - b);
 
   const robotByTY = new Map<number, Map<number, number>>();
   const awardsByTY = new Map<number, Map<number, number>>();
   for (const s of scores) {
-    (robotByTY.get(s.teamNumber) ?? robotByTY.set(s.teamNumber, new Map()).get(s.teamNumber)!).set(s.year, s.regXrobot);
-    (awardsByTY.get(s.teamNumber) ?? awardsByTY.set(s.teamNumber, new Map()).get(s.teamNumber)!).set(s.year, s.regXawards);
+    (robotByTY.get(s.teamNumber) ?? robotByTY.set(s.teamNumber, new Map()).get(s.teamNumber)!).set(s.year, s.stdXrobot);
+    (awardsByTY.get(s.teamNumber) ?? awardsByTY.set(s.teamNumber, new Map()).get(s.teamNumber)!).set(s.year, s.stdXawards);
   }
 
   const robotPanel = panel(robotByTY, years);

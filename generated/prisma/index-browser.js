@@ -289,6 +289,9 @@ exports.Prisma.TeamScoreScalarFieldEnum = {
   id: 'id',
   teamNumber: 'teamNumber',
   year: 'year',
+  stdXrobot: 'stdXrobot',
+  stdXawards: 'stdXawards',
+  stdXval: 'stdXval',
   regXrobot: 'regXrobot',
   regXawards: 'regXawards',
   regXval: 'regXval',
@@ -298,6 +301,7 @@ exports.Prisma.TeamScoreScalarFieldEnum = {
   fullXrobot: 'fullXrobot',
   fullXawards: 'fullXawards',
   fullXval: 'fullXval',
+  diffStd: 'diffStd',
   diffReg: 'diffReg',
   diffDct: 'diffDct',
   updatedAt: 'updatedAt'

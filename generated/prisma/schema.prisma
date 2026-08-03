@@ -258,10 +258,13 @@ model TeamScore {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   teamNumber  Int
   year        Int
-  regXrobot   Float    @default(0) // region view (regionals, or 50% of district events)
+  stdXrobot   Float    @default(0) // first 2 events, any type (global leaderboard)
+  stdXawards  Float    @default(0)
+  stdXval     Float    @default(0)
+  regXrobot   Float    @default(0) // regionals one-play, or 50% district (regional groupings)
   regXawards  Float    @default(0)
   regXval     Float    @default(0)
-  dctXrobot   Float    @default(0) // first 2 events + dcmp (district boards)
+  dctXrobot   Float    @default(0) // first 2 DISTRICT events + dcmp (official districts)
   dctXawards  Float    @default(0)
   dctXval     Float    @default(0)
   fullXrobot  Float    @default(0) // every event (champs-division event pages)
@@ -269,8 +272,9 @@ model TeamScore {
   fullXval    Float    @default(0)
   // Raw schedule difficulty (mean opponent EPA); XSOS percentile is computed
   // at read time within the board's pool (district / event / global).
-  diffReg     Float? // region window
-  diffDct     Float? // first-2 + dcmp window
+  diffStd     Float? // global window
+  diffReg     Float? // regional window
+  diffDct     Float? // district window
   updatedAt   DateTime @updatedAt
 
   @@unique([teamNumber, year])

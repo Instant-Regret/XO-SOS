@@ -305,11 +305,17 @@ export async function computeYearScores(year: number) {
     return epas.length > 0 ? epas.reduce((a, b) => a + b, 0) / epas.length : null;
   };
 
-  // First pass: raw scores (three windows) + schedule difficulty per team.
-  //   reg  = a team's first 2 events (region / global / event boards)
-  //   dct  = first 2 events + dcmp   (district boards only)
-  //   full = every event             (champs-division event pages)
+  // First pass: raw scores (four windows) + schedule difficulty per team.
+  //   std  = first 2 events (any type)        → global leaderboard
+  //   reg  = regional events (one-play), or 50% of first-2 district events
+  //          (one-play) for a district team with no regional → regional regions
+  //          (west/central/…) and single-regional event boards
+  //   dct  = first 2 DISTRICT events + dcmp    → official district boards
+  //   full = every event                       → champs-division event pages
   type Computed = {
+    stdXrobot: number;
+    stdXawards: number;
+    stdXval: number;
     regXrobot: number;
     regXawards: number;
     regXval: number;
@@ -319,6 +325,7 @@ export async function computeYearScores(year: number) {
     fullXrobot: number;
     fullXawards: number;
     fullXval: number;
+    diffStd: number | null;
     diffReg: number | null;
     diffDct: number | null;
   };
@@ -330,6 +337,11 @@ export async function computeYearScores(year: number) {
     arr.reduce((s, e) => s + e.pts.xawards, 0);
   const byDate = (a: { r: ResultRow }, b: { r: ResultRow }) =>
     (a.r.startDate ?? "").localeCompare(b.r.startDate ?? "");
+  // One-play projection of a base: full 1.6× + 14 on both components.
+  const onePlay = (baseR: number, baseA: number) => ({
+    r: 1.6 * baseR + 14,
+    a: 1.6 * baseA + 14,
+  });
 
   for (const [team, rows] of byTeam) {
     const scored = rows.map((r) => ({
@@ -346,34 +358,65 @@ export async function computeYearScores(year: number) {
       { xrobot: 0, xawards: 0 },
     );
 
-    const qualifying = scored
+    const first2 = scored
       .filter((s) => isQualifying(s.r.eventType))
-      .sort(byDate);
-    const first2 = qualifying.slice(0, 2);
+      .sort(byDate)
+      .slice(0, 2);
+    const district2 = scored
+      .filter((s) => s.r.eventType === 1)
+      .sort(byDate)
+      .slice(0, 2);
+    const regional2 = scored
+      .filter((s) => s.r.eventType === 0)
+      .sort(byDate)
+      .slice(0, 2);
     const dcmp = scored.filter((s) => isDcmp(s.r.eventType));
 
-    // dct window: first 2 (district) events + dcmp, with a one-play projection
-    // when a team played a single event and no dcmp.
-    let dctBaseR = sumR(first2);
-    let dctBaseA = sumA(first2);
+    // std window (global): first 2 events, one-play for a single-event season.
+    let stdXrobot = sumR(first2);
+    let stdXawards = sumA(first2);
     if (first2.length === 1 && dcmp.length === 0) {
-      dctBaseR = 1.6 * first2[0]!.pts.xrobot + 14; // 0.6*first + first + flat 14
-      dctBaseA = 1.6 * first2[0]!.pts.xawards;
+      stdXrobot = 1.6 * first2[0]!.pts.xrobot + 14;
+      stdXawards = 1.6 * first2[0]!.pts.xawards;
+    }
+
+    // dct window: first 2 DISTRICT events + dcmp (regionals excluded).
+    let dctBaseR = sumR(district2);
+    let dctBaseA = sumA(district2);
+    if (district2.length === 1 && dcmp.length === 0) {
+      const op = onePlay(district2[0]!.pts.xrobot, district2[0]!.pts.xawards);
+      dctBaseR = op.r;
+      dctBaseA = op.a;
     }
     const dctXrobot = dctBaseR + sumR(dcmp);
     const dctXawards = dctBaseA + sumA(dcmp);
 
-    // reg window: a team's first 2 events (region / global / event boards),
-    // with a one-play projection for a single-event season.
-    let regXrobot = sumR(first2);
-    let regXawards = sumA(first2);
-    if (first2.length === 1 && dcmp.length === 0) {
-      regXrobot = 1.6 * first2[0]!.pts.xrobot + 14;
-      regXawards = 1.6 * first2[0]!.pts.xawards;
+    // reg window: regional events; 2+ regionals sum, 1 regional gets the
+    // one-play projection, and a district team with no regional falls back to
+    // one-play of 50% of its first 2 district events.
+    let regXrobot: number;
+    let regXawards: number;
+    let regEvents: typeof first2;
+    if (regional2.length >= 2) {
+      regXrobot = sumR(regional2);
+      regXawards = sumA(regional2);
+      regEvents = regional2;
+    } else if (regional2.length === 1) {
+      const op = onePlay(regional2[0]!.pts.xrobot, regional2[0]!.pts.xawards);
+      regXrobot = op.r;
+      regXawards = op.a;
+      regEvents = regional2;
+    } else {
+      const op = onePlay(0.5 * sumR(district2), 0.5 * sumA(district2));
+      regXrobot = op.r;
+      regXawards = op.a;
+      regEvents = district2;
     }
-    const regEvents = first2;
 
     computed.set(team, {
+      stdXrobot,
+      stdXawards,
+      stdXval: stdXrobot + stdXawards,
       regXrobot,
       regXawards,
       regXval: regXrobot + regXawards,
@@ -383,8 +426,9 @@ export async function computeYearScores(year: number) {
       fullXrobot: full.xrobot,
       fullXawards: full.xawards,
       fullXval: full.xrobot + full.xawards,
+      diffStd: difficultyOf(first2),
       diffReg: difficultyOf(regEvents),
-      diffDct: difficultyOf([...first2, ...dcmp]),
+      diffDct: difficultyOf([...district2, ...dcmp]),
     });
   }
 
@@ -403,30 +447,36 @@ export async function computeYearScores(year: number) {
   );
 
   await pool([...computed.entries()], 24, async ([team, c]) => {
+    const diffStd = roundNull(c.diffStd);
     const diffReg = roundNull(c.diffReg);
     const diffDct = roundNull(c.diffDct);
     const prev = existing.get(team);
     const rounded = round(c);
     const same =
       prev &&
+      prev.stdXval === rounded.stdXval &&
       prev.regXval === rounded.regXval &&
       prev.dctXval === rounded.dctXval &&
       prev.fullXval === rounded.fullXval &&
       prev.regXrobot === rounded.regXrobot &&
       prev.regXawards === rounded.regXawards &&
+      prev.diffStd === diffStd &&
       prev.diffReg === diffReg &&
       prev.diffDct === diffDct;
     if (same) return;
     await db.teamScore.upsert({
       where: { teamNumber_year: { teamNumber: team, year } },
-      create: { teamNumber: team, year, ...rounded, diffReg, diffDct },
-      update: { ...rounded, diffReg, diffDct },
+      create: { teamNumber: team, year, ...rounded, diffStd, diffReg, diffDct },
+      update: { ...rounded, diffStd, diffReg, diffDct },
     });
   });
 }
 
 // Round stored floats to 2 dp for stable diffing.
 function round(c: {
+  stdXrobot: number;
+  stdXawards: number;
+  stdXval: number;
   regXrobot: number;
   regXawards: number;
   regXval: number;
@@ -439,6 +489,9 @@ function round(c: {
 }) {
   const r = (n: number) => Math.round(n * 100) / 100;
   return {
+    stdXrobot: r(c.stdXrobot),
+    stdXawards: r(c.stdXawards),
+    stdXval: r(c.stdXval),
     regXrobot: r(c.regXrobot),
     regXawards: r(c.regXawards),
     regXval: r(c.regXval),
