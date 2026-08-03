@@ -439,6 +439,16 @@ export async function computeYearScores(year: number) {
       regEvents = district2;
     }
 
+    // Region→district transition: in a season when the team had no official
+    // district (its region wasn't a district yet), the district window falls
+    // back to that season's regional value, so a region that just became a
+    // district (e.g. California/Wisconsin in 2026) still has usable history on
+    // its new district board's prediction and year columns.
+    const noDistrict = teamDistrict == null;
+    const finalDctR = noDistrict ? regXrobot : dctXrobot;
+    const finalDctA = noDistrict ? regXawards : dctXawards;
+    const dctDiffEvents = noDistrict ? regEvents : [...district2, ...dcmp];
+
     computed.set(team, {
       stdXrobot,
       stdXawards,
@@ -446,15 +456,15 @@ export async function computeYearScores(year: number) {
       regXrobot,
       regXawards,
       regXval: regXrobot + regXawards,
-      dctXrobot,
-      dctXawards,
-      dctXval: dctXrobot + dctXawards,
+      dctXrobot: finalDctR,
+      dctXawards: finalDctA,
+      dctXval: finalDctR + finalDctA,
       fullXrobot: full.xrobot,
       fullXawards: full.xawards,
       fullXval: full.xrobot + full.xawards,
       diffStd: difficultyOf(first2),
       diffReg: difficultyOf(regEvents),
-      diffDct: difficultyOf([...district2, ...dcmp]),
+      diffDct: difficultyOf(dctDiffEvents),
     });
   }
 
