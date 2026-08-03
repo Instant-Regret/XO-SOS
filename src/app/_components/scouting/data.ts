@@ -49,7 +49,7 @@ export const OTHER_PICKERS = [
 
 // Years available in the season picker. Mongo holds the year inside every
 // district / event key; selecting a year here drives all queries.
-export const AVAILABLE_YEARS = [2026, 2025, 2024, 2023, 2022];
+export const AVAILABLE_YEARS = [2027, 2026, 2025, 2024, 2023, 2022];
 
 // Map TBA award_type integers into the four buckets the design uses.
 // 0 = Chairman's / Impact, 1 = Winner, 9 = Engineering Inspiration; the
