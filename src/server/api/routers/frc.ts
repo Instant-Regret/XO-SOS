@@ -6,6 +6,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { getActiveWeights, predict, type Weights4 } from "~/server/lib/scoring-fit";
+import { eventPoints } from "~/server/lib/scoring-sync";
 
 // ---- Score columns (XVAL / XROBOT / XAWARDS / XSOS + per-year history) ----
 
@@ -681,6 +682,74 @@ export const frcRouter = createTRPCRouter({
 
       const scoreByTeam = buildScoreColumns(scoreRows, weights, numbers, year, window);
       const pickByTeam = buildPickMap(resultRows);
+
+      // Narrow rule: a DISTRICT team that traveled to a single regional is
+      // valued — ON THAT REGIONAL's board only — by a one-play projection of
+      // its showing here (base = this event's points), not by its district
+      // events. Regional-only teams and every other board are untouched.
+      if (event?.eventType === 0) {
+        const yearResults = await ctx.db.teamEventResult.findMany({
+          where: { teamNumber: { in: numbers }, year },
+          select: {
+            teamNumber: true,
+            eventKey: true,
+            eventType: true,
+            startDate: true,
+            qualRank: true,
+            numTeams: true,
+            allianceSeed: true,
+            pickRole: true,
+            elimWins: true,
+          },
+        });
+        const eventsByTeam = new Map<number, typeof yearResults>();
+        for (const r of yearResults) {
+          const list = eventsByTeam.get(r.teamNumber) ?? [];
+          list.push(r);
+          eventsByTeam.set(r.teamNumber, list);
+        }
+        const f1 = (x: number) => (Math.round(x * 10) / 10).toFixed(1);
+        for (const n of numbers) {
+          const evs = eventsByTeam.get(n) ?? [];
+          const regionals = evs.filter((e) => e.eventType === 0);
+          const hasDistrict = evs.some((e) => e.eventType === 1);
+          const here = evs.find((e) => e.eventKey === input.eventKey);
+          if (
+            !hasDistrict ||
+            regionals.length !== 1 ||
+            regionals[0]!.eventKey !== input.eventKey ||
+            !here
+          ) {
+            continue;
+          }
+          const evAwards = (awardsByTeam.get(n) ?? [])
+            .filter((a) => a.eventKey === input.eventKey && a.year === year)
+            .map((a) => ({ awardType: a.awardType, name: a.name }));
+          const base = eventPoints({ ...here, opponents: [] }, evAwards);
+          const xrobot = Math.round((1.6 * base.xrobot + 14) * 10) / 10;
+          const xawards = Math.round(1.6 * base.xawards * 10) / 10;
+          const xval = Math.round((xrobot + xawards) * 10) / 10;
+          const prev = scoreByTeam.get(n);
+          scoreByTeam.set(n, {
+            xval,
+            xrobot,
+            xawards,
+            xsos: prev?.xsos ?? null,
+            yearVals: { ...(prev?.yearVals ?? {}), [year]: xval },
+            debug: {
+              window: "region · single-regional district team",
+              xrobot: `XROBOT one-play: 1.6×${f1(base.xrobot)} + 14 = ${f1(xrobot)}`,
+              xawards: `XAWARDS one-play: 1.6×${f1(base.xawards)} = ${f1(xawards)}`,
+              xval: `XVAL = ${f1(xrobot)} + ${f1(xawards)} = ${f1(xval)}`,
+              xsos: prev?.debug?.xsos ?? "XSOS: —",
+              yearVals: {
+                ...(prev?.debug?.yearVals ?? {}),
+                [year]: `${year}: single-regional one-play of ${input.eventKey} = ${f1(xval)}`,
+              },
+            },
+          });
+        }
+      }
 
       return {
         year,

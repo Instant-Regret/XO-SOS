@@ -214,7 +214,7 @@ export async function syncEventResults(ev: EventLite): Promise<boolean> {
 }
 
 // ---- Per-event points from a stored TeamEventResult + its awards ----
-type ResultRow = {
+export type ResultRow = {
   eventKey: string;
   eventType: number;
   startDate: string | null;
@@ -226,7 +226,7 @@ type ResultRow = {
   opponents: number[];
 };
 
-function eventPoints(
+export function eventPoints(
   r: ResultRow,
   awards: { awardType: number; name: string }[],
 ) {

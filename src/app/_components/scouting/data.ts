@@ -78,7 +78,12 @@ export function bucketAwards(
   picksByEvent?: Record<string, { seed: number; role: string }>,
 ): AwardLog {
   const log: AwardLog = { eventWins: [], impact: [], ei: [], technical: [] };
-  for (const a of awards) {
+  // Newest first (then by event) so every award list in the tooltip reads in
+  // descending order regardless of how they came back from the DB.
+  const sorted = [...awards].sort(
+    (a, b) => b.year - a.year || a.eventKey.localeCompare(b.eventKey),
+  );
+  for (const a of sorted) {
     const entry: AwardEntry = { year: a.year, event: a.eventKey, name: a.name };
     if (a.awardType === 1) {
       const pick = picksByEvent?.[a.eventKey];
