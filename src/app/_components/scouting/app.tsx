@@ -100,6 +100,8 @@ function ScoutingBoard() {
     search: null,
   });
   const [sort, setSort] = useState<Sort>({ key: "epa", dir: "desc" });
+  // Default to the newest season that actually has data. 2027 is selectable in
+  // the picker but empty until TBA publishes the season, so don't land there.
   const [selectedYear, setSelectedYear] = useState(2026);
 
   // Debug mode: shows the calculation behind each computed number as a tooltip.
