@@ -102,6 +102,19 @@ function ScoutingBoard() {
   const [sort, setSort] = useState<Sort>({ key: "epa", dir: "desc" });
   const [selectedYear, setSelectedYear] = useState(2026);
 
+  // Debug mode: shows the calculation behind each computed number as a tooltip.
+  // Persisted so it survives reloads.
+  const [debugMode, setDebugMode] = useState(false);
+  useEffect(() => {
+    setDebugMode(localStorage.getItem("xosos-debug") === "1");
+  }, []);
+  const toggleDebug = () =>
+    setDebugMode((v) => {
+      const next = !v;
+      localStorage.setItem("xosos-debug", next ? "1" : "0");
+      return next;
+    });
+
   // Schedule pin state lives here (not in SchedulePage) so pins survive
   // switching between the board and schedule tabs.
   const [pinnedTeams, setPinnedTeams] = useState<Set<number>>(new Set());
@@ -363,10 +376,35 @@ function ScoutingBoard() {
   // Build the row view from whichever tRPC payload is active (district board
   // when one is selected, else global top-100) plus local pick/star state.
   const teamsForYear: TeamView[] = useMemo(() => {
+    // Cached avatars render instantly from a data URI; everything else goes
+    // through our proxy (authed + year fallback + caching), which is reliable
+    // where the TBA hotlink URL 403s for teams lacking that exact year.
     const buildAvatarUrl = (year: number, number: number, b64: string | null) =>
       b64
         ? `data:image/png;base64,${b64}`
-        : `https://www.thebluealliance.com/avatar/${year}/frc${number}.png`;
+        : `/api/avatar/frc${number}?year=${year}`;
+
+    // Precomputed SLFF score columns from the board query (null until backfilled).
+    const scoreFields = (
+      score:
+        | {
+            xval: number;
+            xrobot: number;
+            xawards: number;
+            xsos: number | null;
+            yearVals: Record<number, number | null>;
+            debug?: TeamView["debug"];
+          }
+        | null
+        | undefined,
+    ) => ({
+      xVal: score?.xval ?? 0,
+      xRobot: score?.xrobot ?? 0,
+      xAwards: score?.xawards ?? 0,
+      xsos: score?.xsos ?? null,
+      yearVals: score?.yearVals ?? {},
+      debug: score?.debug,
+    });
 
     // Pick fields for a row: editable single pick on a region board, else a
     // read-only aggregate of all owners across boards.
@@ -399,11 +437,11 @@ function ScoutingBoard() {
           name: t.nickname ?? t.name ?? `Team ${t.number}`,
           region: eventChip,
           avatarUrl: buildAvatarUrl(data.year, t.number, t.avatarB64),
-          xVal: 0,
+          ...scoreFields(t.score),
           epa: t.epa ?? 0,
           stars: ratingsByTeam.get(t.number) ?? 0,
           ...pickFor(t.number),
-          awardLog: bucketAwards(t.awards),
+          awardLog: bucketAwards(t.awards, t.picks),
         };
       });
     }
@@ -419,11 +457,11 @@ function ScoutingBoard() {
           name: t.nickname ?? t.name ?? `Team ${t.number}`,
           region: districtChip,
           avatarUrl: buildAvatarUrl(data.year, t.number, t.avatarB64),
-          xVal: 0,
+          ...scoreFields(t.score),
           epa: t.epa ?? 0,
           stars: ratingsByTeam.get(t.number) ?? 0,
           ...pickFor(t.number),
-          awardLog: bucketAwards(t.awards),
+          awardLog: bucketAwards(t.awards, t.picks),
         };
       });
     }
@@ -436,11 +474,11 @@ function ScoutingBoard() {
         name: t.nickname ?? t.name ?? `Team ${t.number}`,
         region: t.districtAbbr ? t.districtAbbr.toUpperCase() : "—",
         avatarUrl: buildAvatarUrl(data.year, t.number, t.avatarB64),
-        xVal: 0,
+        ...scoreFields(t.score),
         epa: t.epa ?? 0,
         stars: ratingsByTeam.get(t.number) ?? 0,
         ...pickFor(t.number),
-        awardLog: bucketAwards(t.awards),
+        awardLog: bucketAwards(t.awards, t.picks),
       };
     });
   }, [
@@ -455,12 +493,33 @@ function ScoutingBoard() {
     selectedEventKey,
   ]);
 
+  // Resolve a sort key (including the extra columns, whose keys don't match the
+  // TeamView property names) to a comparable value. Missing numbers sort last.
+  const sortValue = (t: TeamView, key: string): number | string | undefined => {
+    switch (key) {
+      case "xrobot":
+        return t.xRobot;
+      case "xawards":
+        return t.xAwards;
+      case "xsos":
+        return t.xsos ?? -Infinity;
+      default:
+        if (/^y\d{4}$/.test(key)) {
+          return t.yearVals[Number(key.slice(1))] ?? -Infinity;
+        }
+        return (t as unknown as Record<string, unknown>)[key] as
+          | number
+          | string
+          | undefined;
+    }
+  };
+
   const sorted = useMemo(() => {
     const arr = [...teamsForYear];
     const { key, dir } = sort;
     arr.sort((a, b) => {
-      const av = (a as unknown as Record<string, unknown>)[key];
-      const bv = (b as unknown as Record<string, unknown>)[key];
+      const av = sortValue(a, key);
+      const bv = sortValue(b, key);
       if (av === undefined || bv === undefined) return 0;
       if (typeof av === "number" && typeof bv === "number") {
         return dir === "desc" ? bv - av : av - bv;
@@ -560,7 +619,11 @@ function ScoutingBoard() {
         <div className="topbar-right">
           <SyncIndicator />
           <YearPicker value={selectedYear} onChange={setSelectedYear} />
-          <AccountMenu year={selectedYear} />
+          <AccountMenu
+            year={selectedYear}
+            debugMode={debugMode}
+            onToggleDebug={toggleDebug}
+          />
         </div>
       </header>
 
@@ -591,6 +654,7 @@ function ScoutingBoard() {
               pinnedTeams={pinnedTeams}
               colorByTeam={colorByTeam}
               onTogglePin={togglePin}
+              debug={debugMode}
             />
           )}
           {page === "schedule" && (

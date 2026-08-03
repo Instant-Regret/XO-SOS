@@ -226,3 +226,66 @@ model Rating {
   @@unique([year, teamNumber])
   @@index([year])
 }
+
+// Per (team, event) result inputs for SLFF scoring, pulled from TBA. One doc
+// per team+event. Awards live in the Award model and are joined at compute time.
+model TeamEventResult {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  teamNumber        Int
+  eventKey          String
+  year              Int
+  eventType         Int // TBA event_type (0=regional, 1=district, 2=dcmp, 3/4=champs, ...)
+  startDate         String? // for ordering a team's first-2 events
+  qualRank          Int?
+  numTeams          Int? // field size, for the seeding formula
+  allianceSeed      Int? // 1-8 if selected, else null
+  pickRole          String? // "captain" | "pick1" | "pick2" | "pick3"
+  elimMatchesPlayed Int      @default(0) // playoff matches on the field (reference)
+  elimWins          Int      @default(0) // playoff match WINS — 5 pts each
+  einsteinWins      Int      @default(0) // champs finals wins (subset of elimWins)
+  opponents         Int[] // distinct teams played with/against (for XSOS)
+  updatedAt         DateTime @updatedAt
+
+  @@unique([teamNumber, eventKey])
+  @@index([year])
+  @@index([eventKey])
+}
+
+// Computed SLFF scores per (team, year). Two windows: "std" = first 2 events +
+// dcmp (region/district boards); "full" = all events (champs-division pages).
+// Predicted (weighted-4-year) values are computed on read from prior years.
+model TeamScore {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  teamNumber  Int
+  year        Int
+  regXrobot   Float    @default(0) // region view (regionals, or 50% of district events)
+  regXawards  Float    @default(0)
+  regXval     Float    @default(0)
+  dctXrobot   Float    @default(0) // first 2 events + dcmp (district boards)
+  dctXawards  Float    @default(0)
+  dctXval     Float    @default(0)
+  fullXrobot  Float    @default(0) // every event (champs-division event pages)
+  fullXawards Float    @default(0)
+  fullXval    Float    @default(0)
+  // Raw schedule difficulty (mean opponent EPA); XSOS percentile is computed
+  // at read time within the board's pool (district / event / global).
+  diffReg     Float? // region window
+  diffDct     Float? // first-2 + dcmp window
+  updatedAt   DateTime @updatedAt
+
+  @@unique([teamNumber, year])
+  @@index([year])
+}
+
+// Prediction weights for the weighted-4-year XROBOT/XAWARDS. `opt*` are the
+// regression-fitted optimum; `act*` are the editable active weights ("reset to
+// optimal" copies opt -> act). Arrays are [w_{y-1}, w_{y-2}, w_{y-3}, w_{y-4}].
+model ScoreWeights {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  key       String   @unique @default("default")
+  optRobot  Float[]
+  optAwards Float[]
+  actRobot  Float[]
+  actAwards Float[]
+  updatedAt DateTime @updatedAt
+}

@@ -257,7 +257,11 @@ function AwardIcon({
                     {g.items.map((e, i) => (
                       <div key={i} className="award-pop-event-row">
                         <span className="award-pop-event">{e.event}</span>
-                        {e.name && <span className="award-pop-sub">{e.name}</span>}
+                        {e.pick ? (
+                          <span className="award-pop-sub">{e.pick}</span>
+                        ) : (
+                          e.name && <span className="award-pop-sub">{e.name}</span>
+                        )}
                       </div>
                     ))}
                   </div>

@@ -121,6 +121,32 @@ const awardSchema = z.object({
 });
 export type TbaAward = z.infer<typeof awardSchema>;
 
+// /event/{key}/rankings — team ranks; count is the field size for seeding.
+const rankingsSchema = z.object({
+  rankings: z.array(
+    z.object({ team_key: z.string(), rank: z.number().int() }),
+  ),
+});
+export type TbaRankings = z.infer<typeof rankingsSchema>;
+
+// /event/{key}/alliances — ordered by seed; picks[0]=captain, [1]=1st pick,
+// [2]=2nd pick, [3]=3rd pick/backup.
+const allianceSchema = z.object({ picks: z.array(z.string()) });
+const alliancesSchema = z.array(allianceSchema);
+export type TbaAlliances = z.infer<typeof alliancesSchema>;
+
+// /event/{key}/matches — only the bits needed for elim/Einstein points.
+const matchSchema = z.object({
+  comp_level: z.string(), // "qm" | "ef" | "qf" | "sf" | "f"
+  winning_alliance: z.string().nullish(), // "red" | "blue" | ""
+  alliances: z.object({
+    red: z.object({ team_keys: z.array(z.string()) }),
+    blue: z.object({ team_keys: z.array(z.string()) }),
+  }),
+});
+const matchesSchema = z.array(matchSchema);
+export type TbaMatch = z.infer<typeof matchSchema>;
+
 export const tba = {
   districts: (year: number) =>
     tbaFetch(`/districts/${year}`, z.array(districtSchema)),
@@ -165,6 +191,15 @@ export const tba = {
 
   teamMediaConditional: (teamKey: string, year: number, etag?: string) =>
     tbaGet(`/team/${teamKey}/media/${year}`, z.array(mediaSchema), etag),
+
+  eventRankingsConditional: (eventKey: string, etag?: string) =>
+    tbaGet(`/event/${eventKey}/rankings`, rankingsSchema.nullable(), etag),
+
+  eventAlliancesConditional: (eventKey: string, etag?: string) =>
+    tbaGet(`/event/${eventKey}/alliances`, alliancesSchema.nullable(), etag),
+
+  eventMatchesConditional: (eventKey: string, etag?: string) =>
+    tbaGet(`/event/${eventKey}/matches`, matchesSchema, etag),
 };
 
 // TBA event_type constants (https://github.com/the-blue-alliance/the-blue-alliance/blob/master/consts/event_type.py)

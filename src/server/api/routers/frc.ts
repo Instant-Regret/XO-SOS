@@ -5,6 +5,265 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { getActiveWeights, predict, type Weights4 } from "~/server/lib/scoring-fit";
+import { eventBreakdown, eventPoints } from "~/server/lib/scoring-sync";
+
+// ---- Score columns (XVAL / XROBOT / XAWARDS / XSOS + per-year history) ----
+
+type ScoreRow = {
+  teamNumber: number;
+  year: number;
+  regXrobot: number;
+  regXawards: number;
+  regXval: number;
+  dctXrobot: number;
+  dctXawards: number;
+  dctXval: number;
+  fullXrobot: number;
+  fullXawards: number;
+  fullXval: number;
+  diffReg: number | null;
+  diffDct: number | null;
+};
+
+export type TeamScoreColumns = {
+  // Main columns. On reg/dct boards these are the weighted-4-year predictions;
+  // on champs-division boards ("full") they're the actual full-season values.
+  xval: number;
+  xrobot: number;
+  xawards: number;
+  xsos: number | null;
+  // Raw XVAL per season for the 5 per-year columns (window-dependent).
+  yearVals: Record<number, number | null>;
+  // Human-readable calculation per column, surfaced by debug mode.
+  debug: {
+    window: string;
+    xrobot: string;
+    xawards: string;
+    xval: string;
+    xsos: string;
+    yearVals: Record<number, string>;
+  };
+};
+
+// Score window: "reg" = region view (regionals, or 50% of district events),
+// "dct" = first 2 + district championship (district boards), "full" = every
+// event (champs pages).
+type ScoreWindow = "reg" | "dct" | "full";
+
+// Turn stored TeamScore rows into per-team display columns. Pure so each board
+// query can fetch the rows however it likes and share this shaping.
+function buildScoreColumns(
+  scores: ScoreRow[],
+  weights: { robot: Weights4; awards: Weights4 },
+  numbers: number[],
+  year: number,
+  window: ScoreWindow,
+): Map<number, TeamScoreColumns> {
+  // Per-window field accessors.
+  const valOf = (s: ScoreRow) =>
+    window === "full" ? s.fullXval : window === "dct" ? s.dctXval : s.regXval;
+  const robotOf = (s: ScoreRow) =>
+    window === "full" ? s.fullXrobot : window === "dct" ? s.dctXrobot : s.regXrobot;
+  const awardsOf = (s: ScoreRow) =>
+    window === "full" ? s.fullXawards : window === "dct" ? s.dctXawards : s.regXawards;
+  // dct boards rank difficulty over the dcmp-inclusive window; others over reg.
+  const diffOf = (s: ScoreRow) => (window === "dct" ? s.diffDct : s.diffReg);
+
+  const byTeam = new Map<number, Map<number, ScoreRow>>();
+  for (const s of scores) {
+    const m = byTeam.get(s.teamNumber) ?? new Map<number, ScoreRow>();
+    m.set(s.year, s);
+    byTeam.set(s.teamNumber, m);
+  }
+
+  // XSOS = percentile of schedule difficulty WITHIN this board's pool (the teams
+  // in `numbers`), so it's relative to the district / event / global list shown.
+  const poolDiffs: number[] = [];
+  for (const n of numbers) {
+    const d = byTeam.get(n)?.get(year);
+    const v = d ? diffOf(d) : null;
+    if (v != null) poolDiffs.push(v);
+  }
+  poolDiffs.sort((a, b) => a - b);
+  const xsosPct = (v: number | null): number | null => {
+    if (v == null || poolDiffs.length < 2) return null;
+    let below = 0;
+    for (const x of poolDiffs) if (x < v) below++;
+    return Math.round((below / (poolDiffs.length - 1)) * 100);
+  };
+
+  const out = new Map<number, TeamScoreColumns>();
+  for (const n of numbers) {
+    const ys = byTeam.get(n) ?? new Map<number, ScoreRow>();
+    const cur = ys.get(year);
+
+    const yearVals: Record<number, number | null> = {};
+    for (let y = year - 4; y <= year; y++) {
+      const s = ys.get(y);
+      yearVals[y] = s ? valOf(s) : null;
+    }
+
+    const f1 = (x: number) => (Math.round(x * 10) / 10).toFixed(1);
+    const windowName =
+      window === "full" ? "full season" : window === "dct" ? "district (+dcmp)" : "region";
+
+    let xval: number;
+    let xrobot: number;
+    let xawards: number;
+    let robotCalc: string;
+    let awardsCalc: string;
+    if (window === "full") {
+      xrobot = cur?.fullXrobot ?? 0;
+      xawards = cur?.fullXawards ?? 0;
+      xval = cur?.fullXval ?? 0;
+      robotCalc = `full-season XROBOT = ${f1(xrobot)}`;
+      awardsCalc = `full-season XAWARDS = ${f1(xawards)}`;
+    } else {
+      // Predict from the same window's prior-year values.
+      const priorsR = [1, 2, 3, 4].map((k) => {
+        const s = ys.get(year - k);
+        return s ? robotOf(s) : 0;
+      }) as [number, number, number, number];
+      const priorsA = [1, 2, 3, 4].map((k) => {
+        const s = ys.get(year - k);
+        return s ? awardsOf(s) : 0;
+      }) as [number, number, number, number];
+      xrobot = predict(weights.robot, priorsR);
+      xawards = predict(weights.awards, priorsA);
+      xval = xrobot + xawards;
+      const term = (w: Weights4, p: number[], k: number) =>
+        `${w[k]!.toFixed(2)}×${f1(p[k]!)}[${year - 1 - k}]`;
+      robotCalc = `${[0, 1, 2, 3].map((k) => term(weights.robot, priorsR, k)).join(" + ")} = ${f1(xrobot)}`;
+      awardsCalc = `${[0, 1, 2, 3].map((k) => term(weights.awards, priorsA, k)).join(" + ")} = ${f1(xawards)}`;
+    }
+
+    const curDiff = cur ? diffOf(cur) : null;
+    const xsos = xsosPct(curDiff);
+    const xsosCalc =
+      curDiff == null
+        ? "no schedule data"
+        : `sched strength ${Math.round(curDiff)} → ${xsos ?? "—"} pctile of ${poolDiffs.length}-team pool`;
+
+    const yearDebug: Record<number, string> = {};
+    for (let y = year - 4; y <= year; y++) {
+      const v = yearVals[y];
+      yearDebug[y] = v == null ? `${y}: no data` : `${y} ${windowName} XVAL = ${f1(v)}`;
+    }
+
+    out.set(n, {
+      xval: Math.round(xval * 10) / 10,
+      xrobot: Math.round(xrobot * 10) / 10,
+      xawards: Math.round(xawards * 10) / 10,
+      xsos,
+      yearVals,
+      debug: {
+        window: windowName,
+        xrobot: `XROBOT (${windowName}): ${robotCalc}`,
+        xawards: `XAWARDS (${windowName}): ${awardsCalc}`,
+        xval: `XVAL = XROBOT ${f1(xrobot)} + XAWARDS ${f1(xawards)} = ${f1(xval)}`,
+        xsos: `XSOS: ${xsosCalc}`,
+        yearVals: yearDebug,
+      },
+    });
+  }
+  return out;
+}
+
+// Current-year TeamEventResult shape used for the debug scoring breakdown.
+type YearResult = {
+  teamNumber: number;
+  eventKey: string;
+  eventType: number;
+  startDate: string | null;
+  qualRank: number | null;
+  numTeams: number | null;
+  allianceSeed: number | null;
+  pickRole: string | null;
+  elimWins: number;
+};
+
+// Replace the current-year entry of each team's debug.yearVals with a full
+// per-event breakdown (seeding + picking + playoff + awards per event) so debug
+// mode can verify the scoring. Only the board's year is detailed; switch the
+// season to inspect a different year.
+function mergeYearBreakdown(
+  scoreByTeam: Map<number, TeamScoreColumns>,
+  results: YearResult[],
+  awardsByTeam: Map<
+    number,
+    { eventKey: string; awardType: number; name: string; year: number }[]
+  >,
+  year: number,
+  window: ScoreWindow,
+) {
+  const isQual = (t: number) => t === 0 || t === 1;
+  const isDcmp = (t: number) => t === 2 || t === 5;
+  const byTeam = new Map<number, YearResult[]>();
+  for (const r of results) {
+    const list = byTeam.get(r.teamNumber) ?? [];
+    list.push(r);
+    byTeam.set(r.teamNumber, list);
+  }
+  for (const [team, evs] of byTeam) {
+    const col = scoreByTeam.get(team);
+    if (!col) continue;
+    const scored = evs.map((r) => {
+      const aw = (awardsByTeam.get(team) ?? [])
+        .filter((a) => a.eventKey === r.eventKey && a.year === year)
+        .map((a) => ({ awardType: a.awardType, name: a.name }));
+      return { r, b: eventBreakdown({ ...r, opponents: [] }, aw) };
+    });
+    const qualifying = scored
+      .filter((s) => isQual(s.r.eventType))
+      .sort((a, b) => (a.r.startDate ?? "").localeCompare(b.r.startDate ?? ""));
+    const first2 = qualifying.slice(0, 2);
+    const dcmp = scored.filter((s) => isDcmp(s.r.eventType));
+    const windowEvents =
+      window === "full" ? scored : window === "dct" ? [...first2, ...dcmp] : first2;
+    if (windowEvents.length === 0) continue;
+
+    const parts = windowEvents.map(
+      (s) =>
+        `${s.r.eventKey}: seed ${s.b.seeding} + pick ${s.b.picking} + play ${s.b.playoff} + aw ${s.b.awards} = ${s.b.xrobot + s.b.xawards}`,
+    );
+    const total = windowEvents.reduce((t, s) => t + s.b.xrobot + s.b.xawards, 0);
+    const onePlay =
+      window !== "full" && first2.length === 1 && dcmp.length === 0
+        ? " · one-play → ×1.6 +14"
+        : "";
+    col.debug.yearVals[year] = `${year} [${window}]  ${parts.join("   |   ")}   →  Σ ${total}${onePlay}`;
+  }
+}
+
+// Attach each award's event start date (for chronological ordering in the
+// awards tooltip). Awards only store the event key, so we look the dates up.
+type AwardRow = { eventKey: string; awardType: number; name: string; year: number };
+function attachAwardDates(
+  awards: AwardRow[],
+  dateByEvent: Map<string, string | null>,
+): (AwardRow & { startDate: string | null })[] {
+  return awards.map((a) => ({ ...a, startDate: dateByEvent.get(a.eventKey) ?? null }));
+}
+
+// Per-team alliance selection by event, for the event-wins tooltip.
+function buildPickMap(
+  results: {
+    teamNumber: number;
+    eventKey: string;
+    allianceSeed: number | null;
+    pickRole: string | null;
+  }[],
+): Map<number, Record<string, { seed: number; role: string }>> {
+  const m = new Map<number, Record<string, { seed: number; role: string }>>();
+  for (const r of results) {
+    if (r.allianceSeed == null || r.pickRole == null) continue;
+    const rec = m.get(r.teamNumber) ?? {};
+    rec[r.eventKey] = { seed: r.allianceSeed, role: r.pickRole };
+    m.set(r.teamNumber, rec);
+  }
+  return m;
+}
 
 const yearInput = z.object({ year: z.number().int() });
 const districtInput = z.object({ districtKey: z.string().min(1) });
@@ -182,24 +441,38 @@ export const frcRouter = createTRPCRouter({
       }
       const numbers = link.teamNumbers;
 
-      const [teams, epaDocs, awardDocs, avatarDocs] = await Promise.all([
-        ctx.db.team.findMany({
-          where: { number: { in: numbers } },
-          orderBy: { number: "asc" },
-        }),
-        ctx.db.teamEpa.findMany({
-          where: { teamNumber: { in: numbers } },
-          select: { teamNumber: true, epas: true },
-        }),
-        ctx.db.award.findMany({
-          where: { teamNumber: { in: numbers } },
-          select: { teamNumber: true, awards: true },
-        }),
-        ctx.db.teamAvatar.findMany({
-          where: { teamNumber: { in: numbers } },
-          select: { teamNumber: true, avatars: true },
-        }),
-      ]);
+      const [teams, epaDocs, awardDocs, avatarDocs, scoreRows, weights, resultRows] =
+        await Promise.all([
+          ctx.db.team.findMany({
+            where: { number: { in: numbers } },
+            orderBy: { number: "asc" },
+          }),
+          ctx.db.teamEpa.findMany({
+            where: { teamNumber: { in: numbers } },
+            select: { teamNumber: true, epas: true },
+          }),
+          ctx.db.award.findMany({
+            where: { teamNumber: { in: numbers } },
+            select: { teamNumber: true, awards: true },
+          }),
+          ctx.db.teamAvatar.findMany({
+            where: { teamNumber: { in: numbers } },
+            select: { teamNumber: true, avatars: true },
+          }),
+          ctx.db.teamScore.findMany({
+            where: { teamNumber: { in: numbers }, year: { gte: year - 4, lte: year } },
+          }),
+          getActiveWeights(),
+          ctx.db.teamEventResult.findMany({
+            where: { teamNumber: { in: numbers }, allianceSeed: { not: null } },
+            select: {
+              teamNumber: true,
+              eventKey: true,
+              allianceSeed: true,
+              pickRole: true,
+            },
+          }),
+        ]);
 
       const epaByTeam = new Map<number, number | null>();
       for (const row of epaDocs) {
@@ -214,6 +487,17 @@ export const frcRouter = createTRPCRouter({
       for (const row of awardDocs) {
         awardsByTeam.set(row.teamNumber, row.awards);
       }
+      const awardEventKeys = new Set<string>();
+      for (const row of awardDocs)
+        for (const a of row.awards) awardEventKeys.add(a.eventKey);
+      const dateByEvent = new Map(
+        (
+          await ctx.db.event.findMany({
+            where: { key: { in: [...awardEventKeys] } },
+            select: { key: true, startDate: true },
+          })
+        ).map((e) => [e.key, e.startDate] as const),
+      );
 
       const avatarByTeam = new Map<number, string | null>();
       for (const row of avatarDocs) {
@@ -226,6 +510,25 @@ export const frcRouter = createTRPCRouter({
           null;
         avatarByTeam.set(row.teamNumber, fallback?.base64 ?? null);
       }
+
+      // District boards score the district-championship window (first 2 + dcmp).
+      const scoreByTeam = buildScoreColumns(scoreRows, weights, numbers, year, "dct");
+      const yearResults = await ctx.db.teamEventResult.findMany({
+        where: { teamNumber: { in: numbers }, year },
+        select: {
+          teamNumber: true,
+          eventKey: true,
+          eventType: true,
+          startDate: true,
+          qualRank: true,
+          numTeams: true,
+          allianceSeed: true,
+          pickRole: true,
+          elimWins: true,
+        },
+      });
+      mergeYearBreakdown(scoreByTeam, yearResults, awardsByTeam, year, "dct");
+      const pickByTeam = buildPickMap(resultRows);
 
       return {
         year,
@@ -240,7 +543,9 @@ export const frcRouter = createTRPCRouter({
           country: t.country,
           epa: epaByTeam.get(t.number) ?? null,
           avatarB64: avatarByTeam.get(t.number) ?? null,
-          awards: awardsByTeam.get(t.number) ?? [],
+          awards: attachAwardDates(awardsByTeam.get(t.number) ?? [], dateByEvent),
+          score: scoreByTeam.get(t.number) ?? null,
+          picks: pickByTeam.get(t.number) ?? {},
         })),
       };
     }),
@@ -269,21 +574,38 @@ export const frcRouter = createTRPCRouter({
         return { year: input.year, teams: [] };
       }
 
-      const [teams, awardDocs, avatarDocs, districtLinks] = await Promise.all([
-        ctx.db.team.findMany({ where: { number: { in: numbers } } }),
-        ctx.db.award.findMany({
-          where: { teamNumber: { in: numbers } },
-          select: { teamNumber: true, awards: true },
-        }),
-        ctx.db.teamAvatar.findMany({
-          where: { teamNumber: { in: numbers } },
-          select: { teamNumber: true, avatars: true },
-        }),
-        ctx.db.districtTeam.findMany({
-          where: { districtKey: { startsWith: String(input.year) } },
-          select: { districtKey: true, teamNumbers: true },
-        }),
-      ]);
+      const [teams, awardDocs, avatarDocs, districtLinks, scoreRows, weights, resultRows] =
+        await Promise.all([
+          ctx.db.team.findMany({ where: { number: { in: numbers } } }),
+          ctx.db.award.findMany({
+            where: { teamNumber: { in: numbers } },
+            select: { teamNumber: true, awards: true },
+          }),
+          ctx.db.teamAvatar.findMany({
+            where: { teamNumber: { in: numbers } },
+            select: { teamNumber: true, avatars: true },
+          }),
+          ctx.db.districtTeam.findMany({
+            where: { districtKey: { startsWith: String(input.year) } },
+            select: { districtKey: true, teamNumbers: true },
+          }),
+          ctx.db.teamScore.findMany({
+            where: {
+              teamNumber: { in: numbers },
+              year: { gte: input.year - 4, lte: input.year },
+            },
+          }),
+          getActiveWeights(),
+          ctx.db.teamEventResult.findMany({
+            where: { teamNumber: { in: numbers }, allianceSeed: { not: null } },
+            select: {
+              teamNumber: true,
+              eventKey: true,
+              allianceSeed: true,
+              pickRole: true,
+            },
+          }),
+        ]);
 
       // The districtKey is "{year}{abbr}" (e.g. "2024chs"); strip the year
       // prefix to get the chip text. Scoping the findMany above to the year
@@ -304,6 +626,17 @@ export const frcRouter = createTRPCRouter({
       for (const row of awardDocs) {
         awardsByTeam.set(row.teamNumber, row.awards);
       }
+      const awardEventKeys = new Set<string>();
+      for (const row of awardDocs)
+        for (const a of row.awards) awardEventKeys.add(a.eventKey);
+      const dateByEvent = new Map(
+        (
+          await ctx.db.event.findMany({
+            where: { key: { in: [...awardEventKeys] } },
+            select: { key: true, startDate: true },
+          })
+        ).map((e) => [e.key, e.startDate] as const),
+      );
       const avatarByTeam = new Map<number, string | null>();
       for (const row of avatarDocs) {
         const exact = row.avatars.find((a) => a.year === input.year);
@@ -315,6 +648,30 @@ export const frcRouter = createTRPCRouter({
           null;
         avatarByTeam.set(row.teamNumber, fallback?.base64 ?? null);
       }
+
+      const scoreByTeam = buildScoreColumns(
+        scoreRows,
+        weights,
+        numbers,
+        input.year,
+        "reg",
+      );
+      const yearResults = await ctx.db.teamEventResult.findMany({
+        where: { teamNumber: { in: numbers }, year: input.year },
+        select: {
+          teamNumber: true,
+          eventKey: true,
+          eventType: true,
+          startDate: true,
+          qualRank: true,
+          numTeams: true,
+          allianceSeed: true,
+          pickRole: true,
+          elimWins: true,
+        },
+      });
+      mergeYearBreakdown(scoreByTeam, yearResults, awardsByTeam, input.year, "reg");
+      const pickByTeam = buildPickMap(resultRows);
 
       return {
         year: input.year,
@@ -331,7 +688,9 @@ export const frcRouter = createTRPCRouter({
             districtAbbr: districtByTeam.get(r.teamNumber) ?? null,
             epa: r.epa,
             avatarB64: avatarByTeam.get(r.teamNumber) ?? null,
-            awards: awardsByTeam.get(r.teamNumber) ?? [],
+            awards: attachAwardDates(awardsByTeam.get(r.teamNumber) ?? [], dateByEvent),
+            score: scoreByTeam.get(r.teamNumber) ?? null,
+            picks: pickByTeam.get(r.teamNumber) ?? {},
           };
         }),
       };
@@ -381,24 +740,49 @@ export const frcRouter = createTRPCRouter({
       }
       const numbers = link.teamNumbers;
 
-      const [teams, epaDocs, awardDocs, avatarDocs] = await Promise.all([
-        ctx.db.team.findMany({
-          where: { number: { in: numbers } },
-          orderBy: { number: "asc" },
-        }),
-        ctx.db.teamEpa.findMany({
-          where: { teamNumber: { in: numbers } },
-          select: { teamNumber: true, epas: true },
-        }),
-        ctx.db.award.findMany({
-          where: { teamNumber: { in: numbers } },
-          select: { teamNumber: true, awards: true },
-        }),
-        ctx.db.teamAvatar.findMany({
-          where: { teamNumber: { in: numbers } },
-          select: { teamNumber: true, avatars: true },
-        }),
-      ]);
+      const [teams, epaDocs, awardDocs, avatarDocs, scoreRows, weights, event, resultRows] =
+        await Promise.all([
+          ctx.db.team.findMany({
+            where: { number: { in: numbers } },
+            orderBy: { number: "asc" },
+          }),
+          ctx.db.teamEpa.findMany({
+            where: { teamNumber: { in: numbers } },
+            select: { teamNumber: true, epas: true },
+          }),
+          ctx.db.award.findMany({
+            where: { teamNumber: { in: numbers } },
+            select: { teamNumber: true, awards: true },
+          }),
+          ctx.db.teamAvatar.findMany({
+            where: { teamNumber: { in: numbers } },
+            select: { teamNumber: true, avatars: true },
+          }),
+          ctx.db.teamScore.findMany({
+            where: { teamNumber: { in: numbers }, year: { gte: year - 4, lte: year } },
+          }),
+          getActiveWeights(),
+          ctx.db.event.findUnique({
+            where: { key: input.eventKey },
+            select: { eventType: true },
+          }),
+          ctx.db.teamEventResult.findMany({
+            where: { teamNumber: { in: numbers }, allianceSeed: { not: null } },
+            select: {
+              teamNumber: true,
+              eventKey: true,
+              allianceSeed: true,
+              pickRole: true,
+            },
+          }),
+        ]);
+
+      // Championship divisions (3) / Einstein (4) score on the full season, per
+      // the team's rule; every other event board uses the region window.
+      const window: "reg" | "full" =
+        event && (event.eventType === 3 || event.eventType === 4)
+          ? "full"
+          : "reg";
 
       const epaByTeam = new Map<number, number | null>();
       for (const row of epaDocs) {
@@ -412,6 +796,17 @@ export const frcRouter = createTRPCRouter({
       for (const row of awardDocs) {
         awardsByTeam.set(row.teamNumber, row.awards);
       }
+      const awardEventKeys = new Set<string>();
+      for (const row of awardDocs)
+        for (const a of row.awards) awardEventKeys.add(a.eventKey);
+      const dateByEvent = new Map(
+        (
+          await ctx.db.event.findMany({
+            where: { key: { in: [...awardEventKeys] } },
+            select: { key: true, startDate: true },
+          })
+        ).map((e) => [e.key, e.startDate] as const),
+      );
       const avatarByTeam = new Map<number, string | null>();
       for (const row of avatarDocs) {
         const exact = row.avatars.find((a) => a.year === year);
@@ -422,6 +817,97 @@ export const frcRouter = createTRPCRouter({
             .find((a) => a.year <= year) ??
           null;
         avatarByTeam.set(row.teamNumber, fallback?.base64 ?? null);
+      }
+
+      const scoreByTeam = buildScoreColumns(scoreRows, weights, numbers, year, window);
+      const yearResults = await ctx.db.teamEventResult.findMany({
+        where: { teamNumber: { in: numbers }, year },
+        select: {
+          teamNumber: true,
+          eventKey: true,
+          eventType: true,
+          startDate: true,
+          qualRank: true,
+          numTeams: true,
+          allianceSeed: true,
+          pickRole: true,
+          elimWins: true,
+        },
+      });
+      mergeYearBreakdown(scoreByTeam, yearResults, awardsByTeam, year, window);
+      const pickByTeam = buildPickMap(resultRows);
+
+      // Narrow rule: a DISTRICT team that traveled to a single regional is
+      // valued — ON THAT REGIONAL's board only — by a one-play projection of
+      // its showing here (base = this event's points), not by its district
+      // events. Regional-only teams and every other board are untouched.
+      if (event?.eventType === 0) {
+        const eventsByTeam = new Map<number, typeof yearResults>();
+        for (const r of yearResults) {
+          const list = eventsByTeam.get(r.teamNumber) ?? [];
+          list.push(r);
+          eventsByTeam.set(r.teamNumber, list);
+        }
+        const f1 = (x: number) => (Math.round(x * 10) / 10).toFixed(1);
+        const byDate = (a: (typeof yearResults)[number], b: (typeof yearResults)[number]) =>
+          (a.startDate ?? "").localeCompare(b.startDate ?? "");
+        // Points for one of this team's events (regular context on a regional).
+        const ptsFor = (n: number, r: (typeof yearResults)[number]) => {
+          const evAwards = (awardsByTeam.get(n) ?? [])
+            .filter((a) => a.eventKey === r.eventKey && a.year === year)
+            .map((a) => ({ awardType: a.awardType, name: a.name }));
+          return eventPoints({ ...r, opponents: [] }, evAwards);
+        };
+        for (const n of numbers) {
+          const evs = eventsByTeam.get(n) ?? [];
+          const regionals = evs.filter((e) => e.eventType === 0);
+          const hasDistrict = evs.some((e) => e.eventType === 1);
+          // Only single-regional district teams; multi-regional teams are normal.
+          if (!hasDistrict || regionals.length > 1) continue;
+          const here = evs.find(
+            (e) => e.eventType === 0 && e.eventKey === input.eventKey,
+          );
+
+          // Base = this regional's showing, or (no regional result) 50% of the
+          // first 2 district plays.
+          let baseR: number;
+          let baseA: number;
+          let baseNote: string;
+          if (here) {
+            const b = ptsFor(n, here);
+            baseR = b.xrobot;
+            baseA = b.xawards;
+            baseNote = `regional ${here.eventKey}`;
+          } else {
+            const d2 = evs.filter((e) => e.eventType === 1).sort(byDate).slice(0, 2);
+            baseR = 0.5 * d2.reduce((s, r) => s + ptsFor(n, r).xrobot, 0);
+            baseA = 0.5 * d2.reduce((s, r) => s + ptsFor(n, r).xawards, 0);
+            baseNote = `50% of ${d2.map((d) => d.eventKey).join(" + ") || "district"}`;
+          }
+
+          const xrobot = Math.round((1.6 * baseR + 14) * 10) / 10;
+          const xawards = Math.round((1.6 * baseA + 14) * 10) / 10;
+          const xval = Math.round((xrobot + xawards) * 10) / 10;
+          const prev = scoreByTeam.get(n);
+          scoreByTeam.set(n, {
+            xval,
+            xrobot,
+            xawards,
+            xsos: prev?.xsos ?? null,
+            yearVals: { ...(prev?.yearVals ?? {}), [year]: xval },
+            debug: {
+              window: "region · single-regional district team",
+              xrobot: `XROBOT one-play: 1.6×${f1(baseR)} + 14 = ${f1(xrobot)}  (base: ${baseNote})`,
+              xawards: `XAWARDS one-play: 1.6×${f1(baseA)} + 14 = ${f1(xawards)}  (base: ${baseNote})`,
+              xval: `XVAL = ${f1(xrobot)} + ${f1(xawards)} = ${f1(xval)}`,
+              xsos: prev?.debug?.xsos ?? "XSOS: —",
+              yearVals: {
+                ...(prev?.debug?.yearVals ?? {}),
+                [year]: `${year}: one-play, base ${baseNote} → ${f1(xval)}`,
+              },
+            },
+          });
+        }
       }
 
       return {
@@ -437,7 +923,9 @@ export const frcRouter = createTRPCRouter({
           country: t.country,
           epa: epaByTeam.get(t.number) ?? null,
           avatarB64: avatarByTeam.get(t.number) ?? null,
-          awards: awardsByTeam.get(t.number) ?? [],
+          awards: attachAwardDates(awardsByTeam.get(t.number) ?? [], dateByEvent),
+          score: scoreByTeam.get(t.number) ?? null,
+          picks: pickByTeam.get(t.number) ?? {},
         })),
       };
     }),
@@ -645,4 +1133,50 @@ export const frcRouter = createTRPCRouter({
         update: { stars: input.stars, updatedBy },
       });
     }),
+
+  // ---- Prediction weights (editable, with reset-to-optimal) ----
+
+  // Current optimal + active weights for the weighted-4-year prediction.
+  weights: publicProcedure.query(async ({ ctx }) => {
+    const w = await ctx.db.scoreWeights.findUnique({ where: { key: "default" } });
+    const fb = [0.5, 0.3, 0.15, 0.05];
+    return {
+      optRobot: w?.optRobot?.length === 4 ? w.optRobot : fb,
+      optAwards: w?.optAwards?.length === 4 ? w.optAwards : fb,
+      actRobot: w?.actRobot?.length === 4 ? w.actRobot : fb,
+      actAwards: w?.actAwards?.length === 4 ? w.actAwards : fb,
+    };
+  }),
+
+  // Save edited active weights (opt* untouched, so "reset" can restore them).
+  setWeights: protectedProcedure
+    .input(
+      z.object({
+        robot: z.array(z.number()).length(4),
+        awards: z.array(z.number()).length(4),
+      }),
+    )
+    .mutation(({ ctx, input }) =>
+      ctx.db.scoreWeights.upsert({
+        where: { key: "default" },
+        create: {
+          key: "default",
+          optRobot: input.robot,
+          optAwards: input.awards,
+          actRobot: input.robot,
+          actAwards: input.awards,
+        },
+        update: { actRobot: input.robot, actAwards: input.awards },
+      }),
+    ),
+
+  // Reset active weights to the fitted optimum.
+  resetWeights: protectedProcedure.mutation(async ({ ctx }) => {
+    const w = await ctx.db.scoreWeights.findUnique({ where: { key: "default" } });
+    if (!w) return null;
+    return ctx.db.scoreWeights.update({
+      where: { key: "default" },
+      data: { actRobot: w.optRobot, actAwards: w.optAwards },
+    });
+  }),
 });

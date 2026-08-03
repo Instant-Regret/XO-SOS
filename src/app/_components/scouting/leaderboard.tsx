@@ -1,14 +1,32 @@
 "use client";
 
+import { useState } from "react";
+import { createPortal } from "react-dom";
+
 import { ColHeader } from "./col-header";
 import { AwardsCell, PickPill, StarRating, TeamMark } from "./primitives";
 import type { ExtraColumn, Filters, Sort, TeamView } from "./types";
 
-// All "extra" columns are placeholders right now: xRobot/xAwards/xSOS aren't in
-// Mongo and the per-year finish columns have no source either, so every cell
-// renders a long dash.
-function extraValue(_team: TeamView, _col: ExtraColumn) {
-  return "—";
+// Extra-column cell text. XROBOT/XAWARDS are the predicted (or full-season)
+// point values; XSOS is a 0-100 schedule percentile; the y{year} columns are
+// that season's raw XVAL. Missing data renders a long dash.
+function extraValue(team: TeamView, col: ExtraColumn): string {
+  // A computed number of 0 is real data and shows "0"; only genuinely-missing
+  // values (null) render a dash.
+  switch (col.key) {
+    case "xrobot":
+      return team.xRobot.toFixed(1);
+    case "xawards":
+      return team.xAwards.toFixed(1);
+    case "xsos":
+      return team.xsos == null ? "—" : String(team.xsos);
+    default: {
+      const y = col.year;
+      if (y == null) return "—";
+      const v = team.yearVals[y];
+      return v == null ? "—" : v.toFixed(1);
+    }
+  }
 }
 
 export function Leaderboard({
@@ -26,6 +44,7 @@ export function Leaderboard({
   pinnedTeams,
   colorByTeam,
   onTogglePin,
+  debug,
 }: {
   teams: TeamView[];
   allTeams: TeamView[];
@@ -44,11 +63,82 @@ export function Leaderboard({
   pinnedTeams: Set<number>;
   colorByTeam: Map<number, string>;
   onTogglePin: (n: number) => void;
+  // Debug mode: attach the calculation for each number as a hover tooltip.
+  debug: boolean;
 }) {
+  // Calculation string for a cell, shown as a tooltip in debug mode.
+  const extraDebug = (t: TeamView, col: ExtraColumn): string | undefined => {
+    if (!debug || !t.debug) return undefined;
+    switch (col.key) {
+      case "xrobot":
+        return t.debug.xrobot;
+      case "xawards":
+        return t.debug.xawards;
+      case "xsos":
+        return t.debug.xsos;
+      default:
+        return col.year != null ? t.debug.yearVals[col.year] : undefined;
+    }
+  };
+
+  // Debug tooltip: a portalled box that follows the hovered cell. Immediate
+  // (no native-title delay) and escapes the board's overflow clipping.
+  const [tip, setTip] = useState<{ text: string; x: number; y: number } | null>(
+    null,
+  );
+  const showTip = (e: React.MouseEvent, text?: string) => {
+    if (!text) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    setTip({ text, x: r.left + r.width / 2, y: r.top - 8 });
+  };
+  const hideTip = () => setTip(null);
   // Statbotics "unitless" EPA runs on a ~1500-avg, ~2000-top scale, so a raw
   // percentage bar would peg every team at 100%. Scale each bar against the
   // strongest team in view instead so the bars are actually comparable.
   const maxEpa = Math.max(1, ...allTeams.map((t) => t.epa));
+  // XVAL point totals aren't a 0-100 scale, so size the bar against the
+  // strongest team in view (same treatment as EPA).
+  const maxX = Math.max(1, ...allTeams.map((t) => t.xVal));
+
+  // Numeric value behind each extra column, for the heatmap gradient.
+  const extraNumeric = (t: TeamView, col: ExtraColumn): number | null => {
+    switch (col.key) {
+      case "xrobot":
+        return t.xRobot || null;
+      case "xawards":
+        return t.xAwards || null;
+      case "xsos":
+        return t.xsos;
+      default:
+        return col.year != null ? t.yearVals[col.year] ?? null : null;
+    }
+  };
+  // Per-column min/max across the ranked field so each column's gradient is
+  // self-scaled (conditional-formatting style).
+  const extraRanges = new Map<string, { min: number; max: number }>();
+  for (const col of extraColumns) {
+    let min = Infinity;
+    let max = -Infinity;
+    for (const t of allTeams) {
+      const v = extraNumeric(t, col);
+      if (v == null) continue;
+      if (v < min) min = v;
+      if (v > max) max = v;
+    }
+    extraRanges.set(col.key, { min, max });
+  }
+  // Red→green conditional formatting: low values red, high values green, as a
+  // bright translucent overlay. Hue 25 (red) → 145 (green); opacity also lifts a
+  // touch with the value so strong cells read as more saturated.
+  const extraBg = (t: TeamView, col: ExtraColumn): string | undefined => {
+    const v = extraNumeric(t, col);
+    const range = extraRanges.get(col.key);
+    if (v == null || !range || range.max <= range.min) return undefined;
+    const norm = (v - range.min) / (range.max - range.min);
+    const hue = Math.round(25 + norm * 120);
+    const alpha = (0.4 + norm * 0.25).toFixed(2);
+    return `oklch(0.72 0.19 ${hue} / ${alpha})`;
+  };
   const toggleSort = (key: string) => {
     setSort((s) =>
       s.key === key
@@ -244,6 +334,7 @@ export function Leaderboard({
                 sortKey={c.key}
                 sortState={sort}
                 onSort={toggleSort}
+                align="right"
               />
             </div>
           ))}
@@ -293,10 +384,21 @@ export function Leaderboard({
               <div className="col-region">
                 <span className="region-chip">{t.region}</span>
               </div>
-              <div className="col-xval">
+              <div
+                className="col-xval"
+                onMouseEnter={(e) =>
+                  showTip(e, debug ? t.debug?.xval : undefined)
+                }
+                onMouseLeave={hideTip}
+              >
                 <div className="xval-num">{t.xVal.toFixed(1)}</div>
                 <div className="xval-bar">
-                  <div className="xval-fill" style={{ width: `${t.xVal}%` }} />
+                  <div
+                    className="xval-fill"
+                    style={{
+                      width: `${Math.max(0, Math.min(100, (t.xVal / maxX) * 100))}%`,
+                    }}
+                  />
                 </div>
               </div>
               <div className="col-epa epa-col">
@@ -340,7 +442,13 @@ export function Leaderboard({
                 )}
               </div>
               {extraColumns.map((c) => (
-                <div key={c.key} className="col-extra extra-cell">
+                <div
+                  key={c.key}
+                  className="col-extra extra-cell"
+                  style={{ background: extraBg(t, c) }}
+                  onMouseEnter={(e) => showTip(e, extraDebug(t, c))}
+                  onMouseLeave={hideTip}
+                >
                   {extraValue(t, c)}
                 </div>
               ))}
@@ -351,6 +459,21 @@ export function Leaderboard({
           );
         })}
       </div>
+      {tip &&
+        createPortal(
+          <div
+            className="debug-tip theme-dark"
+            style={{
+              position: "fixed",
+              left: tip.x,
+              top: tip.y,
+              transform: "translate(-50%, -100%)",
+            }}
+          >
+            {tip.text}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
