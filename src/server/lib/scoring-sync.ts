@@ -297,12 +297,9 @@ export async function computeYearScores(year: number) {
   };
 
   // First pass: raw scores (three windows) + schedule difficulty per team.
-  //   reg  = region-view value       (region / global / event boards)
-  //   dct  = first 2 events + dcmp    (district boards only)
+  //   reg  = a team's first 2 events (region / global / event boards)
+  //   dct  = first 2 events + dcmp   (district boards only)
   //   full = every event             (champs-division event pages)
-  // reg: for a regional team it's their first 2 regionals; for a DISTRICT team
-  // shown in a region it's their regional events only, or (if they played none)
-  // 50% of their first 2 district events.
   type Computed = {
     regXrobot: number;
     regXawards: number;
@@ -357,28 +354,15 @@ export async function computeYearScores(year: number) {
     const dctXrobot = dctBaseR + sumR(dcmp);
     const dctXawards = dctBaseA + sumA(dcmp);
 
-    // reg window: regional (event_type 0) events only; else 50% of the first 2
-    // district events (a district team being valued for a regional draft).
-    const regionalTwo = scored
-      .filter((s) => s.r.eventType === 0)
-      .sort(byDate)
-      .slice(0, 2);
-    let regXrobot: number;
-    let regXawards: number;
-    let regEvents: { r: ResultRow }[];
-    if (regionalTwo.length >= 1) {
-      regEvents = regionalTwo;
-      regXrobot = sumR(regionalTwo);
-      regXawards = sumA(regionalTwo);
-      if (regionalTwo.length === 1) {
-        regXrobot = 1.6 * regionalTwo[0]!.pts.xrobot + 14;
-        regXawards = 1.6 * regionalTwo[0]!.pts.xawards;
-      }
-    } else {
-      regEvents = first2;
-      regXrobot = 0.5 * sumR(first2);
-      regXawards = 0.5 * sumA(first2);
+    // reg window: a team's first 2 events (region / global / event boards),
+    // with a one-play projection for a single-event season.
+    let regXrobot = sumR(first2);
+    let regXawards = sumA(first2);
+    if (first2.length === 1 && dcmp.length === 0) {
+      regXrobot = 1.6 * first2[0]!.pts.xrobot + 14;
+      regXawards = 1.6 * first2[0]!.pts.xawards;
     }
+    const regEvents = first2;
 
     computed.set(team, {
       regXrobot,

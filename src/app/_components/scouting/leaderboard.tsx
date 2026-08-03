@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import { createPortal } from "react-dom";
+
 import { ColHeader } from "./col-header";
 import { AwardsCell, PickPill, StarRating, TeamMark } from "./primitives";
 import type { ExtraColumn, Filters, Sort, TeamView } from "./types";
@@ -63,7 +66,7 @@ export function Leaderboard({
   // Debug mode: attach the calculation for each number as a hover tooltip.
   debug: boolean;
 }) {
-  // Calculation string for a cell, shown as a title tooltip in debug mode.
+  // Calculation string for a cell, shown as a tooltip in debug mode.
   const extraDebug = (t: TeamView, col: ExtraColumn): string | undefined => {
     if (!debug || !t.debug) return undefined;
     switch (col.key) {
@@ -77,6 +80,18 @@ export function Leaderboard({
         return col.year != null ? t.debug.yearVals[col.year] : undefined;
     }
   };
+
+  // Debug tooltip: a portalled box that follows the hovered cell. Immediate
+  // (no native-title delay) and escapes the board's overflow clipping.
+  const [tip, setTip] = useState<{ text: string; x: number; y: number } | null>(
+    null,
+  );
+  const showTip = (e: React.MouseEvent, text?: string) => {
+    if (!text) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    setTip({ text, x: r.left + r.width / 2, y: r.top - 8 });
+  };
+  const hideTip = () => setTip(null);
   // Statbotics "unitless" EPA runs on a ~1500-avg, ~2000-top scale, so a raw
   // percentage bar would peg every team at 100%. Scale each bar against the
   // strongest team in view instead so the bars are actually comparable.
@@ -371,7 +386,10 @@ export function Leaderboard({
               </div>
               <div
                 className="col-xval"
-                title={debug ? t.debug?.xval : undefined}
+                onMouseEnter={(e) =>
+                  showTip(e, debug ? t.debug?.xval : undefined)
+                }
+                onMouseLeave={hideTip}
               >
                 <div className="xval-num">{t.xVal.toFixed(1)}</div>
                 <div className="xval-bar">
@@ -428,7 +446,8 @@ export function Leaderboard({
                   key={c.key}
                   className="col-extra extra-cell"
                   style={{ background: extraBg(t, c) }}
-                  title={extraDebug(t, c)}
+                  onMouseEnter={(e) => showTip(e, extraDebug(t, c))}
+                  onMouseLeave={hideTip}
                 >
                   {extraValue(t, c)}
                 </div>
@@ -440,6 +459,21 @@ export function Leaderboard({
           );
         })}
       </div>
+      {tip &&
+        createPortal(
+          <div
+            className="debug-tip theme-dark"
+            style={{
+              position: "fixed",
+              left: tip.x,
+              top: tip.y,
+              transform: "translate(-50%, -100%)",
+            }}
+          >
+            {tip.text}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
