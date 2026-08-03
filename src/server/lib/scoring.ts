@@ -72,11 +72,12 @@ export function pickingPoints(
 // Match / elimination points.
 // ---------------------------------------------------------------------------
 
-/** Elimination points: 5 per elim match a team plays (on the field). */
-export const ELIM_POINTS_PER_MATCH = 5;
-
-/** Champs only: teams making Einstein earn 5 per match won on the field. */
-export const EINSTEIN_POINTS_PER_WIN = 5;
+/**
+ * Playoff points: 5 per playoff match WON (not merely played), at every event —
+ * regular elims, champs division, and Einstein alike. Validated against the
+ * real SLFF draft scores.
+ */
+export const PLAYOFF_POINTS_PER_WIN = 5;
 
 // ---------------------------------------------------------------------------
 // Award points.

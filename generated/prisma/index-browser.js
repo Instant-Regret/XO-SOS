@@ -279,6 +279,7 @@ exports.Prisma.TeamEventResultScalarFieldEnum = {
   allianceSeed: 'allianceSeed',
   pickRole: 'pickRole',
   elimMatchesPlayed: 'elimMatchesPlayed',
+  elimWins: 'elimWins',
   einsteinWins: 'einsteinWins',
   opponents: 'opponents',
   updatedAt: 'updatedAt'

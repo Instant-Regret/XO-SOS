@@ -240,8 +240,9 @@ model TeamEventResult {
   numTeams          Int? // field size, for the seeding formula
   allianceSeed      Int? // 1-8 if selected, else null
   pickRole          String? // "captain" | "pick1" | "pick2" | "pick3"
-  elimMatchesPlayed Int      @default(0) // 5 pts each
-  einsteinWins      Int      @default(0) // champs only, 5 pts each
+  elimMatchesPlayed Int      @default(0) // playoff matches on the field (reference)
+  elimWins          Int      @default(0) // playoff match WINS — 5 pts each
+  einsteinWins      Int      @default(0) // champs finals wins (subset of elimWins)
   opponents         Int[] // distinct teams played with/against (for XSOS)
   updatedAt         DateTime @updatedAt
 

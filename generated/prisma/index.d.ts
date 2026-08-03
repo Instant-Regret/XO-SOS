@@ -20608,6 +20608,7 @@ export namespace Prisma {
     numTeams: number | null
     allianceSeed: number | null
     elimMatchesPlayed: number | null
+    elimWins: number | null
     einsteinWins: number | null
     opponents: number | null
   }
@@ -20620,6 +20621,7 @@ export namespace Prisma {
     numTeams: number | null
     allianceSeed: number | null
     elimMatchesPlayed: number | null
+    elimWins: number | null
     einsteinWins: number | null
     opponents: number[]
   }
@@ -20636,6 +20638,7 @@ export namespace Prisma {
     allianceSeed: number | null
     pickRole: string | null
     elimMatchesPlayed: number | null
+    elimWins: number | null
     einsteinWins: number | null
     updatedAt: Date | null
   }
@@ -20652,6 +20655,7 @@ export namespace Prisma {
     allianceSeed: number | null
     pickRole: string | null
     elimMatchesPlayed: number | null
+    elimWins: number | null
     einsteinWins: number | null
     updatedAt: Date | null
   }
@@ -20668,6 +20672,7 @@ export namespace Prisma {
     allianceSeed: number
     pickRole: number
     elimMatchesPlayed: number
+    elimWins: number
     einsteinWins: number
     opponents: number
     updatedAt: number
@@ -20683,6 +20688,7 @@ export namespace Prisma {
     numTeams?: true
     allianceSeed?: true
     elimMatchesPlayed?: true
+    elimWins?: true
     einsteinWins?: true
     opponents?: true
   }
@@ -20695,6 +20701,7 @@ export namespace Prisma {
     numTeams?: true
     allianceSeed?: true
     elimMatchesPlayed?: true
+    elimWins?: true
     einsteinWins?: true
     opponents?: true
   }
@@ -20711,6 +20718,7 @@ export namespace Prisma {
     allianceSeed?: true
     pickRole?: true
     elimMatchesPlayed?: true
+    elimWins?: true
     einsteinWins?: true
     updatedAt?: true
   }
@@ -20727,6 +20735,7 @@ export namespace Prisma {
     allianceSeed?: true
     pickRole?: true
     elimMatchesPlayed?: true
+    elimWins?: true
     einsteinWins?: true
     updatedAt?: true
   }
@@ -20743,6 +20752,7 @@ export namespace Prisma {
     allianceSeed?: true
     pickRole?: true
     elimMatchesPlayed?: true
+    elimWins?: true
     einsteinWins?: true
     opponents?: true
     updatedAt?: true
@@ -20847,6 +20857,7 @@ export namespace Prisma {
     allianceSeed: number | null
     pickRole: string | null
     elimMatchesPlayed: number
+    elimWins: number
     einsteinWins: number
     opponents: number[]
     updatedAt: Date
@@ -20883,6 +20894,7 @@ export namespace Prisma {
     allianceSeed?: boolean
     pickRole?: boolean
     elimMatchesPlayed?: boolean
+    elimWins?: boolean
     einsteinWins?: boolean
     opponents?: boolean
     updatedAt?: boolean
@@ -20902,12 +20914,13 @@ export namespace Prisma {
     allianceSeed?: boolean
     pickRole?: boolean
     elimMatchesPlayed?: boolean
+    elimWins?: boolean
     einsteinWins?: boolean
     opponents?: boolean
     updatedAt?: boolean
   }
 
-  export type TeamEventResultOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "teamNumber" | "eventKey" | "year" | "eventType" | "startDate" | "qualRank" | "numTeams" | "allianceSeed" | "pickRole" | "elimMatchesPlayed" | "einsteinWins" | "opponents" | "updatedAt", ExtArgs["result"]["teamEventResult"]>
+  export type TeamEventResultOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "teamNumber" | "eventKey" | "year" | "eventType" | "startDate" | "qualRank" | "numTeams" | "allianceSeed" | "pickRole" | "elimMatchesPlayed" | "elimWins" | "einsteinWins" | "opponents" | "updatedAt", ExtArgs["result"]["teamEventResult"]>
 
   export type $TeamEventResultPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "TeamEventResult"
@@ -20924,6 +20937,7 @@ export namespace Prisma {
       allianceSeed: number | null
       pickRole: string | null
       elimMatchesPlayed: number
+      elimWins: number
       einsteinWins: number
       opponents: number[]
       updatedAt: Date
@@ -21330,6 +21344,7 @@ export namespace Prisma {
     readonly allianceSeed: FieldRef<"TeamEventResult", 'Int'>
     readonly pickRole: FieldRef<"TeamEventResult", 'String'>
     readonly elimMatchesPlayed: FieldRef<"TeamEventResult", 'Int'>
+    readonly elimWins: FieldRef<"TeamEventResult", 'Int'>
     readonly einsteinWins: FieldRef<"TeamEventResult", 'Int'>
     readonly opponents: FieldRef<"TeamEventResult", 'Int[]'>
     readonly updatedAt: FieldRef<"TeamEventResult", 'DateTime'>
@@ -23952,6 +23967,7 @@ export namespace Prisma {
     allianceSeed: 'allianceSeed',
     pickRole: 'pickRole',
     elimMatchesPlayed: 'elimMatchesPlayed',
+    elimWins: 'elimWins',
     einsteinWins: 'einsteinWins',
     opponents: 'opponents',
     updatedAt: 'updatedAt'
@@ -25121,6 +25137,7 @@ export namespace Prisma {
     allianceSeed?: IntNullableFilter<"TeamEventResult"> | number | null
     pickRole?: StringNullableFilter<"TeamEventResult"> | string | null
     elimMatchesPlayed?: IntFilter<"TeamEventResult"> | number
+    elimWins?: IntFilter<"TeamEventResult"> | number
     einsteinWins?: IntFilter<"TeamEventResult"> | number
     opponents?: IntNullableListFilter<"TeamEventResult">
     updatedAt?: DateTimeFilter<"TeamEventResult"> | Date | string
@@ -25138,6 +25155,7 @@ export namespace Prisma {
     allianceSeed?: SortOrder
     pickRole?: SortOrder
     elimMatchesPlayed?: SortOrder
+    elimWins?: SortOrder
     einsteinWins?: SortOrder
     opponents?: SortOrder
     updatedAt?: SortOrder
@@ -25159,6 +25177,7 @@ export namespace Prisma {
     allianceSeed?: IntNullableFilter<"TeamEventResult"> | number | null
     pickRole?: StringNullableFilter<"TeamEventResult"> | string | null
     elimMatchesPlayed?: IntFilter<"TeamEventResult"> | number
+    elimWins?: IntFilter<"TeamEventResult"> | number
     einsteinWins?: IntFilter<"TeamEventResult"> | number
     opponents?: IntNullableListFilter<"TeamEventResult">
     updatedAt?: DateTimeFilter<"TeamEventResult"> | Date | string
@@ -25176,6 +25195,7 @@ export namespace Prisma {
     allianceSeed?: SortOrder
     pickRole?: SortOrder
     elimMatchesPlayed?: SortOrder
+    elimWins?: SortOrder
     einsteinWins?: SortOrder
     opponents?: SortOrder
     updatedAt?: SortOrder
@@ -25201,6 +25221,7 @@ export namespace Prisma {
     allianceSeed?: IntNullableWithAggregatesFilter<"TeamEventResult"> | number | null
     pickRole?: StringNullableWithAggregatesFilter<"TeamEventResult"> | string | null
     elimMatchesPlayed?: IntWithAggregatesFilter<"TeamEventResult"> | number
+    elimWins?: IntWithAggregatesFilter<"TeamEventResult"> | number
     einsteinWins?: IntWithAggregatesFilter<"TeamEventResult"> | number
     opponents?: IntNullableListFilter<"TeamEventResult">
     updatedAt?: DateTimeWithAggregatesFilter<"TeamEventResult"> | Date | string
@@ -26396,6 +26417,7 @@ export namespace Prisma {
     allianceSeed?: number | null
     pickRole?: string | null
     elimMatchesPlayed?: number
+    elimWins?: number
     einsteinWins?: number
     opponents?: TeamEventResultCreateopponentsInput | number[]
     updatedAt?: Date | string
@@ -26413,6 +26435,7 @@ export namespace Prisma {
     allianceSeed?: number | null
     pickRole?: string | null
     elimMatchesPlayed?: number
+    elimWins?: number
     einsteinWins?: number
     opponents?: TeamEventResultCreateopponentsInput | number[]
     updatedAt?: Date | string
@@ -26429,6 +26452,7 @@ export namespace Prisma {
     allianceSeed?: NullableIntFieldUpdateOperationsInput | number | null
     pickRole?: NullableStringFieldUpdateOperationsInput | string | null
     elimMatchesPlayed?: IntFieldUpdateOperationsInput | number
+    elimWins?: IntFieldUpdateOperationsInput | number
     einsteinWins?: IntFieldUpdateOperationsInput | number
     opponents?: TeamEventResultUpdateopponentsInput | number[]
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26445,6 +26469,7 @@ export namespace Prisma {
     allianceSeed?: NullableIntFieldUpdateOperationsInput | number | null
     pickRole?: NullableStringFieldUpdateOperationsInput | string | null
     elimMatchesPlayed?: IntFieldUpdateOperationsInput | number
+    elimWins?: IntFieldUpdateOperationsInput | number
     einsteinWins?: IntFieldUpdateOperationsInput | number
     opponents?: TeamEventResultUpdateopponentsInput | number[]
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26462,6 +26487,7 @@ export namespace Prisma {
     allianceSeed?: number | null
     pickRole?: string | null
     elimMatchesPlayed?: number
+    elimWins?: number
     einsteinWins?: number
     opponents?: TeamEventResultCreateopponentsInput | number[]
     updatedAt?: Date | string
@@ -26478,6 +26504,7 @@ export namespace Prisma {
     allianceSeed?: NullableIntFieldUpdateOperationsInput | number | null
     pickRole?: NullableStringFieldUpdateOperationsInput | string | null
     elimMatchesPlayed?: IntFieldUpdateOperationsInput | number
+    elimWins?: IntFieldUpdateOperationsInput | number
     einsteinWins?: IntFieldUpdateOperationsInput | number
     opponents?: TeamEventResultUpdateopponentsInput | number[]
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26494,6 +26521,7 @@ export namespace Prisma {
     allianceSeed?: NullableIntFieldUpdateOperationsInput | number | null
     pickRole?: NullableStringFieldUpdateOperationsInput | string | null
     elimMatchesPlayed?: IntFieldUpdateOperationsInput | number
+    elimWins?: IntFieldUpdateOperationsInput | number
     einsteinWins?: IntFieldUpdateOperationsInput | number
     opponents?: TeamEventResultUpdateopponentsInput | number[]
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27540,6 +27568,7 @@ export namespace Prisma {
     allianceSeed?: SortOrder
     pickRole?: SortOrder
     elimMatchesPlayed?: SortOrder
+    elimWins?: SortOrder
     einsteinWins?: SortOrder
     opponents?: SortOrder
     updatedAt?: SortOrder
@@ -27553,6 +27582,7 @@ export namespace Prisma {
     numTeams?: SortOrder
     allianceSeed?: SortOrder
     elimMatchesPlayed?: SortOrder
+    elimWins?: SortOrder
     einsteinWins?: SortOrder
     opponents?: SortOrder
   }
@@ -27569,6 +27599,7 @@ export namespace Prisma {
     allianceSeed?: SortOrder
     pickRole?: SortOrder
     elimMatchesPlayed?: SortOrder
+    elimWins?: SortOrder
     einsteinWins?: SortOrder
     updatedAt?: SortOrder
   }
@@ -27585,6 +27616,7 @@ export namespace Prisma {
     allianceSeed?: SortOrder
     pickRole?: SortOrder
     elimMatchesPlayed?: SortOrder
+    elimWins?: SortOrder
     einsteinWins?: SortOrder
     updatedAt?: SortOrder
   }
@@ -27597,6 +27629,7 @@ export namespace Prisma {
     numTeams?: SortOrder
     allianceSeed?: SortOrder
     elimMatchesPlayed?: SortOrder
+    elimWins?: SortOrder
     einsteinWins?: SortOrder
     opponents?: SortOrder
   }

@@ -569,6 +569,37 @@ export async function syncAll() {
   return logSync(`syncAll:${year}`, () => syncYearData(year));
 }
 
+// Re-pull only match results (to repopulate elimWins after the 5-pts-per-WIN
+// fix) and recompute scores, without re-fetching teams/awards/epas. Clears the
+// per-event /matches ETags so they re-fetch; rankings/alliances stay 304 and
+// their stored fields are preserved. Run offline.
+export async function rescoreYears(years: number[]) {
+  const results: Array<{ year: number; events: number }> = [];
+  for (const year of years) {
+    const r = await logSync(`rescore:${year}`, async () => {
+      await db.syncCursor.deleteMany({
+        where: { path: { startsWith: `/event/${year}`, endsWith: "/matches" } },
+      });
+      const events = await db.event.findMany({
+        where: { year },
+        select: { key: true, eventType: true, startDate: true },
+      });
+      await pool(events, 8, async (e) => {
+        await syncEventResults({
+          key: e.key,
+          year,
+          eventType: e.eventType,
+          startDate: e.startDate,
+        });
+      });
+      await computeYearScores(year);
+      return { year, events: events.length };
+    });
+    results.push(r);
+  }
+  return results;
+}
+
 // One-time offline backfill: pull + score a range of prior seasons so the
 // weighted-4-year predictions have history. Run locally (no Vercel timeout).
 export async function backfillYears(years: number[]) {

@@ -4,8 +4,7 @@ import { db } from "~/server/db";
 import { tba, type TbaMatch } from "~/server/lib/tba";
 import {
   awardPoints,
-  ELIM_POINTS_PER_MATCH,
-  EINSTEIN_POINTS_PER_WIN,
+  PLAYOFF_POINTS_PER_WIN,
   onePlaySecondEventPoints,
   pickingPoints,
   seedingPoints,
@@ -16,8 +15,8 @@ import {
 // 4=cmp_finals, 5=district_cmp_division, 6=foc, 7=remote.
 const isChampsEvent = (t: number) => t === 3 || t === 4;
 const isCmpFinals = (t: number) => t === 4;
-const isDcmp = (t: number) => t === 2 || t === 5;
 const isQualifying = (t: number) => t === 0 || t === 1; // "first 2 events" pool
+const isDcmp = (t: number) => t === 2 || t === 5;
 const contextFor = (t: number): ScoreContext =>
   isChampsEvent(t) ? "champs" : "regular";
 
@@ -156,10 +155,36 @@ export async function syncEventResults(ev: EventLite): Promise<boolean> {
     ...matchTeams,
   ]);
 
+  // Only overwrite fields whose source was actually re-fetched, so a partial
+  // sync (e.g. matches changed but rankings returned 304) never wipes rank/seed.
+  const rankFetched = !rankRes.notModified;
+  const allyFetched = !allyRes.notModified;
+  const matchFetched = !matchRes.notModified;
+
   await pool([...allTeams], 16, async (number) => {
     const key = `frc${number}`;
     const mm = parseTeamMatches(matches, key);
     const ally = allyByTeam.get(number);
+
+    const update: Record<string, unknown> = {
+      eventType: ev.eventType,
+      startDate: ev.startDate,
+    };
+    if (rankFetched) {
+      update.qualRank = rankByTeam.get(number) ?? null;
+      update.numTeams = numTeams;
+    }
+    if (allyFetched) {
+      update.allianceSeed = ally?.seed ?? null;
+      update.pickRole = ally?.role ?? null;
+    }
+    if (matchFetched) {
+      update.elimMatchesPlayed = mm.elimPlayed;
+      update.elimWins = mm.elimWins;
+      update.einsteinWins = isCmpFinals(ev.eventType) ? mm.elimWins : 0;
+      update.opponents = mm.opponents;
+    }
+
     await db.teamEventResult.upsert({
       where: { teamNumber_eventKey: { teamNumber: number, eventKey: ev.key } },
       create: {
@@ -173,20 +198,11 @@ export async function syncEventResults(ev: EventLite): Promise<boolean> {
         allianceSeed: ally?.seed ?? null,
         pickRole: ally?.role ?? null,
         elimMatchesPlayed: mm.elimPlayed,
+        elimWins: mm.elimWins,
         einsteinWins: isCmpFinals(ev.eventType) ? mm.elimWins : 0,
         opponents: mm.opponents,
       },
-      update: {
-        eventType: ev.eventType,
-        startDate: ev.startDate,
-        qualRank: rankByTeam.get(number) ?? null,
-        numTeams,
-        allianceSeed: ally?.seed ?? null,
-        pickRole: ally?.role ?? null,
-        elimMatchesPlayed: mm.elimPlayed,
-        einsteinWins: isCmpFinals(ev.eventType) ? mm.elimWins : 0,
-        opponents: mm.opponents,
-      },
+      update,
     });
   });
 
@@ -207,8 +223,7 @@ type ResultRow = {
   numTeams: number | null;
   allianceSeed: number | null;
   pickRole: string | null;
-  elimMatchesPlayed: number;
-  einsteinWins: number;
+  elimWins: number;
   opponents: number[];
 };
 
@@ -223,9 +238,8 @@ function eventPoints(
     r.allianceSeed && r.pickRole
       ? pickingPoints(ctx, r.allianceSeed, r.pickRole as never)
       : 0;
-  const elim = ELIM_POINTS_PER_MATCH * r.elimMatchesPlayed;
-  const einstein = EINSTEIN_POINTS_PER_WIN * r.einsteinWins;
-  const xrobot = seeding + picking + elim + einstein;
+  const playoff = PLAYOFF_POINTS_PER_WIN * r.elimWins;
+  const xrobot = seeding + picking + playoff;
   const xawards = awards.reduce(
     (s, a) => s + awardPoints(a.awardType, a.name, ctx),
     0,
@@ -310,7 +324,9 @@ export async function computeYearScores(year: number) {
       { xrobot: 0, xawards: 0 },
     );
 
-    // std window: first 2 qualifying events (by date) + dcmp.
+    // std window: a team's first 2 events + dcmp (the district championship).
+    // Per-event math validated against the real SLFF draft totals; SLFF's
+    // regional draft omits dcmp, but this board intentionally includes it.
     const qualifying = scored
       .filter((s) => isQualifying(s.r.eventType))
       .sort((a, b) => (a.r.startDate ?? "").localeCompare(b.r.startDate ?? ""));
