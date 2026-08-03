@@ -262,11 +262,32 @@ export function eventPoints(
  * all events) and the global XSOS percentile per window.
  */
 export async function computeYearScores(year: number) {
-  const [results, awardDocs, epaDocs] = await Promise.all([
-    db.teamEventResult.findMany({ where: { year } }),
-    db.award.findMany({ select: { teamNumber: true, awards: true } }),
-    db.teamEpa.findMany({ select: { teamNumber: true, epas: true } }),
-  ]);
+  const [results, awardDocs, epaDocs, eventDocs, districtDocs, districtLinks] =
+    await Promise.all([
+      db.teamEventResult.findMany({ where: { year } }),
+      db.award.findMany({ select: { teamNumber: true, awards: true } }),
+      db.teamEpa.findMany({ select: { teamNumber: true, epas: true } }),
+      db.event.findMany({ where: { year }, select: { key: true, districtKey: true } }),
+      db.district.findMany({ where: { year }, select: { key: true } }),
+      db.districtTeam.findMany({
+        where: { districtKey: { startsWith: String(year) } },
+        select: { districtKey: true, teamNumbers: true },
+      }),
+    ]);
+
+  // event -> its districtKey, and each team -> its OWN official district (the
+  // District-backed roster it's on). District windows only count events in that
+  // district, so a team's guest appearance at another district's event doesn't
+  // leak into its district-board value.
+  const eventDistrict = new Map(eventDocs.map((e) => [e.key, e.districtKey]));
+  const officialKeys = new Set(districtDocs.map((d) => d.key));
+  const officialDistrictByTeam = new Map<number, string>();
+  for (const link of districtLinks) {
+    if (!officialKeys.has(link.districtKey)) continue;
+    for (const n of link.teamNumbers) {
+      if (!officialDistrictByTeam.has(n)) officialDistrictByTeam.set(n, link.districtKey);
+    }
+  }
 
   // team -> epa (this year), for XSOS.
   const epaByTeam = new Map<number, number>();
@@ -362,15 +383,20 @@ export async function computeYearScores(year: number) {
       .filter((s) => isQualifying(s.r.eventType))
       .sort(byDate)
       .slice(0, 2);
-    const district2 = scored
-      .filter((s) => s.r.eventType === 1)
-      .sort(byDate)
-      .slice(0, 2);
     const regional2 = scored
       .filter((s) => s.r.eventType === 0)
       .sort(byDate)
       .slice(0, 2);
-    const dcmp = scored.filter((s) => isDcmp(s.r.eventType));
+    // District windows: only this team's OWN official-district events (not a
+    // guest appearance at another district's event).
+    const teamDistrict = officialDistrictByTeam.get(team);
+    const inOwnDistrict = (s: { r: ResultRow }) =>
+      teamDistrict != null && eventDistrict.get(s.r.eventKey) === teamDistrict;
+    const district2 = scored
+      .filter((s) => inOwnDistrict(s) && s.r.eventType === 1)
+      .sort(byDate)
+      .slice(0, 2);
+    const dcmp = scored.filter((s) => inOwnDistrict(s) && isDcmp(s.r.eventType));
 
     // std window (global): first 2 events, one-play for a single-event season.
     let stdXrobot = sumR(first2);
