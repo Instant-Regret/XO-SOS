@@ -138,9 +138,50 @@ export async function syncRegionalEvents(year: number) {
     await getEtag(path),
   );
   if (notModified || !data) return;
-  const regionals = data.filter((e) => e.event_type === EVENT_TYPE.REGIONAL);
-  for (const e of regionals) await upsertEvent(e);
+  // Non-district events: regionals + championship divisions + Einstein. (District
+  // events and dcmps come from syncDistrictEvents.) Champs events must be here so
+  // they're searchable and get rosters/awards/results like any other event.
+  const KEEP = new Set<number>([
+    EVENT_TYPE.REGIONAL,
+    EVENT_TYPE.CMP_DIVISION,
+    EVENT_TYPE.CMP_FINALS,
+  ]);
+  const events = data.filter((e) => KEEP.has(e.event_type));
+  for (const e of events) await upsertEvent(e);
   await setEtag(path, etag);
+}
+
+// Add champs division/Einstein events to an already-synced season and pull
+// their rosters, awards, and results. Busts the /events cache so the broadened
+// filter actually re-runs. Run offline after changing the event filter.
+export async function syncChampsEvents(years: number[]) {
+  const out: Array<{ year: number; champs: number }> = [];
+  for (const year of years) {
+    const r = await logSync(`champs:${year}`, async () => {
+      await db.syncCursor.deleteMany({ where: { path: `/events/${year}` } });
+      await syncRegionalEvents(year);
+      const champs = await db.event.findMany({
+        where: { year, eventType: { in: [EVENT_TYPE.CMP_DIVISION, EVENT_TYPE.CMP_FINALS] } },
+        select: { key: true, eventType: true, startDate: true },
+      });
+      await pool(champs, 8, async (e) => {
+        await syncEventTeams(e.key);
+        await syncEventAwards(e.key);
+      });
+      await pool(champs, 6, async (e) => {
+        await syncEventResults({
+          key: e.key,
+          year,
+          eventType: e.eventType,
+          startDate: e.startDate,
+        });
+      });
+      await computeYearScores(year);
+      return { year, champs: champs.length };
+    });
+    out.push(r);
+  }
+  return out;
 }
 
 // Read/write the stored TBA ETag for a path.

@@ -267,8 +267,10 @@ model TeamScore {
     fullXrobot Float    @default(0) // every event (champs-division event pages)
     fullXawards Float   @default(0)
     fullXval   Float    @default(0)
-    xsos       Float? // schedule percentile (0-100), std window, global
-    xsosDct    Float? // schedule percentile, dct window (district view)
+    // Raw schedule difficulty (mean opponent EPA); XSOS percentile is computed
+    // at read time within the board's pool (district / event / global).
+    diffStd    Float? // first-2-event window
+    diffDct    Float? // first-2 + dcmp window
     updatedAt  DateTime @updatedAt
 
     @@unique([teamNumber, year])

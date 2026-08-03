@@ -365,22 +365,12 @@ export async function computeYearScores(year: number) {
     });
   }
 
-  // Second pass: XSOS = GLOBAL percentile of schedule difficulty across the
-  // whole season (higher = harder). One value per window so the district view
-  // (which includes dcmp opponents) reads a different, dcmp-aware percentile.
-  const sortedAsc = (pick: (c: Computed) => number | null) =>
-    [...computed.values()]
-      .map(pick)
-      .filter((v): v is number => v != null)
-      .sort((a, b) => a - b);
-  const stdDiffs = sortedAsc((c) => c.diffStd);
-  const dctDiffs = sortedAsc((c) => c.diffDct);
-  const pct = (arr: number[], value: number | null): number | null => {
-    if (value == null || arr.length < 2) return null;
-    let below = 0;
-    for (const v of arr) if (v < value) below++;
-    return Math.round((below / (arr.length - 1)) * 100);
-  };
+  // XSOS itself (the percentile) is computed at read time within the board's
+  // pool — a district, an event's field, or the global list — so a team's
+  // strength-of-schedule is ranked against its actual competition, not the
+  // world. Here we only persist the raw difficulty per window.
+  const roundNull = (v: number | null) =>
+    v == null ? null : Math.round(v * 100) / 100;
 
   // Diff-before-write: only upsert changed teams.
   const existing = new Map(
@@ -390,8 +380,8 @@ export async function computeYearScores(year: number) {
   );
 
   await pool([...computed.entries()], 24, async ([team, c]) => {
-    const xsos = pct(stdDiffs, c.diffStd);
-    const xsosDct = pct(dctDiffs, c.diffDct);
+    const diffStd = roundNull(c.diffStd);
+    const diffDct = roundNull(c.diffDct);
     const prev = existing.get(team);
     const rounded = round(c);
     const same =
@@ -401,13 +391,13 @@ export async function computeYearScores(year: number) {
       prev.fullXval === rounded.fullXval &&
       prev.stdXrobot === rounded.stdXrobot &&
       prev.stdXawards === rounded.stdXawards &&
-      prev.xsos === xsos &&
-      prev.xsosDct === xsosDct;
+      prev.diffStd === diffStd &&
+      prev.diffDct === diffDct;
     if (same) return;
     await db.teamScore.upsert({
       where: { teamNumber_year: { teamNumber: team, year } },
-      create: { teamNumber: team, year, ...rounded, xsos, xsosDct },
-      update: { ...rounded, xsos, xsosDct },
+      create: { teamNumber: team, year, ...rounded, diffStd, diffDct },
+      update: { ...rounded, diffStd, diffDct },
     });
   });
 }

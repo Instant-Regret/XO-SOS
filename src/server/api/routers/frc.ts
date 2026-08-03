@@ -21,8 +21,8 @@ type ScoreRow = {
   fullXrobot: number;
   fullXawards: number;
   fullXval: number;
-  xsos: number | null;
-  xsosDct: number | null;
+  diffStd: number | null;
+  diffDct: number | null;
 };
 
 export type TeamScoreColumns = {
@@ -56,7 +56,8 @@ function buildScoreColumns(
     window === "full" ? s.fullXrobot : window === "dct" ? s.dctXrobot : s.stdXrobot;
   const awardsOf = (s: ScoreRow) =>
     window === "full" ? s.fullXawards : window === "dct" ? s.dctXawards : s.stdXawards;
-  const xsosOf = (s: ScoreRow) => (window === "dct" ? s.xsosDct : s.xsos);
+  // dct boards rank difficulty over the dcmp-inclusive window; others over std.
+  const diffOf = (s: ScoreRow) => (window === "dct" ? s.diffDct : s.diffStd);
 
   const byTeam = new Map<number, Map<number, ScoreRow>>();
   for (const s of scores) {
@@ -64,6 +65,22 @@ function buildScoreColumns(
     m.set(s.year, s);
     byTeam.set(s.teamNumber, m);
   }
+
+  // XSOS = percentile of schedule difficulty WITHIN this board's pool (the teams
+  // in `numbers`), so it's relative to the district / event / global list shown.
+  const poolDiffs: number[] = [];
+  for (const n of numbers) {
+    const d = byTeam.get(n)?.get(year);
+    const v = d ? diffOf(d) : null;
+    if (v != null) poolDiffs.push(v);
+  }
+  poolDiffs.sort((a, b) => a - b);
+  const xsosPct = (v: number | null): number | null => {
+    if (v == null || poolDiffs.length < 2) return null;
+    let below = 0;
+    for (const x of poolDiffs) if (x < v) below++;
+    return Math.round((below / (poolDiffs.length - 1)) * 100);
+  };
 
   const out = new Map<number, TeamScoreColumns>();
   for (const n of numbers) {
@@ -102,7 +119,7 @@ function buildScoreColumns(
       xval: Math.round(xval * 10) / 10,
       xrobot: Math.round(xrobot * 10) / 10,
       xawards: Math.round(xawards * 10) / 10,
-      xsos: cur ? xsosOf(cur) : null,
+      xsos: xsosPct(cur ? diffOf(cur) : null),
       yearVals,
     });
   }

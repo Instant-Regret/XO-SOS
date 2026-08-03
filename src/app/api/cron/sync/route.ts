@@ -7,6 +7,7 @@ import {
   rescoreYears,
   syncAll,
   syncAllEpas,
+  syncChampsEvents,
 } from "~/server/lib/sync";
 import { fitWeights } from "~/server/lib/scoring-fit";
 
@@ -68,6 +69,18 @@ export async function GET(req: NextRequest) {
         );
       }
       result = await recomputeYears(years);
+    } else if (task === "champs") {
+      const years = (params.get("years") ?? "")
+        .split(",")
+        .map((y) => Number(y.trim()))
+        .filter((y) => Number.isInteger(y) && y > 2000);
+      if (years.length === 0) {
+        return NextResponse.json(
+          { ok: false, error: "champs needs ?years=YYYY,YYYY" },
+          { status: 400 },
+        );
+      }
+      result = await syncChampsEvents(years);
     } else if (task === "fit") {
       result = await fitWeights();
     } else {

@@ -93,13 +93,15 @@ export function Leaderboard({
     }
     extraRanges.set(col.key, { min, max });
   }
-  // Transparent accent tint scaling with the value (6%→40% of the accent).
+  // Red→green conditional formatting: low values red, high values green, as a
+  // transparent tint. Hue runs 25 (red) → 145 (green) with the value.
   const extraBg = (t: TeamView, col: ExtraColumn): string | undefined => {
     const v = extraNumeric(t, col);
     const range = extraRanges.get(col.key);
     if (v == null || !range || range.max <= range.min) return undefined;
     const norm = (v - range.min) / (range.max - range.min);
-    return `color-mix(in oklch, var(--accent) ${Math.round(6 + norm * 34)}%, transparent)`;
+    const hue = Math.round(25 + norm * 120);
+    return `color-mix(in oklch, oklch(0.68 0.17 ${hue}) 30%, transparent)`;
   };
   const toggleSort = (key: string) => {
     setSort((s) =>

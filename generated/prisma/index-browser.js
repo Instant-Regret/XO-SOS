@@ -298,8 +298,8 @@ exports.Prisma.TeamScoreScalarFieldEnum = {
   fullXrobot: 'fullXrobot',
   fullXawards: 'fullXawards',
   fullXval: 'fullXval',
-  xsos: 'xsos',
-  xsosDct: 'xsosDct',
+  diffStd: 'diffStd',
+  diffDct: 'diffDct',
   updatedAt: 'updatedAt'
 };
 
