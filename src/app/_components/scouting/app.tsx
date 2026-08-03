@@ -102,6 +102,19 @@ function ScoutingBoard() {
   const [sort, setSort] = useState<Sort>({ key: "epa", dir: "desc" });
   const [selectedYear, setSelectedYear] = useState(2026);
 
+  // Debug mode: shows the calculation behind each computed number as a tooltip.
+  // Persisted so it survives reloads.
+  const [debugMode, setDebugMode] = useState(false);
+  useEffect(() => {
+    setDebugMode(localStorage.getItem("xosos-debug") === "1");
+  }, []);
+  const toggleDebug = () =>
+    setDebugMode((v) => {
+      const next = !v;
+      localStorage.setItem("xosos-debug", next ? "1" : "0");
+      return next;
+    });
+
   // Schedule pin state lives here (not in SchedulePage) so pins survive
   // switching between the board and schedule tabs.
   const [pinnedTeams, setPinnedTeams] = useState<Set<number>>(new Set());
@@ -377,6 +390,7 @@ function ScoutingBoard() {
             xawards: number;
             xsos: number | null;
             yearVals: Record<number, number | null>;
+            debug?: TeamView["debug"];
           }
         | null
         | undefined,
@@ -386,6 +400,7 @@ function ScoutingBoard() {
       xAwards: score?.xawards ?? 0,
       xsos: score?.xsos ?? null,
       yearVals: score?.yearVals ?? {},
+      debug: score?.debug,
     });
 
     // Pick fields for a row: editable single pick on a region board, else a
@@ -601,7 +616,11 @@ function ScoutingBoard() {
         <div className="topbar-right">
           <SyncIndicator />
           <YearPicker value={selectedYear} onChange={setSelectedYear} />
-          <AccountMenu year={selectedYear} />
+          <AccountMenu
+            year={selectedYear}
+            debugMode={debugMode}
+            onToggleDebug={toggleDebug}
+          />
         </div>
       </header>
 
@@ -632,6 +651,7 @@ function ScoutingBoard() {
               pinnedTeams={pinnedTeams}
               colorByTeam={colorByTeam}
               onTogglePin={togglePin}
+              debug={debugMode}
             />
           )}
           {page === "schedule" && (

@@ -12,21 +12,21 @@ import { getActiveWeights, predict, type Weights4 } from "~/server/lib/scoring-f
 type ScoreRow = {
   teamNumber: number;
   year: number;
-  stdXrobot: number;
-  stdXawards: number;
-  stdXval: number;
+  regXrobot: number;
+  regXawards: number;
+  regXval: number;
   dctXrobot: number;
   dctXawards: number;
   dctXval: number;
   fullXrobot: number;
   fullXawards: number;
   fullXval: number;
-  diffStd: number | null;
+  diffReg: number | null;
   diffDct: number | null;
 };
 
 export type TeamScoreColumns = {
-  // Main columns. On std/dct boards these are the weighted-4-year predictions;
+  // Main columns. On reg/dct boards these are the weighted-4-year predictions;
   // on champs-division boards ("full") they're the actual full-season values.
   xval: number;
   xrobot: number;
@@ -34,11 +34,21 @@ export type TeamScoreColumns = {
   xsos: number | null;
   // Raw XVAL per season for the 5 per-year columns (window-dependent).
   yearVals: Record<number, number | null>;
+  // Human-readable calculation per column, surfaced by debug mode.
+  debug: {
+    window: string;
+    xrobot: string;
+    xawards: string;
+    xval: string;
+    xsos: string;
+    yearVals: Record<number, string>;
+  };
 };
 
-// Score window: "std" = first 2 events (region/global/event), "dct" = first 2 +
-// district championship (district boards), "full" = every event (champs pages).
-type ScoreWindow = "std" | "dct" | "full";
+// Score window: "reg" = region view (regionals, or 50% of district events),
+// "dct" = first 2 + district championship (district boards), "full" = every
+// event (champs pages).
+type ScoreWindow = "reg" | "dct" | "full";
 
 // Turn stored TeamScore rows into per-team display columns. Pure so each board
 // query can fetch the rows however it likes and share this shaping.
@@ -51,13 +61,13 @@ function buildScoreColumns(
 ): Map<number, TeamScoreColumns> {
   // Per-window field accessors.
   const valOf = (s: ScoreRow) =>
-    window === "full" ? s.fullXval : window === "dct" ? s.dctXval : s.stdXval;
+    window === "full" ? s.fullXval : window === "dct" ? s.dctXval : s.regXval;
   const robotOf = (s: ScoreRow) =>
-    window === "full" ? s.fullXrobot : window === "dct" ? s.dctXrobot : s.stdXrobot;
+    window === "full" ? s.fullXrobot : window === "dct" ? s.dctXrobot : s.regXrobot;
   const awardsOf = (s: ScoreRow) =>
-    window === "full" ? s.fullXawards : window === "dct" ? s.dctXawards : s.stdXawards;
-  // dct boards rank difficulty over the dcmp-inclusive window; others over std.
-  const diffOf = (s: ScoreRow) => (window === "dct" ? s.diffDct : s.diffStd);
+    window === "full" ? s.fullXawards : window === "dct" ? s.dctXawards : s.regXawards;
+  // dct boards rank difficulty over the dcmp-inclusive window; others over reg.
+  const diffOf = (s: ScoreRow) => (window === "dct" ? s.diffDct : s.diffReg);
 
   const byTeam = new Map<number, Map<number, ScoreRow>>();
   for (const s of scores) {
@@ -93,13 +103,21 @@ function buildScoreColumns(
       yearVals[y] = s ? valOf(s) : null;
     }
 
+    const f1 = (x: number) => (Math.round(x * 10) / 10).toFixed(1);
+    const windowName =
+      window === "full" ? "full season" : window === "dct" ? "district (+dcmp)" : "region";
+
     let xval: number;
     let xrobot: number;
     let xawards: number;
+    let robotCalc: string;
+    let awardsCalc: string;
     if (window === "full") {
       xrobot = cur?.fullXrobot ?? 0;
       xawards = cur?.fullXawards ?? 0;
       xval = cur?.fullXval ?? 0;
+      robotCalc = `full-season XROBOT = ${f1(xrobot)}`;
+      awardsCalc = `full-season XAWARDS = ${f1(xawards)}`;
     } else {
       // Predict from the same window's prior-year values.
       const priorsR = [1, 2, 3, 4].map((k) => {
@@ -113,14 +131,39 @@ function buildScoreColumns(
       xrobot = predict(weights.robot, priorsR);
       xawards = predict(weights.awards, priorsA);
       xval = xrobot + xawards;
+      const term = (w: Weights4, p: number[], k: number) =>
+        `${w[k]!.toFixed(2)}×${f1(p[k]!)}[${year - 1 - k}]`;
+      robotCalc = `${[0, 1, 2, 3].map((k) => term(weights.robot, priorsR, k)).join(" + ")} = ${f1(xrobot)}`;
+      awardsCalc = `${[0, 1, 2, 3].map((k) => term(weights.awards, priorsA, k)).join(" + ")} = ${f1(xawards)}`;
+    }
+
+    const curDiff = cur ? diffOf(cur) : null;
+    const xsos = xsosPct(curDiff);
+    const xsosCalc =
+      curDiff == null
+        ? "no schedule data"
+        : `sched strength ${Math.round(curDiff)} → ${xsos ?? "—"} pctile of ${poolDiffs.length}-team pool`;
+
+    const yearDebug: Record<number, string> = {};
+    for (let y = year - 4; y <= year; y++) {
+      const v = yearVals[y];
+      yearDebug[y] = v == null ? `${y}: no data` : `${y} ${windowName} XVAL = ${f1(v)}`;
     }
 
     out.set(n, {
       xval: Math.round(xval * 10) / 10,
       xrobot: Math.round(xrobot * 10) / 10,
       xawards: Math.round(xawards * 10) / 10,
-      xsos: xsosPct(cur ? diffOf(cur) : null),
+      xsos,
       yearVals,
+      debug: {
+        window: windowName,
+        xrobot: `XROBOT (${windowName}): ${robotCalc}`,
+        xawards: `XAWARDS (${windowName}): ${awardsCalc}`,
+        xval: `XVAL = XROBOT ${f1(xrobot)} + XAWARDS ${f1(xawards)} = ${f1(xval)}`,
+        xsos: `XSOS: ${xsosCalc}`,
+        yearVals: yearDebug,
+      },
     });
   }
   return out;
@@ -497,7 +540,7 @@ export const frcRouter = createTRPCRouter({
         weights,
         numbers,
         input.year,
-        "std",
+        "reg",
       );
       const pickByTeam = buildPickMap(resultRows);
 
@@ -606,11 +649,11 @@ export const frcRouter = createTRPCRouter({
         ]);
 
       // Championship divisions (3) / Einstein (4) score on the full season, per
-      // the team's rule; every other board uses the standard draft window.
-      const window: "std" | "full" =
+      // the team's rule; every other event board uses the region window.
+      const window: "reg" | "full" =
         event && (event.eventType === 3 || event.eventType === 4)
           ? "full"
-          : "std";
+          : "reg";
 
       const epaByTeam = new Map<number, number | null>();
       for (const row of epaDocs) {

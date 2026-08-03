@@ -258,9 +258,9 @@ model TeamScore {
     id         String   @id @default(auto()) @map("_id") @db.ObjectId
     teamNumber Int
     year       Int
-    stdXrobot  Float    @default(0) // first 2 events (region / global / event boards)
-    stdXawards Float    @default(0)
-    stdXval    Float    @default(0)
+    regXrobot  Float    @default(0) // region view (regionals, or 50% of district events)
+    regXawards Float    @default(0)
+    regXval    Float    @default(0)
     dctXrobot  Float    @default(0) // first 2 events + dcmp (district boards)
     dctXawards Float    @default(0)
     dctXval    Float    @default(0)
@@ -269,7 +269,7 @@ model TeamScore {
     fullXval   Float    @default(0)
     // Raw schedule difficulty (mean opponent EPA); XSOS percentile is computed
     // at read time within the board's pool (district / event / global).
-    diffStd    Float? // first-2-event window
+    diffReg    Float? // region window
     diffDct    Float? // first-2 + dcmp window
     updatedAt  DateTime @updatedAt
 

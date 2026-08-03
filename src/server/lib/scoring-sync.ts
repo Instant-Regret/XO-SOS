@@ -297,23 +297,33 @@ export async function computeYearScores(year: number) {
   };
 
   // First pass: raw scores (three windows) + schedule difficulty per team.
-  //   std = a team's first 2 events        (region / global / event boards)
-  //   dct = first 2 events + dcmp           (district boards only)
-  //   full = every event                    (champs-division event pages)
+  //   reg  = region-view value       (region / global / event boards)
+  //   dct  = first 2 events + dcmp    (district boards only)
+  //   full = every event             (champs-division event pages)
+  // reg: for a regional team it's their first 2 regionals; for a DISTRICT team
+  // shown in a region it's their regional events only, or (if they played none)
+  // 50% of their first 2 district events.
   type Computed = {
-    stdXrobot: number;
-    stdXawards: number;
-    stdXval: number;
+    regXrobot: number;
+    regXawards: number;
+    regXval: number;
     dctXrobot: number;
     dctXawards: number;
     dctXval: number;
     fullXrobot: number;
     fullXawards: number;
     fullXval: number;
-    diffStd: number | null;
+    diffReg: number | null;
     diffDct: number | null;
   };
   const computed = new Map<number, Computed>();
+
+  const sumR = (arr: { pts: { xrobot: number } }[]) =>
+    arr.reduce((s, e) => s + e.pts.xrobot, 0);
+  const sumA = (arr: { pts: { xawards: number } }[]) =>
+    arr.reduce((s, e) => s + e.pts.xawards, 0);
+  const byDate = (a: { r: ResultRow }, b: { r: ResultRow }) =>
+    (a.r.startDate ?? "").localeCompare(b.r.startDate ?? "");
 
   for (const [team, rows] of byTeam) {
     const scored = rows.map((r) => ({
@@ -332,35 +342,55 @@ export async function computeYearScores(year: number) {
 
     const qualifying = scored
       .filter((s) => isQualifying(s.r.eventType))
-      .sort((a, b) => (a.r.startDate ?? "").localeCompare(b.r.startDate ?? ""));
+      .sort(byDate);
     const first2 = qualifying.slice(0, 2);
     const dcmp = scored.filter((s) => isDcmp(s.r.eventType));
 
-    // std window: first 2 events only.
-    let stdXrobot = first2.reduce((s, e) => s + e.pts.xrobot, 0);
-    let stdXawards = first2.reduce((s, e) => s + e.pts.xawards, 0);
-
-    // One-play team: only one event all season — project a 2nd event.
+    // dct window: first 2 (district) events + dcmp, with a one-play projection
+    // when a team played a single event and no dcmp.
+    let dctBaseR = sumR(first2);
+    let dctBaseA = sumA(first2);
     if (first2.length === 1 && dcmp.length === 0) {
-      stdXrobot = 1.6 * first2[0]!.pts.xrobot + 14; // 0.6*first + first + flat 14
-      stdXawards = 1.6 * first2[0]!.pts.xawards;
+      dctBaseR = 1.6 * first2[0]!.pts.xrobot + 14; // 0.6*first + first + flat 14
+      dctBaseA = 1.6 * first2[0]!.pts.xawards;
+    }
+    const dctXrobot = dctBaseR + sumR(dcmp);
+    const dctXawards = dctBaseA + sumA(dcmp);
+
+    // reg window: regional (event_type 0) events only; else 50% of the first 2
+    // district events (a district team being valued for a regional draft).
+    const regionalTwo = scored
+      .filter((s) => s.r.eventType === 0)
+      .sort(byDate)
+      .slice(0, 2);
+    let regXrobot: number;
+    let regXawards: number;
+    let regEvents: { r: ResultRow }[];
+    if (regionalTwo.length >= 1) {
+      regEvents = regionalTwo;
+      regXrobot = sumR(regionalTwo);
+      regXawards = sumA(regionalTwo);
+      if (regionalTwo.length === 1) {
+        regXrobot = 1.6 * regionalTwo[0]!.pts.xrobot + 14;
+        regXawards = 1.6 * regionalTwo[0]!.pts.xawards;
+      }
+    } else {
+      regEvents = first2;
+      regXrobot = 0.5 * sumR(first2);
+      regXawards = 0.5 * sumA(first2);
     }
 
-    // dct window: std + the district championship (0 extra for regional teams).
-    const dctXrobot = stdXrobot + dcmp.reduce((s, e) => s + e.pts.xrobot, 0);
-    const dctXawards = stdXawards + dcmp.reduce((s, e) => s + e.pts.xawards, 0);
-
     computed.set(team, {
-      stdXrobot,
-      stdXawards,
-      stdXval: stdXrobot + stdXawards,
+      regXrobot,
+      regXawards,
+      regXval: regXrobot + regXawards,
       dctXrobot,
       dctXawards,
       dctXval: dctXrobot + dctXawards,
       fullXrobot: full.xrobot,
       fullXawards: full.xawards,
       fullXval: full.xrobot + full.xawards,
-      diffStd: difficultyOf(first2),
+      diffReg: difficultyOf(regEvents),
       diffDct: difficultyOf([...first2, ...dcmp]),
     });
   }
@@ -380,33 +410,33 @@ export async function computeYearScores(year: number) {
   );
 
   await pool([...computed.entries()], 24, async ([team, c]) => {
-    const diffStd = roundNull(c.diffStd);
+    const diffReg = roundNull(c.diffReg);
     const diffDct = roundNull(c.diffDct);
     const prev = existing.get(team);
     const rounded = round(c);
     const same =
       prev &&
-      prev.stdXval === rounded.stdXval &&
+      prev.regXval === rounded.regXval &&
       prev.dctXval === rounded.dctXval &&
       prev.fullXval === rounded.fullXval &&
-      prev.stdXrobot === rounded.stdXrobot &&
-      prev.stdXawards === rounded.stdXawards &&
-      prev.diffStd === diffStd &&
+      prev.regXrobot === rounded.regXrobot &&
+      prev.regXawards === rounded.regXawards &&
+      prev.diffReg === diffReg &&
       prev.diffDct === diffDct;
     if (same) return;
     await db.teamScore.upsert({
       where: { teamNumber_year: { teamNumber: team, year } },
-      create: { teamNumber: team, year, ...rounded, diffStd, diffDct },
-      update: { ...rounded, diffStd, diffDct },
+      create: { teamNumber: team, year, ...rounded, diffReg, diffDct },
+      update: { ...rounded, diffReg, diffDct },
     });
   });
 }
 
 // Round stored floats to 2 dp for stable diffing.
 function round(c: {
-  stdXrobot: number;
-  stdXawards: number;
-  stdXval: number;
+  regXrobot: number;
+  regXawards: number;
+  regXval: number;
   dctXrobot: number;
   dctXawards: number;
   dctXval: number;
@@ -416,9 +446,9 @@ function round(c: {
 }) {
   const r = (n: number) => Math.round(n * 100) / 100;
   return {
-    stdXrobot: r(c.stdXrobot),
-    stdXawards: r(c.stdXawards),
-    stdXval: r(c.stdXval),
+    regXrobot: r(c.regXrobot),
+    regXawards: r(c.regXawards),
+    regXval: r(c.regXval),
     dctXrobot: r(c.dctXrobot),
     dctXawards: r(c.dctXawards),
     dctXval: r(c.dctXval),

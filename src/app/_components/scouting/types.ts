@@ -43,6 +43,15 @@ export type TeamView = {
   xAwards: number; // XAWARDS column
   xsos: number | null; // strength-of-schedule percentile (0-100), null if unknown
   yearVals: Record<number, number | null>; // raw XVAL per season for the year columns
+  // Per-column calculation strings, shown as tooltips in debug mode.
+  debug?: {
+    window: string;
+    xrobot: string;
+    xawards: string;
+    xval: string;
+    xsos: string;
+    yearVals: Record<number, string>;
+  };
   epa: number; // from TeamEpa for the selected year, 0 if missing
   stars: number; // local-only state
   pickStatus: PickStatus;

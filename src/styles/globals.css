@@ -431,6 +431,20 @@ body {
   background: var(--surface-2);
   color: var(--ink);
 }
+.menu-toggle {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  color: var(--ink-3);
+}
+.menu-toggle.on {
+  background: color-mix(in oklch, var(--accent) 25%, transparent);
+  color: var(--accent-ink, var(--accent));
+}
 .menu-danger {
   color: var(--bad);
 }
@@ -529,22 +543,22 @@ body {
   background: var(--surface);
 }
 .board {
-  min-width: 1240px;
+  min-width: 1140px;
 }
 .board-head,
 .row {
   display: grid;
   grid-template-columns:
     34px
-    minmax(140px, 1.4fr)
-    72px
-    84px
+    minmax(130px, 1.5fr)
     64px
-    74px
-    96px
-    repeat(8, minmax(56px, 1fr))
-    minmax(132px, 1.1fr);
-  gap: 6px;
+    78px
+    58px
+    70px
+    92px
+    repeat(8, minmax(44px, 54px))
+    minmax(120px, 1fr);
+  gap: 5px;
   align-items: center;
   padding: 8px 12px;
 }
@@ -1074,19 +1088,23 @@ body {
 .col-extra {
   min-width: 0;
 }
+/* Heatmap cell: the inline background tint (conditional formatting) fills the
+   whole cell edge-to-edge; the cell stretches to the full row height so the
+   colored blocks read as a continuous heatmap strip. */
 .extra-cell {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--ink);
   font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-align: right;
-  /* Heatmap pill: an inline background tint (conditional formatting) sits in
-     this rounded box; padding keeps the number off the edge. */
-  padding: 4px 8px;
-  border-radius: 5px;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 7px;
+  border-radius: 3px;
 }
 
 .empty {

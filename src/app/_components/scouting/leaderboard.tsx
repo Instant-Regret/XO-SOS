@@ -8,11 +8,13 @@ import type { ExtraColumn, Filters, Sort, TeamView } from "./types";
 // point values; XSOS is a 0-100 schedule percentile; the y{year} columns are
 // that season's raw XVAL. Missing data renders a long dash.
 function extraValue(team: TeamView, col: ExtraColumn): string {
+  // A computed number of 0 is real data and shows "0"; only genuinely-missing
+  // values (null) render a dash.
   switch (col.key) {
     case "xrobot":
-      return team.xRobot ? team.xRobot.toFixed(1) : "—";
+      return team.xRobot.toFixed(1);
     case "xawards":
-      return team.xAwards ? team.xAwards.toFixed(1) : "—";
+      return team.xAwards.toFixed(1);
     case "xsos":
       return team.xsos == null ? "—" : String(team.xsos);
     default: {
@@ -39,6 +41,7 @@ export function Leaderboard({
   pinnedTeams,
   colorByTeam,
   onTogglePin,
+  debug,
 }: {
   teams: TeamView[];
   allTeams: TeamView[];
@@ -57,7 +60,23 @@ export function Leaderboard({
   pinnedTeams: Set<number>;
   colorByTeam: Map<number, string>;
   onTogglePin: (n: number) => void;
+  // Debug mode: attach the calculation for each number as a hover tooltip.
+  debug: boolean;
 }) {
+  // Calculation string for a cell, shown as a title tooltip in debug mode.
+  const extraDebug = (t: TeamView, col: ExtraColumn): string | undefined => {
+    if (!debug || !t.debug) return undefined;
+    switch (col.key) {
+      case "xrobot":
+        return t.debug.xrobot;
+      case "xawards":
+        return t.debug.xawards;
+      case "xsos":
+        return t.debug.xsos;
+      default:
+        return col.year != null ? t.debug.yearVals[col.year] : undefined;
+    }
+  };
   // Statbotics "unitless" EPA runs on a ~1500-avg, ~2000-top scale, so a raw
   // percentage bar would peg every team at 100%. Scale each bar against the
   // strongest team in view instead so the bars are actually comparable.
@@ -94,14 +113,16 @@ export function Leaderboard({
     extraRanges.set(col.key, { min, max });
   }
   // Red→green conditional formatting: low values red, high values green, as a
-  // transparent tint. Hue runs 25 (red) → 145 (green) with the value.
+  // bright translucent overlay. Hue 25 (red) → 145 (green); opacity also lifts a
+  // touch with the value so strong cells read as more saturated.
   const extraBg = (t: TeamView, col: ExtraColumn): string | undefined => {
     const v = extraNumeric(t, col);
     const range = extraRanges.get(col.key);
     if (v == null || !range || range.max <= range.min) return undefined;
     const norm = (v - range.min) / (range.max - range.min);
     const hue = Math.round(25 + norm * 120);
-    return `color-mix(in oklch, oklch(0.68 0.17 ${hue}) 30%, transparent)`;
+    const alpha = (0.4 + norm * 0.25).toFixed(2);
+    return `oklch(0.72 0.19 ${hue} / ${alpha})`;
   };
   const toggleSort = (key: string) => {
     setSort((s) =>
@@ -348,7 +369,10 @@ export function Leaderboard({
               <div className="col-region">
                 <span className="region-chip">{t.region}</span>
               </div>
-              <div className="col-xval">
+              <div
+                className="col-xval"
+                title={debug ? t.debug?.xval : undefined}
+              >
                 <div className="xval-num">{t.xVal.toFixed(1)}</div>
                 <div className="xval-bar">
                   <div
@@ -404,6 +428,7 @@ export function Leaderboard({
                   key={c.key}
                   className="col-extra extra-cell"
                   style={{ background: extraBg(t, c) }}
+                  title={extraDebug(t, c)}
                 >
                   {extraValue(t, c)}
                 </div>

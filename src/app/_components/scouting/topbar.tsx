@@ -450,7 +450,15 @@ function WeightsModal({ open, onClose }: { open: boolean; onClose: () => void })
   );
 }
 
-export function AccountMenu({ year }: { year: number }) {
+export function AccountMenu({
+  year,
+  debugMode,
+  onToggleDebug,
+}: {
+  year: number;
+  debugMode: boolean;
+  onToggleDebug: () => void;
+}) {
   const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
   const [draftersOpen, setDraftersOpen] = useState(false);
@@ -539,6 +547,12 @@ export function AccountMenu({ year }: { year: number }) {
             }}
           >
             <IconGear /> Prediction weights
+          </button>
+          <button className="menu-item" onClick={onToggleDebug}>
+            <IconGear /> Debug mode
+            <span className={`menu-toggle ${debugMode ? "on" : ""}`}>
+              {debugMode ? "ON" : "OFF"}
+            </span>
           </button>
           <div className="menu-sep" />
           <button
