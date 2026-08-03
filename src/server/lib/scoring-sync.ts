@@ -226,7 +226,8 @@ export type ResultRow = {
   opponents: number[];
 };
 
-export function eventPoints(
+// Per-event points broken into their components (for scoring verification).
+export function eventBreakdown(
   r: ResultRow,
   awards: { awardType: number; name: string }[],
 ) {
@@ -238,12 +239,20 @@ export function eventPoints(
       ? pickingPoints(ctx, r.allianceSeed, r.pickRole as never)
       : 0;
   const playoff = PLAYOFF_POINTS_PER_WIN * r.elimWins;
-  const xrobot = seeding + picking + playoff;
-  const xawards = awards.reduce(
+  const awardPts = awards.reduce(
     (s, a) => s + awardPoints(a.awardType, a.name, ctx),
     0,
   );
-  return { xrobot, xawards, xval: xrobot + xawards };
+  const xrobot = seeding + picking + playoff;
+  return { seeding, picking, playoff, awards: awardPts, xrobot, xawards: awardPts };
+}
+
+export function eventPoints(
+  r: ResultRow,
+  awards: { awardType: number; name: string }[],
+) {
+  const b = eventBreakdown(r, awards);
+  return { xrobot: b.xrobot, xawards: b.xawards, xval: b.xrobot + b.xawards };
 }
 
 /**

@@ -6,7 +6,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { getActiveWeights, predict, type Weights4 } from "~/server/lib/scoring-fit";
-import { eventPoints } from "~/server/lib/scoring-sync";
+import { eventBreakdown, eventPoints } from "~/server/lib/scoring-sync";
 
 // ---- Score columns (XVAL / XROBOT / XAWARDS / XSOS + per-year history) ----
 
@@ -168,6 +168,72 @@ function buildScoreColumns(
     });
   }
   return out;
+}
+
+// Current-year TeamEventResult shape used for the debug scoring breakdown.
+type YearResult = {
+  teamNumber: number;
+  eventKey: string;
+  eventType: number;
+  startDate: string | null;
+  qualRank: number | null;
+  numTeams: number | null;
+  allianceSeed: number | null;
+  pickRole: string | null;
+  elimWins: number;
+};
+
+// Replace the current-year entry of each team's debug.yearVals with a full
+// per-event breakdown (seeding + picking + playoff + awards per event) so debug
+// mode can verify the scoring. Only the board's year is detailed; switch the
+// season to inspect a different year.
+function mergeYearBreakdown(
+  scoreByTeam: Map<number, TeamScoreColumns>,
+  results: YearResult[],
+  awardsByTeam: Map<
+    number,
+    { eventKey: string; awardType: number; name: string; year: number }[]
+  >,
+  year: number,
+  window: ScoreWindow,
+) {
+  const isQual = (t: number) => t === 0 || t === 1;
+  const isDcmp = (t: number) => t === 2 || t === 5;
+  const byTeam = new Map<number, YearResult[]>();
+  for (const r of results) {
+    const list = byTeam.get(r.teamNumber) ?? [];
+    list.push(r);
+    byTeam.set(r.teamNumber, list);
+  }
+  for (const [team, evs] of byTeam) {
+    const col = scoreByTeam.get(team);
+    if (!col) continue;
+    const scored = evs.map((r) => {
+      const aw = (awardsByTeam.get(team) ?? [])
+        .filter((a) => a.eventKey === r.eventKey && a.year === year)
+        .map((a) => ({ awardType: a.awardType, name: a.name }));
+      return { r, b: eventBreakdown({ ...r, opponents: [] }, aw) };
+    });
+    const qualifying = scored
+      .filter((s) => isQual(s.r.eventType))
+      .sort((a, b) => (a.r.startDate ?? "").localeCompare(b.r.startDate ?? ""));
+    const first2 = qualifying.slice(0, 2);
+    const dcmp = scored.filter((s) => isDcmp(s.r.eventType));
+    const windowEvents =
+      window === "full" ? scored : window === "dct" ? [...first2, ...dcmp] : first2;
+    if (windowEvents.length === 0) continue;
+
+    const parts = windowEvents.map(
+      (s) =>
+        `${s.r.eventKey}: seed ${s.b.seeding} + pick ${s.b.picking} + play ${s.b.playoff} + aw ${s.b.awards} = ${s.b.xrobot + s.b.xawards}`,
+    );
+    const total = windowEvents.reduce((t, s) => t + s.b.xrobot + s.b.xawards, 0);
+    const onePlay =
+      window !== "full" && first2.length === 1 && dcmp.length === 0
+        ? " · one-play → ×1.6 +14"
+        : "";
+    col.debug.yearVals[year] = `${year} [${window}]  ${parts.join("   |   ")}   →  Σ ${total}${onePlay}`;
+  }
 }
 
 // Per-team alliance selection by event, for the event-wins tooltip.
@@ -426,6 +492,21 @@ export const frcRouter = createTRPCRouter({
 
       // District boards score the district-championship window (first 2 + dcmp).
       const scoreByTeam = buildScoreColumns(scoreRows, weights, numbers, year, "dct");
+      const yearResults = await ctx.db.teamEventResult.findMany({
+        where: { teamNumber: { in: numbers }, year },
+        select: {
+          teamNumber: true,
+          eventKey: true,
+          eventType: true,
+          startDate: true,
+          qualRank: true,
+          numTeams: true,
+          allianceSeed: true,
+          pickRole: true,
+          elimWins: true,
+        },
+      });
+      mergeYearBreakdown(scoreByTeam, yearResults, awardsByTeam, year, "dct");
       const pickByTeam = buildPickMap(resultRows);
 
       return {
@@ -543,6 +624,21 @@ export const frcRouter = createTRPCRouter({
         input.year,
         "reg",
       );
+      const yearResults = await ctx.db.teamEventResult.findMany({
+        where: { teamNumber: { in: numbers }, year: input.year },
+        select: {
+          teamNumber: true,
+          eventKey: true,
+          eventType: true,
+          startDate: true,
+          qualRank: true,
+          numTeams: true,
+          allianceSeed: true,
+          pickRole: true,
+          elimWins: true,
+        },
+      });
+      mergeYearBreakdown(scoreByTeam, yearResults, awardsByTeam, input.year, "reg");
       const pickByTeam = buildPickMap(resultRows);
 
       return {
@@ -681,6 +777,21 @@ export const frcRouter = createTRPCRouter({
       }
 
       const scoreByTeam = buildScoreColumns(scoreRows, weights, numbers, year, window);
+      const yearResults = await ctx.db.teamEventResult.findMany({
+        where: { teamNumber: { in: numbers }, year },
+        select: {
+          teamNumber: true,
+          eventKey: true,
+          eventType: true,
+          startDate: true,
+          qualRank: true,
+          numTeams: true,
+          allianceSeed: true,
+          pickRole: true,
+          elimWins: true,
+        },
+      });
+      mergeYearBreakdown(scoreByTeam, yearResults, awardsByTeam, year, window);
       const pickByTeam = buildPickMap(resultRows);
 
       // Narrow rule: a DISTRICT team that traveled to a single regional is
@@ -688,20 +799,6 @@ export const frcRouter = createTRPCRouter({
       // its showing here (base = this event's points), not by its district
       // events. Regional-only teams and every other board are untouched.
       if (event?.eventType === 0) {
-        const yearResults = await ctx.db.teamEventResult.findMany({
-          where: { teamNumber: { in: numbers }, year },
-          select: {
-            teamNumber: true,
-            eventKey: true,
-            eventType: true,
-            startDate: true,
-            qualRank: true,
-            numTeams: true,
-            allianceSeed: true,
-            pickRole: true,
-            elimWins: true,
-          },
-        });
         const eventsByTeam = new Map<number, typeof yearResults>();
         for (const r of yearResults) {
           const list = eventsByTeam.get(r.teamNumber) ?? [];
@@ -709,25 +806,44 @@ export const frcRouter = createTRPCRouter({
           eventsByTeam.set(r.teamNumber, list);
         }
         const f1 = (x: number) => (Math.round(x * 10) / 10).toFixed(1);
+        const byDate = (a: (typeof yearResults)[number], b: (typeof yearResults)[number]) =>
+          (a.startDate ?? "").localeCompare(b.startDate ?? "");
+        // Points for one of this team's events (regular context on a regional).
+        const ptsFor = (n: number, r: (typeof yearResults)[number]) => {
+          const evAwards = (awardsByTeam.get(n) ?? [])
+            .filter((a) => a.eventKey === r.eventKey && a.year === year)
+            .map((a) => ({ awardType: a.awardType, name: a.name }));
+          return eventPoints({ ...r, opponents: [] }, evAwards);
+        };
         for (const n of numbers) {
           const evs = eventsByTeam.get(n) ?? [];
           const regionals = evs.filter((e) => e.eventType === 0);
           const hasDistrict = evs.some((e) => e.eventType === 1);
-          const here = evs.find((e) => e.eventKey === input.eventKey);
-          if (
-            !hasDistrict ||
-            regionals.length !== 1 ||
-            regionals[0]!.eventKey !== input.eventKey ||
-            !here
-          ) {
-            continue;
+          // Only single-regional district teams; multi-regional teams are normal.
+          if (!hasDistrict || regionals.length > 1) continue;
+          const here = evs.find(
+            (e) => e.eventType === 0 && e.eventKey === input.eventKey,
+          );
+
+          // Base = this regional's showing, or (no regional result) 50% of the
+          // first 2 district plays.
+          let baseR: number;
+          let baseA: number;
+          let baseNote: string;
+          if (here) {
+            const b = ptsFor(n, here);
+            baseR = b.xrobot;
+            baseA = b.xawards;
+            baseNote = `regional ${here.eventKey}`;
+          } else {
+            const d2 = evs.filter((e) => e.eventType === 1).sort(byDate).slice(0, 2);
+            baseR = 0.5 * d2.reduce((s, r) => s + ptsFor(n, r).xrobot, 0);
+            baseA = 0.5 * d2.reduce((s, r) => s + ptsFor(n, r).xawards, 0);
+            baseNote = `50% of ${d2.map((d) => d.eventKey).join(" + ") || "district"}`;
           }
-          const evAwards = (awardsByTeam.get(n) ?? [])
-            .filter((a) => a.eventKey === input.eventKey && a.year === year)
-            .map((a) => ({ awardType: a.awardType, name: a.name }));
-          const base = eventPoints({ ...here, opponents: [] }, evAwards);
-          const xrobot = Math.round((1.6 * base.xrobot + 14) * 10) / 10;
-          const xawards = Math.round(1.6 * base.xawards * 10) / 10;
+
+          const xrobot = Math.round((1.6 * baseR + 14) * 10) / 10;
+          const xawards = Math.round((1.6 * baseA + 14) * 10) / 10;
           const xval = Math.round((xrobot + xawards) * 10) / 10;
           const prev = scoreByTeam.get(n);
           scoreByTeam.set(n, {
@@ -738,13 +854,13 @@ export const frcRouter = createTRPCRouter({
             yearVals: { ...(prev?.yearVals ?? {}), [year]: xval },
             debug: {
               window: "region · single-regional district team",
-              xrobot: `XROBOT one-play: 1.6×${f1(base.xrobot)} + 14 = ${f1(xrobot)}`,
-              xawards: `XAWARDS one-play: 1.6×${f1(base.xawards)} = ${f1(xawards)}`,
+              xrobot: `XROBOT one-play: 1.6×${f1(baseR)} + 14 = ${f1(xrobot)}  (base: ${baseNote})`,
+              xawards: `XAWARDS one-play: 1.6×${f1(baseA)} + 14 = ${f1(xawards)}  (base: ${baseNote})`,
               xval: `XVAL = ${f1(xrobot)} + ${f1(xawards)} = ${f1(xval)}`,
               xsos: prev?.debug?.xsos ?? "XSOS: —",
               yearVals: {
                 ...(prev?.debug?.yearVals ?? {}),
-                [year]: `${year}: single-regional one-play of ${input.eventKey} = ${f1(xval)}`,
+                [year]: `${year}: one-play, base ${baseNote} → ${f1(xval)}`,
               },
             },
           });
