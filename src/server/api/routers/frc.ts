@@ -236,6 +236,16 @@ function mergeYearBreakdown(
   }
 }
 
+// Attach each award's event start date (for chronological ordering in the
+// awards tooltip). Awards only store the event key, so we look the dates up.
+type AwardRow = { eventKey: string; awardType: number; name: string; year: number };
+function attachAwardDates(
+  awards: AwardRow[],
+  dateByEvent: Map<string, string | null>,
+): (AwardRow & { startDate: string | null })[] {
+  return awards.map((a) => ({ ...a, startDate: dateByEvent.get(a.eventKey) ?? null }));
+}
+
 // Per-team alliance selection by event, for the event-wins tooltip.
 function buildPickMap(
   results: {
@@ -477,6 +487,17 @@ export const frcRouter = createTRPCRouter({
       for (const row of awardDocs) {
         awardsByTeam.set(row.teamNumber, row.awards);
       }
+      const awardEventKeys = new Set<string>();
+      for (const row of awardDocs)
+        for (const a of row.awards) awardEventKeys.add(a.eventKey);
+      const dateByEvent = new Map(
+        (
+          await ctx.db.event.findMany({
+            where: { key: { in: [...awardEventKeys] } },
+            select: { key: true, startDate: true },
+          })
+        ).map((e) => [e.key, e.startDate] as const),
+      );
 
       const avatarByTeam = new Map<number, string | null>();
       for (const row of avatarDocs) {
@@ -522,7 +543,7 @@ export const frcRouter = createTRPCRouter({
           country: t.country,
           epa: epaByTeam.get(t.number) ?? null,
           avatarB64: avatarByTeam.get(t.number) ?? null,
-          awards: awardsByTeam.get(t.number) ?? [],
+          awards: attachAwardDates(awardsByTeam.get(t.number) ?? [], dateByEvent),
           score: scoreByTeam.get(t.number) ?? null,
           picks: pickByTeam.get(t.number) ?? {},
         })),
@@ -605,6 +626,17 @@ export const frcRouter = createTRPCRouter({
       for (const row of awardDocs) {
         awardsByTeam.set(row.teamNumber, row.awards);
       }
+      const awardEventKeys = new Set<string>();
+      for (const row of awardDocs)
+        for (const a of row.awards) awardEventKeys.add(a.eventKey);
+      const dateByEvent = new Map(
+        (
+          await ctx.db.event.findMany({
+            where: { key: { in: [...awardEventKeys] } },
+            select: { key: true, startDate: true },
+          })
+        ).map((e) => [e.key, e.startDate] as const),
+      );
       const avatarByTeam = new Map<number, string | null>();
       for (const row of avatarDocs) {
         const exact = row.avatars.find((a) => a.year === input.year);
@@ -656,7 +688,7 @@ export const frcRouter = createTRPCRouter({
             districtAbbr: districtByTeam.get(r.teamNumber) ?? null,
             epa: r.epa,
             avatarB64: avatarByTeam.get(r.teamNumber) ?? null,
-            awards: awardsByTeam.get(r.teamNumber) ?? [],
+            awards: attachAwardDates(awardsByTeam.get(r.teamNumber) ?? [], dateByEvent),
             score: scoreByTeam.get(r.teamNumber) ?? null,
             picks: pickByTeam.get(r.teamNumber) ?? {},
           };
@@ -764,6 +796,17 @@ export const frcRouter = createTRPCRouter({
       for (const row of awardDocs) {
         awardsByTeam.set(row.teamNumber, row.awards);
       }
+      const awardEventKeys = new Set<string>();
+      for (const row of awardDocs)
+        for (const a of row.awards) awardEventKeys.add(a.eventKey);
+      const dateByEvent = new Map(
+        (
+          await ctx.db.event.findMany({
+            where: { key: { in: [...awardEventKeys] } },
+            select: { key: true, startDate: true },
+          })
+        ).map((e) => [e.key, e.startDate] as const),
+      );
       const avatarByTeam = new Map<number, string | null>();
       for (const row of avatarDocs) {
         const exact = row.avatars.find((a) => a.year === year);
@@ -880,7 +923,7 @@ export const frcRouter = createTRPCRouter({
           country: t.country,
           epa: epaByTeam.get(t.number) ?? null,
           avatarB64: avatarByTeam.get(t.number) ?? null,
-          awards: awardsByTeam.get(t.number) ?? [],
+          awards: attachAwardDates(awardsByTeam.get(t.number) ?? [], dateByEvent),
           score: scoreByTeam.get(t.number) ?? null,
           picks: pickByTeam.get(t.number) ?? {},
         })),

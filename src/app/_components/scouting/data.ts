@@ -72,16 +72,26 @@ function isTrackedTechnical(name: string) {
 }
 
 export function bucketAwards(
-  awards: { eventKey: string; awardType: number; name: string; year: number }[],
+  awards: {
+    eventKey: string;
+    awardType: number;
+    name: string;
+    year: number;
+    startDate?: string | null;
+  }[],
   // Per-event alliance selection (from TeamEventResult) so an event-win entry
   // can show how the team got there. Keyed by eventKey.
   picksByEvent?: Record<string, { seed: number; role: string }>,
 ): AwardLog {
   const log: AwardLog = { eventWins: [], impact: [], ei: [], technical: [] };
-  // Newest first (then by event) so every award list in the tooltip reads in
-  // descending order regardless of how they came back from the DB.
+  // Group newest year first; within a year, order by when the event actually
+  // happened (start date, then event key as a tiebreak) so the list follows the
+  // real chronology instead of alphabetical/DB order.
   const sorted = [...awards].sort(
-    (a, b) => b.year - a.year || a.eventKey.localeCompare(b.eventKey),
+    (a, b) =>
+      b.year - a.year ||
+      (a.startDate ?? "9999").localeCompare(b.startDate ?? "9999") ||
+      a.eventKey.localeCompare(b.eventKey),
   );
   for (const a of sorted) {
     const entry: AwardEntry = { year: a.year, event: a.eventKey, name: a.name };

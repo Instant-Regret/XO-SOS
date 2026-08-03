@@ -376,10 +376,13 @@ function ScoutingBoard() {
   // Build the row view from whichever tRPC payload is active (district board
   // when one is selected, else global top-100) plus local pick/star state.
   const teamsForYear: TeamView[] = useMemo(() => {
+    // Cached avatars render instantly from a data URI; everything else goes
+    // through our proxy (authed + year fallback + caching), which is reliable
+    // where the TBA hotlink URL 403s for teams lacking that exact year.
     const buildAvatarUrl = (year: number, number: number, b64: string | null) =>
       b64
         ? `data:image/png;base64,${b64}`
-        : `https://www.thebluealliance.com/avatar/${year}/frc${number}.png`;
+        : `/api/avatar/frc${number}?year=${year}`;
 
     // Precomputed SLFF score columns from the board query (null until backfilled).
     const scoreFields = (
