@@ -224,9 +224,15 @@ function mergeYearBreakdown(
   >,
   year: number,
   window: ScoreWindow,
+  // For district windows: event -> districtKey and the board's district, so the
+  // breakdown counts only that district's events (matching the stored value).
+  eventDistrict?: Map<string, string | null>,
+  boardDistrict?: string | null,
 ) {
   const isQual = (t: number) => t === 0 || t === 1;
   const isDcmp = (t: number) => t === 2 || t === 5;
+  const inDistrict = (key: string) =>
+    boardDistrict == null || eventDistrict?.get(key) === boardDistrict;
   const byTeam = new Map<number, YearResult[]>();
   for (const r of results) {
     const list = byTeam.get(r.teamNumber) ?? [];
@@ -245,9 +251,12 @@ function mergeYearBreakdown(
     const byDate = (a: { r: YearResult }, b: { r: YearResult }) =>
       (a.r.startDate ?? "").localeCompare(b.r.startDate ?? "");
     const first2 = scored.filter((s) => isQual(s.r.eventType)).sort(byDate).slice(0, 2);
-    const district2 = scored.filter((s) => s.r.eventType === 1).sort(byDate).slice(0, 2);
+    const district2 = scored
+      .filter((s) => s.r.eventType === 1 && inDistrict(s.r.eventKey))
+      .sort(byDate)
+      .slice(0, 2);
     const regional2 = scored.filter((s) => s.r.eventType === 0).sort(byDate).slice(0, 2);
-    const dcmp = scored.filter((s) => isDcmp(s.r.eventType));
+    const dcmp = scored.filter((s) => isDcmp(s.r.eventType) && inDistrict(s.r.eventKey));
 
     let windowEvents: typeof scored;
     let note = "";
@@ -580,7 +589,23 @@ export const frcRouter = createTRPCRouter({
           elimWins: true,
         },
       });
-      mergeYearBreakdown(scoreByTeam, yearResults, awardsByTeam, year, window);
+      const resultDistrict = new Map(
+        (
+          await ctx.db.event.findMany({
+            where: { key: { in: [...new Set(yearResults.map((r) => r.eventKey))] } },
+            select: { key: true, districtKey: true },
+          })
+        ).map((e) => [e.key, e.districtKey] as const),
+      );
+      mergeYearBreakdown(
+        scoreByTeam,
+        yearResults,
+        awardsByTeam,
+        year,
+        window,
+        resultDistrict,
+        window === "dct" ? input.districtKey : null,
+      );
       const pickByTeam = buildPickMap(resultRows);
 
       return {
@@ -817,7 +842,7 @@ export const frcRouter = createTRPCRouter({
           getActiveWeights(),
           ctx.db.event.findUnique({
             where: { key: input.eventKey },
-            select: { eventType: true },
+            select: { eventType: true, districtKey: true },
           }),
           ctx.db.teamEventResult.findMany({
             where: { teamNumber: { in: numbers }, allianceSeed: { not: null } },
@@ -887,7 +912,23 @@ export const frcRouter = createTRPCRouter({
           elimWins: true,
         },
       });
-      mergeYearBreakdown(scoreByTeam, yearResults, awardsByTeam, year, window);
+      const resultDistrict = new Map(
+        (
+          await ctx.db.event.findMany({
+            where: { key: { in: [...new Set(yearResults.map((r) => r.eventKey))] } },
+            select: { key: true, districtKey: true },
+          })
+        ).map((e) => [e.key, e.districtKey] as const),
+      );
+      mergeYearBreakdown(
+        scoreByTeam,
+        yearResults,
+        awardsByTeam,
+        year,
+        window,
+        resultDistrict,
+        window === "dct" ? event?.districtKey ?? null : null,
+      );
       const pickByTeam = buildPickMap(resultRows);
 
       return {
