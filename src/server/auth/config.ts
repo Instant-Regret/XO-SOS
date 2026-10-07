@@ -39,7 +39,12 @@ declare module "next-auth" {
  */
 export const authConfig = {
   providers: [
-    DiscordProvider,
+    // Discord enabled RFC 9207, so it now returns an `iss` on the OAuth
+    // redirect. Auth.js validates it against the provider's issuer, which the
+    // bare provider doesn't set (it falls back to the "https://authjs.dev"
+    // placeholder and rejects every callback). Declaring Discord's real issuer
+    // fixes sign-in. (Client id/secret are still inferred from AUTH_DISCORD_*.)
+    DiscordProvider({ issuer: "https://discord.com" }),
     /**
      * ...add more providers here.
      *
