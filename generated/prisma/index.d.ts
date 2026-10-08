@@ -8918,12 +8918,14 @@ export namespace Prisma {
     eventType: number | null
     year: number | null
     week: number | null
+    fieldStrength: number | null
   }
 
   export type EventSumAggregateOutputType = {
     eventType: number | null
     year: number | null
     week: number | null
+    fieldStrength: number | null
   }
 
   export type EventMinAggregateOutputType = {
@@ -8937,6 +8939,7 @@ export namespace Prisma {
     startDate: string | null
     endDate: string | null
     districtKey: string | null
+    fieldStrength: number | null
     updatedAt: Date | null
   }
 
@@ -8951,6 +8954,7 @@ export namespace Prisma {
     startDate: string | null
     endDate: string | null
     districtKey: string | null
+    fieldStrength: number | null
     updatedAt: Date | null
   }
 
@@ -8965,6 +8969,7 @@ export namespace Prisma {
     startDate: number
     endDate: number
     districtKey: number
+    fieldStrength: number
     updatedAt: number
     _all: number
   }
@@ -8974,12 +8979,14 @@ export namespace Prisma {
     eventType?: true
     year?: true
     week?: true
+    fieldStrength?: true
   }
 
   export type EventSumAggregateInputType = {
     eventType?: true
     year?: true
     week?: true
+    fieldStrength?: true
   }
 
   export type EventMinAggregateInputType = {
@@ -8993,6 +9000,7 @@ export namespace Prisma {
     startDate?: true
     endDate?: true
     districtKey?: true
+    fieldStrength?: true
     updatedAt?: true
   }
 
@@ -9007,6 +9015,7 @@ export namespace Prisma {
     startDate?: true
     endDate?: true
     districtKey?: true
+    fieldStrength?: true
     updatedAt?: true
   }
 
@@ -9021,6 +9030,7 @@ export namespace Prisma {
     startDate?: true
     endDate?: true
     districtKey?: true
+    fieldStrength?: true
     updatedAt?: true
     _all?: true
   }
@@ -9122,6 +9132,7 @@ export namespace Prisma {
     startDate: string | null
     endDate: string | null
     districtKey: string | null
+    fieldStrength: number | null
     updatedAt: Date
     _count: EventCountAggregateOutputType | null
     _avg: EventAvgAggregateOutputType | null
@@ -9155,6 +9166,7 @@ export namespace Prisma {
     startDate?: boolean
     endDate?: boolean
     districtKey?: boolean
+    fieldStrength?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["event"]>
 
@@ -9171,10 +9183,11 @@ export namespace Prisma {
     startDate?: boolean
     endDate?: boolean
     districtKey?: boolean
+    fieldStrength?: boolean
     updatedAt?: boolean
   }
 
-  export type EventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "key" | "name" | "eventType" | "eventTypeString" | "year" | "week" | "startDate" | "endDate" | "districtKey" | "updatedAt", ExtArgs["result"]["event"]>
+  export type EventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "key" | "name" | "eventType" | "eventTypeString" | "year" | "week" | "startDate" | "endDate" | "districtKey" | "fieldStrength" | "updatedAt", ExtArgs["result"]["event"]>
 
   export type $EventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Event"
@@ -9190,6 +9203,7 @@ export namespace Prisma {
       startDate: string | null
       endDate: string | null
       districtKey: string | null
+      fieldStrength: number | null
       updatedAt: Date
     }, ExtArgs["result"]["event"]>
     composites: {}
@@ -9593,6 +9607,7 @@ export namespace Prisma {
     readonly startDate: FieldRef<"Event", 'String'>
     readonly endDate: FieldRef<"Event", 'String'>
     readonly districtKey: FieldRef<"Event", 'String'>
+    readonly fieldStrength: FieldRef<"Event", 'Float'>
     readonly updatedAt: FieldRef<"Event", 'DateTime'>
   }
     
@@ -23952,6 +23967,7 @@ export namespace Prisma {
     startDate: 'startDate',
     endDate: 'endDate',
     districtKey: 'districtKey',
+    fieldStrength: 'fieldStrength',
     updatedAt: 'updatedAt'
   };
 
@@ -24599,6 +24615,7 @@ export namespace Prisma {
     startDate?: StringNullableFilter<"Event"> | string | null
     endDate?: StringNullableFilter<"Event"> | string | null
     districtKey?: StringNullableFilter<"Event"> | string | null
+    fieldStrength?: FloatNullableFilter<"Event"> | number | null
     updatedAt?: DateTimeFilter<"Event"> | Date | string
   }
 
@@ -24613,6 +24630,7 @@ export namespace Prisma {
     startDate?: SortOrder
     endDate?: SortOrder
     districtKey?: SortOrder
+    fieldStrength?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -24630,6 +24648,7 @@ export namespace Prisma {
     startDate?: StringNullableFilter<"Event"> | string | null
     endDate?: StringNullableFilter<"Event"> | string | null
     districtKey?: StringNullableFilter<"Event"> | string | null
+    fieldStrength?: FloatNullableFilter<"Event"> | number | null
     updatedAt?: DateTimeFilter<"Event"> | Date | string
   }, "id" | "key">
 
@@ -24644,6 +24663,7 @@ export namespace Prisma {
     startDate?: SortOrder
     endDate?: SortOrder
     districtKey?: SortOrder
+    fieldStrength?: SortOrder
     updatedAt?: SortOrder
     _count?: EventCountOrderByAggregateInput
     _avg?: EventAvgOrderByAggregateInput
@@ -24666,6 +24686,7 @@ export namespace Prisma {
     startDate?: StringNullableWithAggregatesFilter<"Event"> | string | null
     endDate?: StringNullableWithAggregatesFilter<"Event"> | string | null
     districtKey?: StringNullableWithAggregatesFilter<"Event"> | string | null
+    fieldStrength?: FloatNullableWithAggregatesFilter<"Event"> | number | null
     updatedAt?: DateTimeWithAggregatesFilter<"Event"> | Date | string
   }
 
@@ -25925,6 +25946,7 @@ export namespace Prisma {
     startDate?: string | null
     endDate?: string | null
     districtKey?: string | null
+    fieldStrength?: number | null
     updatedAt?: Date | string
   }
 
@@ -25939,6 +25961,7 @@ export namespace Prisma {
     startDate?: string | null
     endDate?: string | null
     districtKey?: string | null
+    fieldStrength?: number | null
     updatedAt?: Date | string
   }
 
@@ -25952,6 +25975,7 @@ export namespace Prisma {
     startDate?: NullableStringFieldUpdateOperationsInput | string | null
     endDate?: NullableStringFieldUpdateOperationsInput | string | null
     districtKey?: NullableStringFieldUpdateOperationsInput | string | null
+    fieldStrength?: NullableFloatFieldUpdateOperationsInput | number | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -25965,6 +25989,7 @@ export namespace Prisma {
     startDate?: NullableStringFieldUpdateOperationsInput | string | null
     endDate?: NullableStringFieldUpdateOperationsInput | string | null
     districtKey?: NullableStringFieldUpdateOperationsInput | string | null
+    fieldStrength?: NullableFloatFieldUpdateOperationsInput | number | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -25979,6 +26004,7 @@ export namespace Prisma {
     startDate?: string | null
     endDate?: string | null
     districtKey?: string | null
+    fieldStrength?: number | null
     updatedAt?: Date | string
   }
 
@@ -25992,6 +26018,7 @@ export namespace Prisma {
     startDate?: NullableStringFieldUpdateOperationsInput | string | null
     endDate?: NullableStringFieldUpdateOperationsInput | string | null
     districtKey?: NullableStringFieldUpdateOperationsInput | string | null
+    fieldStrength?: NullableFloatFieldUpdateOperationsInput | number | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -26005,6 +26032,7 @@ export namespace Prisma {
     startDate?: NullableStringFieldUpdateOperationsInput | string | null
     endDate?: NullableStringFieldUpdateOperationsInput | string | null
     districtKey?: NullableStringFieldUpdateOperationsInput | string | null
+    fieldStrength?: NullableFloatFieldUpdateOperationsInput | number | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -27315,6 +27343,18 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+    isSet?: boolean
+  }
+
   export type EventCountOrderByAggregateInput = {
     id?: SortOrder
     key?: SortOrder
@@ -27326,6 +27366,7 @@ export namespace Prisma {
     startDate?: SortOrder
     endDate?: SortOrder
     districtKey?: SortOrder
+    fieldStrength?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -27333,6 +27374,7 @@ export namespace Prisma {
     eventType?: SortOrder
     year?: SortOrder
     week?: SortOrder
+    fieldStrength?: SortOrder
   }
 
   export type EventMaxOrderByAggregateInput = {
@@ -27346,6 +27388,7 @@ export namespace Prisma {
     startDate?: SortOrder
     endDate?: SortOrder
     districtKey?: SortOrder
+    fieldStrength?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -27360,6 +27403,7 @@ export namespace Prisma {
     startDate?: SortOrder
     endDate?: SortOrder
     districtKey?: SortOrder
+    fieldStrength?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -27367,6 +27411,24 @@ export namespace Prisma {
     eventType?: SortOrder
     year?: SortOrder
     week?: SortOrder
+    fieldStrength?: SortOrder
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+    isSet?: boolean
   }
 
   export type TeamCountOrderByAggregateInput = {
@@ -27869,18 +27931,6 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
-  export type FloatNullableFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
-    isSet?: boolean
-  }
-
   export type TeamScoreTeamNumberYearCompoundUniqueInput = {
     teamNumber: number
     year: number
@@ -28006,23 +28056,6 @@ export namespace Prisma {
     _sum?: NestedFloatFilter<$PrismaModel>
     _min?: NestedFloatFilter<$PrismaModel>
     _max?: NestedFloatFilter<$PrismaModel>
-  }
-
-  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedFloatNullableFilter<$PrismaModel>
-    _min?: NestedFloatNullableFilter<$PrismaModel>
-    _max?: NestedFloatNullableFilter<$PrismaModel>
-    isSet?: boolean
   }
 
   export type FloatNullableListFilter<$PrismaModel = never> = {
@@ -28272,6 +28305,15 @@ export namespace Prisma {
     divide?: number
   }
 
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+    unset?: boolean
+  }
+
   export type EpaEntryListCreateEnvelopeInput = {
     set?: EpaEntryCreateInput | EpaEntryCreateInput[]
   }
@@ -28364,15 +28406,6 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
-  }
-
-  export type NullableFloatFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
-    unset?: boolean
   }
 
   export type ScoreWeightsCreateoptRobotInput = {
@@ -28606,6 +28639,23 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+    isSet?: boolean
+  }
+
   export type EpaEntryWhereInput = {
     AND?: EpaEntryWhereInput | EpaEntryWhereInput[]
     OR?: EpaEntryWhereInput[]
@@ -28646,23 +28696,6 @@ export namespace Prisma {
     _sum?: NestedFloatFilter<$PrismaModel>
     _min?: NestedFloatFilter<$PrismaModel>
     _max?: NestedFloatFilter<$PrismaModel>
-  }
-
-  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedFloatNullableFilter<$PrismaModel>
-    _min?: NestedFloatNullableFilter<$PrismaModel>
-    _max?: NestedFloatNullableFilter<$PrismaModel>
-    isSet?: boolean
   }
 
   export type UserCreateWithoutPostsInput = {

@@ -180,6 +180,7 @@ exports.Prisma.EventScalarFieldEnum = {
   startDate: 'startDate',
   endDate: 'endDate',
   districtKey: 'districtKey',
+  fieldStrength: 'fieldStrength',
   updatedAt: 'updatedAt'
 };
 

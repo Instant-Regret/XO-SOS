@@ -96,6 +96,7 @@ model Event {
   startDate       String?
   endDate         String?
   districtKey     String?
+  fieldStrength   Float? // mean unitless EPA of the event's roster (for XSOS)
   updatedAt       DateTime @updatedAt
 
   @@index([year])

@@ -8,8 +8,9 @@ import { AwardsCell, PickPill, StarRating, TeamMark } from "./primitives";
 import type { ExtraColumn, Filters, Sort, TeamView } from "./types";
 
 // Extra-column cell text. XROBOT/XAWARDS are the predicted (or full-season)
-// point values; XSOS is a 0-100 schedule percentile; the y{year} columns are
-// that season's raw XVAL. Missing data renders a long dash.
+// point values; XSOS is a signed schedule delta (how much tougher, +, or
+// easier, −, a team's events are vs the ones it skipped); the y{year} columns
+// are that season's raw XVAL. Missing data renders a long dash.
 function extraValue(team: TeamView, col: ExtraColumn): string {
   // A computed number of 0 is real data and shows "0"; only genuinely-missing
   // values (null) render a dash.
@@ -19,7 +20,7 @@ function extraValue(team: TeamView, col: ExtraColumn): string {
     case "xawards":
       return team.xAwards.toFixed(1);
     case "xsos":
-      return team.xsos == null ? "—" : String(team.xsos);
+      return team.xsos == null ? "—" : team.xsos > 0 ? `+${team.xsos}` : String(team.xsos);
     default: {
       const y = col.year;
       if (y == null) return "—";

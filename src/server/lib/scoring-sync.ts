@@ -506,6 +506,33 @@ export async function computeYearScores(year: number) {
       update: { ...rounded, diffStd, diffReg, diffDct },
     });
   });
+
+  // Event field strength = mean roster EPA, stored on the Event. Drives the
+  // XSOS schedule metric (how hard the events a team attends are vs the ones
+  // in its region it skips). Diff-before-write.
+  const rosters = await db.eventTeam.findMany({
+    where: { eventKey: { startsWith: String(year) } },
+    select: { eventKey: true, teamNumbers: true },
+  });
+  const existingFs = new Map(
+    (
+      await db.event.findMany({
+        where: { year },
+        select: { key: true, fieldStrength: true },
+      })
+    ).map((e) => [e.key, e.fieldStrength]),
+  );
+  await pool(rosters, 16, async (r) => {
+    if (!existingFs.has(r.eventKey)) return; // no matching Event row
+    const epas = r.teamNumbers
+      .map((n) => epaByTeam.get(n))
+      .filter((v): v is number => v != null);
+    const fs = epas.length
+      ? Math.round((epas.reduce((a, b) => a + b, 0) / epas.length) * 100) / 100
+      : null;
+    if (existingFs.get(r.eventKey) === fs) return; // unchanged
+    await db.event.update({ where: { key: r.eventKey }, data: { fieldStrength: fs } });
+  });
 }
 
 // Round stored floats to 2 dp for stable diffing.
