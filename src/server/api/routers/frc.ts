@@ -89,8 +89,6 @@ function buildScoreColumns(
         : window === "reg"
           ? s.regXawards
           : s.stdXawards;
-  const diffOf = (s: ScoreRow) =>
-    window === "dct" ? s.diffDct : window === "reg" ? s.diffReg : s.diffStd;
 
   const byTeam = new Map<number, Map<number, ScoreRow>>();
   for (const s of scores) {
@@ -99,21 +97,8 @@ function buildScoreColumns(
     byTeam.set(s.teamNumber, m);
   }
 
-  // XSOS = percentile of schedule difficulty WITHIN this board's pool (the teams
-  // in `numbers`), so it's relative to the district / event / global list shown.
-  const poolDiffs: number[] = [];
-  for (const n of numbers) {
-    const d = byTeam.get(n)?.get(year);
-    const v = d ? diffOf(d) : null;
-    if (v != null) poolDiffs.push(v);
-  }
-  poolDiffs.sort((a, b) => a - b);
-  const xsosPct = (v: number | null): number | null => {
-    if (v == null || poolDiffs.length < 2) return null;
-    let below = 0;
-    for (const x of poolDiffs) if (x < v) below++;
-    return Math.round((below / (poolDiffs.length - 1)) * 100);
-  };
+  // XSOS is computed separately (mergeXsos) from event field strengths; set a
+  // placeholder here and let the board query fill it in.
 
   const out = new Map<number, TeamScoreColumns>();
   for (const n of numbers) {
@@ -166,13 +151,6 @@ function buildScoreColumns(
       awardsCalc = `${[0, 1, 2, 3].map((k) => term(weights.awards, priorsA, k)).join(" + ")} = ${f1(xawards)}`;
     }
 
-    const curDiff = cur ? diffOf(cur) : null;
-    const xsos = xsosPct(curDiff);
-    const xsosCalc =
-      curDiff == null
-        ? "no schedule data"
-        : `sched strength ${Math.round(curDiff)} → ${xsos ?? "—"} pctile of ${poolDiffs.length}-team pool`;
-
     const yearDebug: Record<number, string> = {};
     for (let y = year - 4; y <= year; y++) {
       const v = yearVals[y];
@@ -183,14 +161,14 @@ function buildScoreColumns(
       xval: Math.round(xval * 10) / 10,
       xrobot: Math.round(xrobot * 10) / 10,
       xawards: Math.round(xawards * 10) / 10,
-      xsos,
+      xsos: null, // filled by mergeXsos
       yearVals,
       debug: {
         window: windowName,
         xrobot: `XROBOT (${windowName}): ${robotCalc}`,
         xawards: `XAWARDS (${windowName}): ${awardsCalc}`,
         xval: `XVAL = XROBOT ${f1(xrobot)} + XAWARDS ${f1(xawards)} = ${f1(xval)}`,
-        xsos: `XSOS: ${xsosCalc}`,
+        xsos: "XSOS: —",
         yearVals: yearDebug,
       },
     });
@@ -288,6 +266,43 @@ function mergeYearBreakdown(
     );
     const total = windowEvents.reduce((t, s) => t + s.b.xrobot + s.b.xawards, 0);
     col.debug.yearVals[year] = `${year} [${window}]  ${parts.join("   |   ")}   →  Σ ${total}${note}`;
+  }
+}
+
+// XSOS = how hard the events a team is attending are vs the events in its
+// region it is NOT attending. Signed delta of mean event field strength
+// (positive = its events are tougher than the ones it skipped). The region's
+// event set is every event the board's teams attend this year.
+function mergeXsos(
+  scoreByTeam: Map<number, TeamScoreColumns>,
+  results: { teamNumber: number; eventKey: string }[],
+  fieldStrength: Map<string, number | null>,
+) {
+  const regionEvents = [...new Set(results.map((r) => r.eventKey))];
+  const attendedByTeam = new Map<number, Set<string>>();
+  for (const r of results) {
+    const s = attendedByTeam.get(r.teamNumber) ?? new Set<string>();
+    s.add(r.eventKey);
+    attendedByTeam.set(r.teamNumber, s);
+  }
+  const mean = (keys: string[]): number | null => {
+    const vs = keys
+      .map((k) => fieldStrength.get(k))
+      .filter((v): v is number => v != null);
+    return vs.length ? vs.reduce((a, b) => a + b, 0) / vs.length : null;
+  };
+  for (const [team, col] of scoreByTeam) {
+    const attended = attendedByTeam.get(team);
+    if (!attended) continue;
+    const attAvg = mean([...attended]);
+    const skipAvg = mean(regionEvents.filter((k) => !attended.has(k)));
+    if (attAvg == null || skipAvg == null) {
+      col.debug.xsos = "XSOS: not enough schedule data";
+      continue;
+    }
+    const delta = Math.round(attAvg - skipAvg);
+    col.xsos = delta;
+    col.debug.xsos = `XSOS: attended-events field ${Math.round(attAvg)} − region's other events ${Math.round(skipAvg)} = ${delta >= 0 ? "+" : ""}${delta}`;
   }
 }
 
@@ -589,13 +604,15 @@ export const frcRouter = createTRPCRouter({
           elimWins: true,
         },
       });
+      const resultEvents = await ctx.db.event.findMany({
+        where: { key: { in: [...new Set(yearResults.map((r) => r.eventKey))] } },
+        select: { key: true, districtKey: true, fieldStrength: true },
+      });
       const resultDistrict = new Map(
-        (
-          await ctx.db.event.findMany({
-            where: { key: { in: [...new Set(yearResults.map((r) => r.eventKey))] } },
-            select: { key: true, districtKey: true },
-          })
-        ).map((e) => [e.key, e.districtKey] as const),
+        resultEvents.map((e) => [e.key, e.districtKey] as const),
+      );
+      const fieldStrength = new Map(
+        resultEvents.map((e) => [e.key, e.fieldStrength] as const),
       );
       mergeYearBreakdown(
         scoreByTeam,
@@ -606,6 +623,7 @@ export const frcRouter = createTRPCRouter({
         resultDistrict,
         window === "dct" ? input.districtKey : null,
       );
+      mergeXsos(scoreByTeam, yearResults, fieldStrength);
       const pickByTeam = buildPickMap(resultRows);
 
       return {
@@ -749,6 +767,15 @@ export const frcRouter = createTRPCRouter({
         },
       });
       mergeYearBreakdown(scoreByTeam, yearResults, awardsByTeam, input.year, "std");
+      const fieldStrength = new Map(
+        (
+          await ctx.db.event.findMany({
+            where: { key: { in: [...new Set(yearResults.map((r) => r.eventKey))] } },
+            select: { key: true, fieldStrength: true },
+          })
+        ).map((e) => [e.key, e.fieldStrength] as const),
+      );
+      mergeXsos(scoreByTeam, yearResults, fieldStrength);
       const pickByTeam = buildPickMap(resultRows);
 
       return {
@@ -912,13 +939,15 @@ export const frcRouter = createTRPCRouter({
           elimWins: true,
         },
       });
+      const resultEvents = await ctx.db.event.findMany({
+        where: { key: { in: [...new Set(yearResults.map((r) => r.eventKey))] } },
+        select: { key: true, districtKey: true, fieldStrength: true },
+      });
       const resultDistrict = new Map(
-        (
-          await ctx.db.event.findMany({
-            where: { key: { in: [...new Set(yearResults.map((r) => r.eventKey))] } },
-            select: { key: true, districtKey: true },
-          })
-        ).map((e) => [e.key, e.districtKey] as const),
+        resultEvents.map((e) => [e.key, e.districtKey] as const),
+      );
+      const fieldStrength = new Map(
+        resultEvents.map((e) => [e.key, e.fieldStrength] as const),
       );
       mergeYearBreakdown(
         scoreByTeam,
@@ -929,6 +958,7 @@ export const frcRouter = createTRPCRouter({
         resultDistrict,
         window === "dct" ? event?.districtKey ?? null : null,
       );
+      mergeXsos(scoreByTeam, yearResults, fieldStrength);
       const pickByTeam = buildPickMap(resultRows);
 
       return {
