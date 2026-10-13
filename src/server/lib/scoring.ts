@@ -185,13 +185,14 @@ function erfInv(x: number): number {
  * Seeding points from a team's qualification rank and the number of teams at
  * the event, using FIRST's district qualification-ranking-points formula
  * (applied to every regular event, regionals included). Top seed ≈ 22, last
- * ≈ 2-3 — matches FRC. Verify against TBA /event/{key}/district_points for a
- * known district event.
+ * ≈ 2-3 — matches FRC. FIRST rounds UP (verified against TBA
+ * /event/{key}/district_points: ceil matches all ranks, round under-counts
+ * mid-ranks by 1).
  */
 export function seedingPoints(rank: number, numTeams: number): number {
   if (numTeams <= 1 || rank < 1) return 0;
   const alpha = 1.07;
   const scale = 10 / erfInv(1 / alpha);
   const x = (numTeams - 2 * rank + 2) / (alpha * numTeams);
-  return Math.round(erfInv(x) * scale + 12);
+  return Math.ceil(erfInv(x) * scale + 12);
 }
