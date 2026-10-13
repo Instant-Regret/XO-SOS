@@ -147,8 +147,16 @@ export function awardPoints(
   if (awardType === AWARD_TYPE.WOODIE_FLOWERS || name.includes("woodie flowers")) {
     return champs ? 20 : 10;
   }
-  if (awardType === AWARD_TYPE.DEANS_LIST || name.includes("dean's list")) {
-    return champs ? 15 : 5;
+  // Dean's List — renamed "FIRST Leadership Award" in 2026 — is a
+  // championship-track student award (district-champ semi-finalist → champs
+  // finalist), so SLFF scores it 15 wherever it appears, not the regular
+  // "any other award" rate.
+  if (
+    awardType === AWARD_TYPE.DEANS_LIST ||
+    name.includes("dean's list") ||
+    name.includes("leadership award")
+  ) {
+    return 15;
   }
 
   // Any other official award (excluding winner / finalist, handled above).

@@ -12,7 +12,10 @@ import {
 
 // TBA event_type: 0=regional, 1=district, 2=district_cmp, 3=cmp_division,
 // 4=cmp_finals, 5=district_cmp_division, 6=foc, 7=remote.
-const isChampsEvent = (t: number) => t === 3 || t === 4;
+// Championship context: district championships (2, 5), champs divisions (3) and
+// Einstein (4). Regular: regionals (0) and normal district events (1). Drives
+// the champs vs regular picking tables and award values.
+const isChampsEvent = (t: number) => t === 2 || t === 3 || t === 4 || t === 5;
 const isCmpFinals = (t: number) => t === 4;
 const isQualifying = (t: number) => t === 0 || t === 1; // "first 2 events" pool
 const isDcmp = (t: number) => t === 2 || t === 5;
