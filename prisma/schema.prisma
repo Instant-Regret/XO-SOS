@@ -179,6 +179,19 @@ model SyncLog {
     @@index([task, startedAt])
 }
 
+// Run lock for scheduled jobs. Vercel Schedules can overlap runs, redeliver a
+// run, or be triggered manually, so a job takes this lease before starting.
+// `lastExecutionId` is the Schedules `ce-id` of the last run it accepted, used
+// to drop duplicate deliveries.
+model CronLock {
+    id              String   @id @default(auto()) @map("_id") @db.ObjectId
+    name            String   @unique
+    holder          String?
+    expiresAt       DateTime
+    lastExecutionId String?
+    updatedAt       DateTime @updatedAt
+}
+
 // Shared, collaborative draft state. One document per (scopeKey, teamNumber).
 // scopeKey is the board the pick belongs to — a districtKey ("2026chs"), an
 // eventKey ("2026ausc"), or "global-{year}" for the top-100 view — so the same
