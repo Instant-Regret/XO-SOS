@@ -10,13 +10,21 @@ import {
   syncChampsEvents,
 } from "~/server/lib/sync";
 import { fitWeights } from "~/server/lib/scoring-fit";
+import { acquireCronLock, runSource } from "~/server/lib/cron-lock";
 
 export const runtime = "nodejs";
 export const maxDuration = 300; // 5 min — Vercel hobby caps at 60s; pro/enterprise can extend.
 
+// Lease for the scheduled sync: a bit longer than maxDuration so a run that
+// hits the function timeout releases the job on its own.
+const SYNC_LOCK_TTL_MS = (maxDuration + 60) * 1000;
+
+// Works with both legacy Vercel Cron Jobs (GET) and Vercel Schedules (POST by
+// default, CloudEvents `ce-*` headers). Both send `Authorization: Bearer
+// <CRON_SECRET>` — Schedules sends the CRON_SECRET of the current production
+// deployment, so rotate it by updating the env var AND redeploying.
 export async function GET(req: NextRequest) {
   const auth = req.headers.get("authorization");
-  // Vercel Cron sends `Authorization: Bearer <CRON_SECRET>`.
   if (auth !== `Bearer ${env.CRON_SECRET}`) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
@@ -84,7 +92,25 @@ export async function GET(req: NextRequest) {
     } else if (task === "fit") {
       result = await fitWeights();
     } else {
-      result = await syncAll();
+      // The scheduled job. Schedules runs can overlap, be redelivered, or be
+      // started by hand ("Run now"); two concurrent syncs would double the
+      // Mongo connection count for no benefit, so take a lease first.
+      const source = runSource(req.headers);
+      console.log("[cron/sync] start", source);
+      const lock = await acquireCronLock(
+        "sync",
+        SYNC_LOCK_TTL_MS,
+        source.executionId,
+      );
+      if (!lock.acquired) {
+        console.log(`[cron/sync] skipped: ${lock.reason}`);
+        return NextResponse.json({ ok: true, skipped: lock.reason, source });
+      }
+      try {
+        result = await syncAll();
+      } finally {
+        await lock.release();
+      }
     }
     return NextResponse.json({ ok: true, result });
   } catch (err) {
