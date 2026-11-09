@@ -217,6 +217,18 @@ function ScoutingBoard() {
     { enabled: !selectedDistrictKey && !selectedEventKey },
   );
 
+  // Before Statbotics publishes a season, boards fall back to the latest
+  // season with EPAs; say which one in the column header (e.g. "EPA '26").
+  const activeBoard = selectedEventKey
+    ? boardForEventQ.data
+    : selectedAbbr
+      ? boardQ.data
+      : topQ.data;
+  const epaLabel =
+    activeBoard?.epaYear != null && activeBoard.epaYear !== activeBoard.year
+      ? `EPA '${String(activeBoard.epaYear).slice(2)}`
+      : "EPA";
+
   const scheduleQ = api.frc.scheduleForDistrict.useQuery(
     { districtKey: selectedDistrictKey! },
     { enabled: !!selectedDistrictKey && page === "schedule" },
@@ -657,6 +669,7 @@ function ScoutingBoard() {
               colorByTeam={colorByTeam}
               onTogglePin={togglePin}
               debug={debugMode}
+              epaLabel={epaLabel}
             />
           )}
           {page === "schedule" && (

@@ -46,6 +46,7 @@ export function Leaderboard({
   colorByTeam,
   onTogglePin,
   debug,
+  epaLabel = "EPA",
 }: {
   teams: TeamView[];
   allTeams: TeamView[];
@@ -66,6 +67,8 @@ export function Leaderboard({
   onTogglePin: (n: number) => void;
   // Debug mode: attach the calculation for each number as a hover tooltip.
   debug: boolean;
+  // EPA column header — names the season when it's a fallback ("EPA '26").
+  epaLabel?: string;
 }) {
   // Calculation string for a cell, shown as a tooltip in debug mode.
   const extraDebug = (t: TeamView, col: ExtraColumn): string | undefined => {
@@ -246,7 +249,7 @@ export function Leaderboard({
           </div>
           <div className="col-epa">
             <ColHeader
-              label="EPA"
+              label={epaLabel}
               sortKey="epa"
               sortState={sort}
               onSort={toggleSort}
