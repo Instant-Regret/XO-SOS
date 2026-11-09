@@ -36,25 +36,42 @@ export type StatboticsTeamYear = {
   epaUnitless: number | null;
 };
 
-// Statbotics intermittently returns 500s under load. Retry 5xx and network
-// errors with backoff so a transient blip doesn't leave us with stale data.
+// A Statbotics response we should not retry (4xx other than 404). E.g. 422 for
+// a season Statbotics doesn't have yet — retrying can never succeed.
+export class StatboticsClientError extends Error {
+  constructor(
+    readonly url: string,
+    readonly status: number,
+    statusText: string,
+  ) {
+    super(`Statbotics ${url} → ${status} ${statusText}`);
+  }
+}
+
+const REQUEST_TIMEOUT_MS = 20_000;
+
+// Statbotics intermittently returns 500s under load. Retry 5xx, timeouts, and
+// network errors with backoff so a transient blip doesn't leave us with stale
+// data. 4xx responses are returned/thrown immediately.
 async function fetchWithRetry(url: string, attempts = 4): Promise<Response> {
   let lastErr: unknown = null;
   for (let i = 0; i < attempts; i++) {
     try {
-      const res = await fetch(url, { cache: "no-store" });
+      const res = await fetch(url, {
+        cache: "no-store",
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      });
       if (res.status === 404 || res.ok) return res;
-      if (res.status >= 500 && i < attempts - 1) {
-        await new Promise((r) => setTimeout(r, 400 * 2 ** i));
-        continue;
+      if (res.status < 500) {
+        throw new StatboticsClientError(url, res.status, res.statusText);
       }
-      throw new Error(`Statbotics ${url} → ${res.status} ${res.statusText}`);
+      lastErr = new Error(`Statbotics ${url} → ${res.status} ${res.statusText}`);
     } catch (err) {
+      if (err instanceof StatboticsClientError) throw err;
       lastErr = err;
-      if (i < attempts - 1) {
-        await new Promise((r) => setTimeout(r, 400 * 2 ** i));
-        continue;
-      }
+    }
+    if (i < attempts - 1) {
+      await new Promise((r) => setTimeout(r, 400 * 2 ** i));
     }
   }
   throw lastErr instanceof Error ? lastErr : new Error(`Statbotics ${url} failed`);
