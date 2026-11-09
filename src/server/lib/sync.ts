@@ -574,9 +574,32 @@ export async function syncYearData(year: number) {
     }),
   );
 
-  await phase("epas", async () => {
-    const teamYears = await getAllTeamYears(year);
-    await writeChangedEpas(year, teamYears);
+  // Statbotics is a third-party dependency (and has no data at all for a
+  // season that hasn't started), so a failure here must not block the TBA
+  // results + score compute below. Existing EPAs are kept; the failure is
+  // recorded in SyncLog and surfaced in the cron response.
+  const epas = await phase("epas", async () => {
+    const startedAt = new Date();
+    try {
+      const teamYears = await getAllTeamYears(year);
+      const updated = await writeChangedEpas(year, teamYears);
+      return { ok: true as const, fetched: teamYears.length, updated };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.warn(`[sync] ${year} epas skipped — Statbotics failed: ${message}`);
+      await db.syncLog
+        .create({
+          data: {
+            task: `epas:${year}`,
+            status: "error",
+            message,
+            startedAt,
+            finishedAt: new Date(),
+          },
+        })
+        .catch(() => undefined);
+      return { ok: false as const, error: message };
+    }
   });
 
   // Per-event results (rankings/alliances/matches) feeding the SLFF scores.
@@ -602,7 +625,13 @@ export async function syncYearData(year: number) {
   // them out of the daily sync keeps it well under the serverless timeout.
   // Refresh them occasionally via /api/cron/avatars (seedAvatars).
 
-  return { year, districts: districts.length, teams: teamCount, events: events.length };
+  return {
+    year,
+    districts: districts.length,
+    teams: teamCount,
+    events: events.length,
+    epas,
+  };
 }
 
 export async function syncAll() {
