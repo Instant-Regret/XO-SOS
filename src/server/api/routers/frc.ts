@@ -7,6 +7,34 @@ import {
 } from "~/server/api/trpc";
 import { getActiveWeights, predict, type Weights4 } from "~/server/lib/scoring-fit";
 import { eventBreakdown } from "~/server/lib/scoring-sync";
+import { type db as Db } from "~/server/db";
+
+// ---- EPA season ----
+
+/**
+ * Which season's EPAs a `year` board should use: the year itself once
+ * Statbotics has any data for it, else the most recent earlier season that
+ * does (e.g. 2026 for a 2027 that hasn't kicked off). Resolved per season, not
+ * per team, so a board never mixes years. null if nothing in the last 4.
+ */
+async function resolveEpaYear(db: typeof Db, year: number): Promise<number | null> {
+  for (let y = year; y >= year - 4; y--) {
+    const hit = await db.teamEpa.findFirst({
+      where: { epas: { some: { year: y } } },
+      select: { id: true },
+    });
+    if (hit) return y;
+  }
+  return null;
+}
+
+function epaIn(
+  epas: { year: number; epaUnitless: number }[],
+  epaYear: number | null,
+): number | null {
+  if (epaYear == null) return null;
+  return epas.find((e) => e.year === epaYear)?.epaUnitless ?? null;
+}
 
 // ---- Score columns (XVAL / XROBOT / XAWARDS / XSOS + per-year history) ----
 
@@ -544,10 +572,10 @@ export const frcRouter = createTRPCRouter({
           }),
         ]);
 
+      const epaYear = await resolveEpaYear(ctx.db, year);
       const epaByTeam = new Map<number, number | null>();
       for (const row of epaDocs) {
-        const entry = row.epas.find((e) => e.year === year);
-        epaByTeam.set(row.teamNumber, entry?.epaUnitless ?? null);
+        epaByTeam.set(row.teamNumber, epaIn(row.epas, epaYear));
       }
 
       const awardsByTeam = new Map<
@@ -628,6 +656,7 @@ export const frcRouter = createTRPCRouter({
 
       return {
         year,
+        epaYear,
         districtKey: input.districtKey,
         teams: teams.map((t) => ({
           number: t.number,
@@ -652,14 +681,17 @@ export const frcRouter = createTRPCRouter({
     .input(z.object({ year: z.number().int(), limit: z.number().int().min(1).max(500).optional() }))
     .query(async ({ ctx, input }) => {
       const limit = input.limit ?? 100;
+      // A season Statbotics hasn't published yet (pre-kickoff) ranks by the
+      // latest season that has EPAs, so the board isn't empty.
+      const epaYear = await resolveEpaYear(ctx.db, input.year);
       const epaDocs = await ctx.db.teamEpa.findMany({
         select: { teamNumber: true, epas: true },
       });
 
       const ranked = epaDocs
         .map((row) => {
-          const entry = row.epas.find((e) => e.year === input.year);
-          return entry ? { teamNumber: row.teamNumber, epa: entry.epaUnitless } : null;
+          const epa = epaIn(row.epas, epaYear);
+          return epa != null ? { teamNumber: row.teamNumber, epa } : null;
         })
         .filter((x): x is { teamNumber: number; epa: number } => x !== null)
         .sort((a, b) => b.epa - a.epa)
@@ -667,7 +699,7 @@ export const frcRouter = createTRPCRouter({
 
       const numbers = ranked.map((r) => r.teamNumber);
       if (numbers.length === 0) {
-        return { year: input.year, teams: [] };
+        return { year: input.year, epaYear, teams: [] };
       }
 
       const [teams, awardDocs, avatarDocs, districtLinks, scoreRows, weights, resultRows] =
@@ -780,6 +812,7 @@ export const frcRouter = createTRPCRouter({
 
       return {
         year: input.year,
+        epaYear,
         teams: ranked.map((r) => {
           const t = teamByNumber.get(r.teamNumber);
           return {
@@ -889,10 +922,10 @@ export const frcRouter = createTRPCRouter({
       const window: ScoreWindow =
         et === 3 || et === 4 ? "full" : et === 0 ? "reg" : "dct";
 
+      const epaYear = await resolveEpaYear(ctx.db, year);
       const epaByTeam = new Map<number, number | null>();
       for (const row of epaDocs) {
-        const entry = row.epas.find((e) => e.year === year);
-        epaByTeam.set(row.teamNumber, entry?.epaUnitless ?? null);
+        epaByTeam.set(row.teamNumber, epaIn(row.epas, epaYear));
       }
       const awardsByTeam = new Map<
         number,
@@ -963,6 +996,7 @@ export const frcRouter = createTRPCRouter({
 
       return {
         year,
+        epaYear,
         eventKey: input.eventKey,
         teams: teams.map((t) => ({
           number: t.number,
@@ -1030,10 +1064,11 @@ export const frcRouter = createTRPCRouter({
       ]);
       const nicknameByNumber = new Map<number, string | null>();
       for (const t of teams) nicknameByNumber.set(t.number, t.nickname);
+      const epaYear = await resolveEpaYear(ctx.db, year);
       const epaByNumber = new Map<number, number>();
       for (const row of epaDocs) {
-        const entry = row.epas.find((e) => e.year === year);
-        if (entry) epaByNumber.set(row.teamNumber, entry.epaUnitless);
+        const epa = epaIn(row.epas, epaYear);
+        if (epa != null) epaByNumber.set(row.teamNumber, epa);
       }
 
       const districtSet = new Set(districtNumbers);
