@@ -99,6 +99,11 @@ export type Award = $Result.DefaultSelection<Prisma.$AwardPayload>
  */
 export type SyncLog = $Result.DefaultSelection<Prisma.$SyncLogPayload>
 /**
+ * Model CronLock
+ * 
+ */
+export type CronLock = $Result.DefaultSelection<Prisma.$CronLockPayload>
+/**
  * Model Pick
  * 
  */
@@ -358,6 +363,16 @@ export class PrismaClient<
     * ```
     */
   get syncLog(): Prisma.SyncLogDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.cronLock`: Exposes CRUD operations for the **CronLock** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CronLocks
+    * const cronLocks = await prisma.cronLock.findMany()
+    * ```
+    */
+  get cronLock(): Prisma.CronLockDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.pick`: Exposes CRUD operations for the **Pick** model.
@@ -883,6 +898,7 @@ export namespace Prisma {
     TeamAvatar: 'TeamAvatar',
     Award: 'Award',
     SyncLog: 'SyncLog',
+    CronLock: 'CronLock',
     Pick: 'Pick',
     Draft: 'Draft',
     SyncCursor: 'SyncCursor',
@@ -908,7 +924,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "post" | "account" | "session" | "user" | "verificationToken" | "district" | "event" | "team" | "teamEpa" | "eventTeam" | "districtTeam" | "teamAvatar" | "award" | "syncLog" | "pick" | "draft" | "syncCursor" | "rating" | "teamEventResult" | "teamScore" | "scoreWeights"
+      modelProps: "post" | "account" | "session" | "user" | "verificationToken" | "district" | "event" | "team" | "teamEpa" | "eventTeam" | "districtTeam" | "teamAvatar" | "award" | "syncLog" | "cronLock" | "pick" | "draft" | "syncCursor" | "rating" | "teamEventResult" | "teamScore" | "scoreWeights"
       txIsolationLevel: never
     }
     model: {
@@ -1948,6 +1964,80 @@ export namespace Prisma {
           }
         }
       }
+      CronLock: {
+        payload: Prisma.$CronLockPayload<ExtArgs>
+        fields: Prisma.CronLockFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CronLockFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CronLockPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CronLockFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CronLockPayload>
+          }
+          findFirst: {
+            args: Prisma.CronLockFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CronLockPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CronLockFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CronLockPayload>
+          }
+          findMany: {
+            args: Prisma.CronLockFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CronLockPayload>[]
+          }
+          create: {
+            args: Prisma.CronLockCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CronLockPayload>
+          }
+          createMany: {
+            args: Prisma.CronLockCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.CronLockDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CronLockPayload>
+          }
+          update: {
+            args: Prisma.CronLockUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CronLockPayload>
+          }
+          deleteMany: {
+            args: Prisma.CronLockDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CronLockUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.CronLockUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CronLockPayload>
+          }
+          aggregate: {
+            args: Prisma.CronLockAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCronLock>
+          }
+          groupBy: {
+            args: Prisma.CronLockGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CronLockGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.CronLockFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.CronLockAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.CronLockCountArgs<ExtArgs>
+            result: $Utils.Optional<CronLockCountAggregateOutputType> | number
+          }
+        }
+      }
       Pick: {
         payload: Prisma.$PickPayload<ExtArgs>
         fields: Prisma.PickFieldRefs
@@ -2559,6 +2649,7 @@ export namespace Prisma {
     teamAvatar?: TeamAvatarOmit
     award?: AwardOmit
     syncLog?: SyncLogOmit
+    cronLock?: CronLockOmit
     pick?: PickOmit
     draft?: DraftOmit
     syncCursor?: SyncCursorOmit
@@ -16744,6 +16835,949 @@ export namespace Prisma {
 
 
   /**
+   * Model CronLock
+   */
+
+  export type AggregateCronLock = {
+    _count: CronLockCountAggregateOutputType | null
+    _min: CronLockMinAggregateOutputType | null
+    _max: CronLockMaxAggregateOutputType | null
+  }
+
+  export type CronLockMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    holder: string | null
+    expiresAt: Date | null
+    lastExecutionId: string | null
+    updatedAt: Date | null
+  }
+
+  export type CronLockMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    holder: string | null
+    expiresAt: Date | null
+    lastExecutionId: string | null
+    updatedAt: Date | null
+  }
+
+  export type CronLockCountAggregateOutputType = {
+    id: number
+    name: number
+    holder: number
+    expiresAt: number
+    lastExecutionId: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type CronLockMinAggregateInputType = {
+    id?: true
+    name?: true
+    holder?: true
+    expiresAt?: true
+    lastExecutionId?: true
+    updatedAt?: true
+  }
+
+  export type CronLockMaxAggregateInputType = {
+    id?: true
+    name?: true
+    holder?: true
+    expiresAt?: true
+    lastExecutionId?: true
+    updatedAt?: true
+  }
+
+  export type CronLockCountAggregateInputType = {
+    id?: true
+    name?: true
+    holder?: true
+    expiresAt?: true
+    lastExecutionId?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type CronLockAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CronLock to aggregate.
+     */
+    where?: CronLockWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CronLocks to fetch.
+     */
+    orderBy?: CronLockOrderByWithRelationInput | CronLockOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CronLockWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CronLocks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CronLocks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CronLocks
+    **/
+    _count?: true | CronLockCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CronLockMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CronLockMaxAggregateInputType
+  }
+
+  export type GetCronLockAggregateType<T extends CronLockAggregateArgs> = {
+        [P in keyof T & keyof AggregateCronLock]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCronLock[P]>
+      : GetScalarType<T[P], AggregateCronLock[P]>
+  }
+
+
+
+
+  export type CronLockGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CronLockWhereInput
+    orderBy?: CronLockOrderByWithAggregationInput | CronLockOrderByWithAggregationInput[]
+    by: CronLockScalarFieldEnum[] | CronLockScalarFieldEnum
+    having?: CronLockScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CronLockCountAggregateInputType | true
+    _min?: CronLockMinAggregateInputType
+    _max?: CronLockMaxAggregateInputType
+  }
+
+  export type CronLockGroupByOutputType = {
+    id: string
+    name: string
+    holder: string | null
+    expiresAt: Date
+    lastExecutionId: string | null
+    updatedAt: Date
+    _count: CronLockCountAggregateOutputType | null
+    _min: CronLockMinAggregateOutputType | null
+    _max: CronLockMaxAggregateOutputType | null
+  }
+
+  type GetCronLockGroupByPayload<T extends CronLockGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CronLockGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CronLockGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CronLockGroupByOutputType[P]>
+            : GetScalarType<T[P], CronLockGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CronLockSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    holder?: boolean
+    expiresAt?: boolean
+    lastExecutionId?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["cronLock"]>
+
+
+
+  export type CronLockSelectScalar = {
+    id?: boolean
+    name?: boolean
+    holder?: boolean
+    expiresAt?: boolean
+    lastExecutionId?: boolean
+    updatedAt?: boolean
+  }
+
+  export type CronLockOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "holder" | "expiresAt" | "lastExecutionId" | "updatedAt", ExtArgs["result"]["cronLock"]>
+
+  export type $CronLockPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CronLock"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      holder: string | null
+      expiresAt: Date
+      lastExecutionId: string | null
+      updatedAt: Date
+    }, ExtArgs["result"]["cronLock"]>
+    composites: {}
+  }
+
+  type CronLockGetPayload<S extends boolean | null | undefined | CronLockDefaultArgs> = $Result.GetResult<Prisma.$CronLockPayload, S>
+
+  type CronLockCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CronLockFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CronLockCountAggregateInputType | true
+    }
+
+  export interface CronLockDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CronLock'], meta: { name: 'CronLock' } }
+    /**
+     * Find zero or one CronLock that matches the filter.
+     * @param {CronLockFindUniqueArgs} args - Arguments to find a CronLock
+     * @example
+     * // Get one CronLock
+     * const cronLock = await prisma.cronLock.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CronLockFindUniqueArgs>(args: SelectSubset<T, CronLockFindUniqueArgs<ExtArgs>>): Prisma__CronLockClient<$Result.GetResult<Prisma.$CronLockPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CronLock that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CronLockFindUniqueOrThrowArgs} args - Arguments to find a CronLock
+     * @example
+     * // Get one CronLock
+     * const cronLock = await prisma.cronLock.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CronLockFindUniqueOrThrowArgs>(args: SelectSubset<T, CronLockFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CronLockClient<$Result.GetResult<Prisma.$CronLockPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CronLock that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CronLockFindFirstArgs} args - Arguments to find a CronLock
+     * @example
+     * // Get one CronLock
+     * const cronLock = await prisma.cronLock.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CronLockFindFirstArgs>(args?: SelectSubset<T, CronLockFindFirstArgs<ExtArgs>>): Prisma__CronLockClient<$Result.GetResult<Prisma.$CronLockPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CronLock that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CronLockFindFirstOrThrowArgs} args - Arguments to find a CronLock
+     * @example
+     * // Get one CronLock
+     * const cronLock = await prisma.cronLock.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CronLockFindFirstOrThrowArgs>(args?: SelectSubset<T, CronLockFindFirstOrThrowArgs<ExtArgs>>): Prisma__CronLockClient<$Result.GetResult<Prisma.$CronLockPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CronLocks that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CronLockFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CronLocks
+     * const cronLocks = await prisma.cronLock.findMany()
+     * 
+     * // Get first 10 CronLocks
+     * const cronLocks = await prisma.cronLock.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const cronLockWithIdOnly = await prisma.cronLock.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CronLockFindManyArgs>(args?: SelectSubset<T, CronLockFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CronLockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CronLock.
+     * @param {CronLockCreateArgs} args - Arguments to create a CronLock.
+     * @example
+     * // Create one CronLock
+     * const CronLock = await prisma.cronLock.create({
+     *   data: {
+     *     // ... data to create a CronLock
+     *   }
+     * })
+     * 
+     */
+    create<T extends CronLockCreateArgs>(args: SelectSubset<T, CronLockCreateArgs<ExtArgs>>): Prisma__CronLockClient<$Result.GetResult<Prisma.$CronLockPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CronLocks.
+     * @param {CronLockCreateManyArgs} args - Arguments to create many CronLocks.
+     * @example
+     * // Create many CronLocks
+     * const cronLock = await prisma.cronLock.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CronLockCreateManyArgs>(args?: SelectSubset<T, CronLockCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a CronLock.
+     * @param {CronLockDeleteArgs} args - Arguments to delete one CronLock.
+     * @example
+     * // Delete one CronLock
+     * const CronLock = await prisma.cronLock.delete({
+     *   where: {
+     *     // ... filter to delete one CronLock
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CronLockDeleteArgs>(args: SelectSubset<T, CronLockDeleteArgs<ExtArgs>>): Prisma__CronLockClient<$Result.GetResult<Prisma.$CronLockPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CronLock.
+     * @param {CronLockUpdateArgs} args - Arguments to update one CronLock.
+     * @example
+     * // Update one CronLock
+     * const cronLock = await prisma.cronLock.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CronLockUpdateArgs>(args: SelectSubset<T, CronLockUpdateArgs<ExtArgs>>): Prisma__CronLockClient<$Result.GetResult<Prisma.$CronLockPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CronLocks.
+     * @param {CronLockDeleteManyArgs} args - Arguments to filter CronLocks to delete.
+     * @example
+     * // Delete a few CronLocks
+     * const { count } = await prisma.cronLock.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CronLockDeleteManyArgs>(args?: SelectSubset<T, CronLockDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CronLocks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CronLockUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CronLocks
+     * const cronLock = await prisma.cronLock.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CronLockUpdateManyArgs>(args: SelectSubset<T, CronLockUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one CronLock.
+     * @param {CronLockUpsertArgs} args - Arguments to update or create a CronLock.
+     * @example
+     * // Update or create a CronLock
+     * const cronLock = await prisma.cronLock.upsert({
+     *   create: {
+     *     // ... data to create a CronLock
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CronLock we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CronLockUpsertArgs>(args: SelectSubset<T, CronLockUpsertArgs<ExtArgs>>): Prisma__CronLockClient<$Result.GetResult<Prisma.$CronLockPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CronLocks that matches the filter.
+     * @param {CronLockFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const cronLock = await prisma.cronLock.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: CronLockFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a CronLock.
+     * @param {CronLockAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const cronLock = await prisma.cronLock.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: CronLockAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of CronLocks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CronLockCountArgs} args - Arguments to filter CronLocks to count.
+     * @example
+     * // Count the number of CronLocks
+     * const count = await prisma.cronLock.count({
+     *   where: {
+     *     // ... the filter for the CronLocks we want to count
+     *   }
+     * })
+    **/
+    count<T extends CronLockCountArgs>(
+      args?: Subset<T, CronLockCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CronLockCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CronLock.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CronLockAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CronLockAggregateArgs>(args: Subset<T, CronLockAggregateArgs>): Prisma.PrismaPromise<GetCronLockAggregateType<T>>
+
+    /**
+     * Group by CronLock.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CronLockGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CronLockGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CronLockGroupByArgs['orderBy'] }
+        : { orderBy?: CronLockGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CronLockGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCronLockGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CronLock model
+   */
+  readonly fields: CronLockFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CronLock.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CronLockClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CronLock model
+   */
+  interface CronLockFieldRefs {
+    readonly id: FieldRef<"CronLock", 'String'>
+    readonly name: FieldRef<"CronLock", 'String'>
+    readonly holder: FieldRef<"CronLock", 'String'>
+    readonly expiresAt: FieldRef<"CronLock", 'DateTime'>
+    readonly lastExecutionId: FieldRef<"CronLock", 'String'>
+    readonly updatedAt: FieldRef<"CronLock", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CronLock findUnique
+   */
+  export type CronLockFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CronLock
+     */
+    select?: CronLockSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CronLock
+     */
+    omit?: CronLockOmit<ExtArgs> | null
+    /**
+     * Filter, which CronLock to fetch.
+     */
+    where: CronLockWhereUniqueInput
+  }
+
+  /**
+   * CronLock findUniqueOrThrow
+   */
+  export type CronLockFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CronLock
+     */
+    select?: CronLockSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CronLock
+     */
+    omit?: CronLockOmit<ExtArgs> | null
+    /**
+     * Filter, which CronLock to fetch.
+     */
+    where: CronLockWhereUniqueInput
+  }
+
+  /**
+   * CronLock findFirst
+   */
+  export type CronLockFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CronLock
+     */
+    select?: CronLockSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CronLock
+     */
+    omit?: CronLockOmit<ExtArgs> | null
+    /**
+     * Filter, which CronLock to fetch.
+     */
+    where?: CronLockWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CronLocks to fetch.
+     */
+    orderBy?: CronLockOrderByWithRelationInput | CronLockOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CronLocks.
+     */
+    cursor?: CronLockWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CronLocks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CronLocks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CronLocks.
+     */
+    distinct?: CronLockScalarFieldEnum | CronLockScalarFieldEnum[]
+  }
+
+  /**
+   * CronLock findFirstOrThrow
+   */
+  export type CronLockFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CronLock
+     */
+    select?: CronLockSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CronLock
+     */
+    omit?: CronLockOmit<ExtArgs> | null
+    /**
+     * Filter, which CronLock to fetch.
+     */
+    where?: CronLockWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CronLocks to fetch.
+     */
+    orderBy?: CronLockOrderByWithRelationInput | CronLockOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CronLocks.
+     */
+    cursor?: CronLockWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CronLocks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CronLocks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CronLocks.
+     */
+    distinct?: CronLockScalarFieldEnum | CronLockScalarFieldEnum[]
+  }
+
+  /**
+   * CronLock findMany
+   */
+  export type CronLockFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CronLock
+     */
+    select?: CronLockSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CronLock
+     */
+    omit?: CronLockOmit<ExtArgs> | null
+    /**
+     * Filter, which CronLocks to fetch.
+     */
+    where?: CronLockWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CronLocks to fetch.
+     */
+    orderBy?: CronLockOrderByWithRelationInput | CronLockOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CronLocks.
+     */
+    cursor?: CronLockWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CronLocks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CronLocks.
+     */
+    skip?: number
+    distinct?: CronLockScalarFieldEnum | CronLockScalarFieldEnum[]
+  }
+
+  /**
+   * CronLock create
+   */
+  export type CronLockCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CronLock
+     */
+    select?: CronLockSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CronLock
+     */
+    omit?: CronLockOmit<ExtArgs> | null
+    /**
+     * The data needed to create a CronLock.
+     */
+    data: XOR<CronLockCreateInput, CronLockUncheckedCreateInput>
+  }
+
+  /**
+   * CronLock createMany
+   */
+  export type CronLockCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CronLocks.
+     */
+    data: CronLockCreateManyInput | CronLockCreateManyInput[]
+  }
+
+  /**
+   * CronLock update
+   */
+  export type CronLockUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CronLock
+     */
+    select?: CronLockSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CronLock
+     */
+    omit?: CronLockOmit<ExtArgs> | null
+    /**
+     * The data needed to update a CronLock.
+     */
+    data: XOR<CronLockUpdateInput, CronLockUncheckedUpdateInput>
+    /**
+     * Choose, which CronLock to update.
+     */
+    where: CronLockWhereUniqueInput
+  }
+
+  /**
+   * CronLock updateMany
+   */
+  export type CronLockUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CronLocks.
+     */
+    data: XOR<CronLockUpdateManyMutationInput, CronLockUncheckedUpdateManyInput>
+    /**
+     * Filter which CronLocks to update
+     */
+    where?: CronLockWhereInput
+    /**
+     * Limit how many CronLocks to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CronLock upsert
+   */
+  export type CronLockUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CronLock
+     */
+    select?: CronLockSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CronLock
+     */
+    omit?: CronLockOmit<ExtArgs> | null
+    /**
+     * The filter to search for the CronLock to update in case it exists.
+     */
+    where: CronLockWhereUniqueInput
+    /**
+     * In case the CronLock found by the `where` argument doesn't exist, create a new CronLock with this data.
+     */
+    create: XOR<CronLockCreateInput, CronLockUncheckedCreateInput>
+    /**
+     * In case the CronLock was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CronLockUpdateInput, CronLockUncheckedUpdateInput>
+  }
+
+  /**
+   * CronLock delete
+   */
+  export type CronLockDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CronLock
+     */
+    select?: CronLockSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CronLock
+     */
+    omit?: CronLockOmit<ExtArgs> | null
+    /**
+     * Filter which CronLock to delete.
+     */
+    where: CronLockWhereUniqueInput
+  }
+
+  /**
+   * CronLock deleteMany
+   */
+  export type CronLockDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CronLocks to delete
+     */
+    where?: CronLockWhereInput
+    /**
+     * Limit how many CronLocks to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CronLock findRaw
+   */
+  export type CronLockFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * CronLock aggregateRaw
+   */
+  export type CronLockAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * CronLock without action
+   */
+  export type CronLockDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CronLock
+     */
+    select?: CronLockSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CronLock
+     */
+    omit?: CronLockOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model Pick
    */
 
@@ -24045,6 +25079,18 @@ export namespace Prisma {
   export type SyncLogScalarFieldEnum = (typeof SyncLogScalarFieldEnum)[keyof typeof SyncLogScalarFieldEnum]
 
 
+  export const CronLockScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    holder: 'holder',
+    expiresAt: 'expiresAt',
+    lastExecutionId: 'lastExecutionId',
+    updatedAt: 'updatedAt'
+  };
+
+  export type CronLockScalarFieldEnum = (typeof CronLockScalarFieldEnum)[keyof typeof CronLockScalarFieldEnum]
+
+
   export const PickScalarFieldEnum: {
     id: 'id',
     scopeKey: 'scopeKey',
@@ -25043,6 +26089,63 @@ export namespace Prisma {
     message?: StringNullableWithAggregatesFilter<"SyncLog"> | string | null
     startedAt?: DateTimeWithAggregatesFilter<"SyncLog"> | Date | string
     finishedAt?: DateTimeWithAggregatesFilter<"SyncLog"> | Date | string
+  }
+
+  export type CronLockWhereInput = {
+    AND?: CronLockWhereInput | CronLockWhereInput[]
+    OR?: CronLockWhereInput[]
+    NOT?: CronLockWhereInput | CronLockWhereInput[]
+    id?: StringFilter<"CronLock"> | string
+    name?: StringFilter<"CronLock"> | string
+    holder?: StringNullableFilter<"CronLock"> | string | null
+    expiresAt?: DateTimeFilter<"CronLock"> | Date | string
+    lastExecutionId?: StringNullableFilter<"CronLock"> | string | null
+    updatedAt?: DateTimeFilter<"CronLock"> | Date | string
+  }
+
+  export type CronLockOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    holder?: SortOrder
+    expiresAt?: SortOrder
+    lastExecutionId?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CronLockWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    name?: string
+    AND?: CronLockWhereInput | CronLockWhereInput[]
+    OR?: CronLockWhereInput[]
+    NOT?: CronLockWhereInput | CronLockWhereInput[]
+    holder?: StringNullableFilter<"CronLock"> | string | null
+    expiresAt?: DateTimeFilter<"CronLock"> | Date | string
+    lastExecutionId?: StringNullableFilter<"CronLock"> | string | null
+    updatedAt?: DateTimeFilter<"CronLock"> | Date | string
+  }, "id" | "name">
+
+  export type CronLockOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    holder?: SortOrder
+    expiresAt?: SortOrder
+    lastExecutionId?: SortOrder
+    updatedAt?: SortOrder
+    _count?: CronLockCountOrderByAggregateInput
+    _max?: CronLockMaxOrderByAggregateInput
+    _min?: CronLockMinOrderByAggregateInput
+  }
+
+  export type CronLockScalarWhereWithAggregatesInput = {
+    AND?: CronLockScalarWhereWithAggregatesInput | CronLockScalarWhereWithAggregatesInput[]
+    OR?: CronLockScalarWhereWithAggregatesInput[]
+    NOT?: CronLockScalarWhereWithAggregatesInput | CronLockScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CronLock"> | string
+    name?: StringWithAggregatesFilter<"CronLock"> | string
+    holder?: StringNullableWithAggregatesFilter<"CronLock"> | string | null
+    expiresAt?: DateTimeWithAggregatesFilter<"CronLock"> | Date | string
+    lastExecutionId?: StringNullableWithAggregatesFilter<"CronLock"> | string | null
+    updatedAt?: DateTimeWithAggregatesFilter<"CronLock"> | Date | string
   }
 
   export type PickWhereInput = {
@@ -26379,6 +27482,65 @@ export namespace Prisma {
     finishedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CronLockCreateInput = {
+    id?: string
+    name: string
+    holder?: string | null
+    expiresAt: Date | string
+    lastExecutionId?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type CronLockUncheckedCreateInput = {
+    id?: string
+    name: string
+    holder?: string | null
+    expiresAt: Date | string
+    lastExecutionId?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type CronLockUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    holder?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastExecutionId?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CronLockUncheckedUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    holder?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastExecutionId?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CronLockCreateManyInput = {
+    id?: string
+    name: string
+    holder?: string | null
+    expiresAt: Date | string
+    lastExecutionId?: string | null
+    updatedAt?: Date | string
+  }
+
+  export type CronLockUpdateManyMutationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    holder?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastExecutionId?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CronLockUncheckedUpdateManyInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    holder?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastExecutionId?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type PickCreateInput = {
     id?: string
     scopeKey: string
@@ -27687,6 +28849,33 @@ export namespace Prisma {
     message?: SortOrder
     startedAt?: SortOrder
     finishedAt?: SortOrder
+  }
+
+  export type CronLockCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    holder?: SortOrder
+    expiresAt?: SortOrder
+    lastExecutionId?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CronLockMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    holder?: SortOrder
+    expiresAt?: SortOrder
+    lastExecutionId?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CronLockMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    holder?: SortOrder
+    expiresAt?: SortOrder
+    lastExecutionId?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type PickScopeKeyTeamNumberCompoundUniqueInput = {

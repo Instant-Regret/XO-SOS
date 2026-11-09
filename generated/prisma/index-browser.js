@@ -234,6 +234,15 @@ exports.Prisma.SyncLogScalarFieldEnum = {
   finishedAt: 'finishedAt'
 };
 
+exports.Prisma.CronLockScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  holder: 'holder',
+  expiresAt: 'expiresAt',
+  lastExecutionId: 'lastExecutionId',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.PickScalarFieldEnum = {
   id: 'id',
   scopeKey: 'scopeKey',
@@ -344,6 +353,7 @@ exports.Prisma.ModelName = {
   TeamAvatar: 'TeamAvatar',
   Award: 'Award',
   SyncLog: 'SyncLog',
+  CronLock: 'CronLock',
   Pick: 'Pick',
   Draft: 'Draft',
   SyncCursor: 'SyncCursor',
