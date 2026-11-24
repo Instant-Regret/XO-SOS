@@ -270,7 +270,10 @@ export async function computeYearScores(year: number) {
       db.teamEventResult.findMany({ where: { year } }),
       db.award.findMany({ select: { teamNumber: true, awards: true } }),
       db.teamEpa.findMany({ select: { teamNumber: true, epas: true } }),
-      db.event.findMany({ where: { year }, select: { key: true, districtKey: true } }),
+      db.event.findMany({
+        where: { year },
+        select: { key: true, districtKey: true, endDate: true },
+      }),
       db.district.findMany({ where: { year }, select: { key: true } }),
       db.districtTeam.findMany({
         where: { districtKey: { startsWith: String(year) } },
@@ -309,9 +312,30 @@ export async function computeYearScores(year: number) {
       awardsByTeamEvent.set(k, list);
     }
   }
+  // Skip a team's entry at an event that hasn't finished and has no results
+  // for it yet: a pre-season/upcoming registration, not a 0-point event.
+  // Counting it would make a registered-only team a "one-play" (+14) and push
+  // real events out of the first-2 window. Finished events are always kept,
+  // so past seasons score exactly as before.
+  const today = new Date().toISOString().slice(0, 10);
+  const endDateOf = new Map(eventDocs.map((e) => [e.key, e.endDate]));
+  const notYetPlayed = (r: (typeof results)[number]) => {
+    const end = endDateOf.get(r.eventKey);
+    const finished = end != null && end < today;
+    if (finished) return false;
+    const hasResults =
+      r.qualRank != null ||
+      r.allianceSeed != null ||
+      r.elimWins > 0 ||
+      r.elimMatchesPlayed > 0 ||
+      awardsByTeamEvent.has(`${r.teamNumber}:${r.eventKey}`);
+    return !hasResults;
+  };
+
   // Group results by team.
   const byTeam = new Map<number, ResultRow[]>();
   for (const r of results) {
+    if (notYetPlayed(r)) continue;
     const list = byTeam.get(r.teamNumber) ?? [];
     list.push(r);
     byTeam.set(r.teamNumber, list);
@@ -509,6 +533,17 @@ export async function computeYearScores(year: number) {
       update: { ...rounded, diffStd, diffReg, diffDct },
     });
   });
+
+  // Teams whose every entry this season is still unplayed have no score yet;
+  // drop a row left over from before (e.g. phantom pre-season points).
+  const nothingPlayedYet = [...new Set(results.map((r) => r.teamNumber))].filter(
+    (n) => !computed.has(n) && existing.has(n),
+  );
+  if (nothingPlayedYet.length > 0) {
+    await db.teamScore.deleteMany({
+      where: { year, teamNumber: { in: nothingPlayedYet } },
+    });
+  }
 
   // Event field strength = mean roster EPA, stored on the Event. Drives the
   // XSOS schedule metric (how hard the events a team attends are vs the ones
