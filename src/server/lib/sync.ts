@@ -4,6 +4,7 @@ import { db } from "~/server/db";
 import { env } from "~/env";
 import { getAllTeamYears, getTeamYear } from "~/server/lib/statbotics";
 import { computeYearScores, syncEventResults } from "~/server/lib/scoring-sync";
+import { syncRegionGroups } from "~/server/lib/region-groups";
 import { EVENT_TYPE, tba, type TbaEvent, type TbaTeam } from "~/server/lib/tba";
 
 // Process N items concurrently; resolve when all are done. Failures are logged
@@ -567,6 +568,10 @@ export async function syncYearData(year: number) {
       await syncEventTeams(e.key);
     }),
   );
+
+  // SLFF regional groupings are built from event rosters, so refresh them now
+  // that rosters are current.
+  await phase("regionGroups", () => syncRegionGroups(year));
 
   await phase("eventAwards", () =>
     pool(events, 12, async (e) => {

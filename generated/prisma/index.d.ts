@@ -79,6 +79,11 @@ export type TeamEpa = $Result.DefaultSelection<Prisma.$TeamEpaPayload>
  */
 export type EventTeam = $Result.DefaultSelection<Prisma.$EventTeamPayload>
 /**
+ * Model RegionGroup
+ * 
+ */
+export type RegionGroup = $Result.DefaultSelection<Prisma.$RegionGroupPayload>
+/**
  * Model DistrictTeam
  * 
  */
@@ -323,6 +328,16 @@ export class PrismaClient<
     * ```
     */
   get eventTeam(): Prisma.EventTeamDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.regionGroup`: Exposes CRUD operations for the **RegionGroup** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more RegionGroups
+    * const regionGroups = await prisma.regionGroup.findMany()
+    * ```
+    */
+  get regionGroup(): Prisma.RegionGroupDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.districtTeam`: Exposes CRUD operations for the **DistrictTeam** model.
@@ -894,6 +909,7 @@ export namespace Prisma {
     Team: 'Team',
     TeamEpa: 'TeamEpa',
     EventTeam: 'EventTeam',
+    RegionGroup: 'RegionGroup',
     DistrictTeam: 'DistrictTeam',
     TeamAvatar: 'TeamAvatar',
     Award: 'Award',
@@ -924,7 +940,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "post" | "account" | "session" | "user" | "verificationToken" | "district" | "event" | "team" | "teamEpa" | "eventTeam" | "districtTeam" | "teamAvatar" | "award" | "syncLog" | "cronLock" | "pick" | "draft" | "syncCursor" | "rating" | "teamEventResult" | "teamScore" | "scoreWeights"
+      modelProps: "post" | "account" | "session" | "user" | "verificationToken" | "district" | "event" | "team" | "teamEpa" | "eventTeam" | "regionGroup" | "districtTeam" | "teamAvatar" | "award" | "syncLog" | "cronLock" | "pick" | "draft" | "syncCursor" | "rating" | "teamEventResult" | "teamScore" | "scoreWeights"
       txIsolationLevel: never
     }
     model: {
@@ -1665,6 +1681,80 @@ export namespace Prisma {
           count: {
             args: Prisma.EventTeamCountArgs<ExtArgs>
             result: $Utils.Optional<EventTeamCountAggregateOutputType> | number
+          }
+        }
+      }
+      RegionGroup: {
+        payload: Prisma.$RegionGroupPayload<ExtArgs>
+        fields: Prisma.RegionGroupFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.RegionGroupFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegionGroupPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.RegionGroupFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegionGroupPayload>
+          }
+          findFirst: {
+            args: Prisma.RegionGroupFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegionGroupPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.RegionGroupFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegionGroupPayload>
+          }
+          findMany: {
+            args: Prisma.RegionGroupFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegionGroupPayload>[]
+          }
+          create: {
+            args: Prisma.RegionGroupCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegionGroupPayload>
+          }
+          createMany: {
+            args: Prisma.RegionGroupCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.RegionGroupDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegionGroupPayload>
+          }
+          update: {
+            args: Prisma.RegionGroupUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegionGroupPayload>
+          }
+          deleteMany: {
+            args: Prisma.RegionGroupDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.RegionGroupUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.RegionGroupUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegionGroupPayload>
+          }
+          aggregate: {
+            args: Prisma.RegionGroupAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateRegionGroup>
+          }
+          groupBy: {
+            args: Prisma.RegionGroupGroupByArgs<ExtArgs>
+            result: $Utils.Optional<RegionGroupGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.RegionGroupFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.RegionGroupAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.RegionGroupCountArgs<ExtArgs>
+            result: $Utils.Optional<RegionGroupCountAggregateOutputType> | number
           }
         }
       }
@@ -2645,6 +2735,7 @@ export namespace Prisma {
     team?: TeamOmit
     teamEpa?: TeamEpaOmit
     eventTeam?: EventTeamOmit
+    regionGroup?: RegionGroupOmit
     districtTeam?: DistrictTeamOmit
     teamAvatar?: TeamAvatarOmit
     award?: AwardOmit
@@ -12983,6 +13074,990 @@ export namespace Prisma {
      * Omit specific fields from the EventTeam
      */
     omit?: EventTeamOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model RegionGroup
+   */
+
+  export type AggregateRegionGroup = {
+    _count: RegionGroupCountAggregateOutputType | null
+    _avg: RegionGroupAvgAggregateOutputType | null
+    _sum: RegionGroupSumAggregateOutputType | null
+    _min: RegionGroupMinAggregateOutputType | null
+    _max: RegionGroupMaxAggregateOutputType | null
+  }
+
+  export type RegionGroupAvgAggregateOutputType = {
+    year: number | null
+  }
+
+  export type RegionGroupSumAggregateOutputType = {
+    year: number | null
+  }
+
+  export type RegionGroupMinAggregateOutputType = {
+    id: string | null
+    key: string | null
+    year: number | null
+    abbreviation: string | null
+    displayName: string | null
+    updatedAt: Date | null
+  }
+
+  export type RegionGroupMaxAggregateOutputType = {
+    id: string | null
+    key: string | null
+    year: number | null
+    abbreviation: string | null
+    displayName: string | null
+    updatedAt: Date | null
+  }
+
+  export type RegionGroupCountAggregateOutputType = {
+    id: number
+    key: number
+    year: number
+    abbreviation: number
+    displayName: number
+    eventKeys: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type RegionGroupAvgAggregateInputType = {
+    year?: true
+  }
+
+  export type RegionGroupSumAggregateInputType = {
+    year?: true
+  }
+
+  export type RegionGroupMinAggregateInputType = {
+    id?: true
+    key?: true
+    year?: true
+    abbreviation?: true
+    displayName?: true
+    updatedAt?: true
+  }
+
+  export type RegionGroupMaxAggregateInputType = {
+    id?: true
+    key?: true
+    year?: true
+    abbreviation?: true
+    displayName?: true
+    updatedAt?: true
+  }
+
+  export type RegionGroupCountAggregateInputType = {
+    id?: true
+    key?: true
+    year?: true
+    abbreviation?: true
+    displayName?: true
+    eventKeys?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type RegionGroupAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which RegionGroup to aggregate.
+     */
+    where?: RegionGroupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RegionGroups to fetch.
+     */
+    orderBy?: RegionGroupOrderByWithRelationInput | RegionGroupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: RegionGroupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RegionGroups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RegionGroups.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned RegionGroups
+    **/
+    _count?: true | RegionGroupCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: RegionGroupAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: RegionGroupSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: RegionGroupMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: RegionGroupMaxAggregateInputType
+  }
+
+  export type GetRegionGroupAggregateType<T extends RegionGroupAggregateArgs> = {
+        [P in keyof T & keyof AggregateRegionGroup]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateRegionGroup[P]>
+      : GetScalarType<T[P], AggregateRegionGroup[P]>
+  }
+
+
+
+
+  export type RegionGroupGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RegionGroupWhereInput
+    orderBy?: RegionGroupOrderByWithAggregationInput | RegionGroupOrderByWithAggregationInput[]
+    by: RegionGroupScalarFieldEnum[] | RegionGroupScalarFieldEnum
+    having?: RegionGroupScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: RegionGroupCountAggregateInputType | true
+    _avg?: RegionGroupAvgAggregateInputType
+    _sum?: RegionGroupSumAggregateInputType
+    _min?: RegionGroupMinAggregateInputType
+    _max?: RegionGroupMaxAggregateInputType
+  }
+
+  export type RegionGroupGroupByOutputType = {
+    id: string
+    key: string
+    year: number
+    abbreviation: string
+    displayName: string
+    eventKeys: string[]
+    updatedAt: Date
+    _count: RegionGroupCountAggregateOutputType | null
+    _avg: RegionGroupAvgAggregateOutputType | null
+    _sum: RegionGroupSumAggregateOutputType | null
+    _min: RegionGroupMinAggregateOutputType | null
+    _max: RegionGroupMaxAggregateOutputType | null
+  }
+
+  type GetRegionGroupGroupByPayload<T extends RegionGroupGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<RegionGroupGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof RegionGroupGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], RegionGroupGroupByOutputType[P]>
+            : GetScalarType<T[P], RegionGroupGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type RegionGroupSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    key?: boolean
+    year?: boolean
+    abbreviation?: boolean
+    displayName?: boolean
+    eventKeys?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["regionGroup"]>
+
+
+
+  export type RegionGroupSelectScalar = {
+    id?: boolean
+    key?: boolean
+    year?: boolean
+    abbreviation?: boolean
+    displayName?: boolean
+    eventKeys?: boolean
+    updatedAt?: boolean
+  }
+
+  export type RegionGroupOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "key" | "year" | "abbreviation" | "displayName" | "eventKeys" | "updatedAt", ExtArgs["result"]["regionGroup"]>
+
+  export type $RegionGroupPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "RegionGroup"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      key: string
+      year: number
+      abbreviation: string
+      displayName: string
+      eventKeys: string[]
+      updatedAt: Date
+    }, ExtArgs["result"]["regionGroup"]>
+    composites: {}
+  }
+
+  type RegionGroupGetPayload<S extends boolean | null | undefined | RegionGroupDefaultArgs> = $Result.GetResult<Prisma.$RegionGroupPayload, S>
+
+  type RegionGroupCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<RegionGroupFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: RegionGroupCountAggregateInputType | true
+    }
+
+  export interface RegionGroupDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['RegionGroup'], meta: { name: 'RegionGroup' } }
+    /**
+     * Find zero or one RegionGroup that matches the filter.
+     * @param {RegionGroupFindUniqueArgs} args - Arguments to find a RegionGroup
+     * @example
+     * // Get one RegionGroup
+     * const regionGroup = await prisma.regionGroup.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends RegionGroupFindUniqueArgs>(args: SelectSubset<T, RegionGroupFindUniqueArgs<ExtArgs>>): Prisma__RegionGroupClient<$Result.GetResult<Prisma.$RegionGroupPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one RegionGroup that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {RegionGroupFindUniqueOrThrowArgs} args - Arguments to find a RegionGroup
+     * @example
+     * // Get one RegionGroup
+     * const regionGroup = await prisma.regionGroup.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends RegionGroupFindUniqueOrThrowArgs>(args: SelectSubset<T, RegionGroupFindUniqueOrThrowArgs<ExtArgs>>): Prisma__RegionGroupClient<$Result.GetResult<Prisma.$RegionGroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first RegionGroup that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RegionGroupFindFirstArgs} args - Arguments to find a RegionGroup
+     * @example
+     * // Get one RegionGroup
+     * const regionGroup = await prisma.regionGroup.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends RegionGroupFindFirstArgs>(args?: SelectSubset<T, RegionGroupFindFirstArgs<ExtArgs>>): Prisma__RegionGroupClient<$Result.GetResult<Prisma.$RegionGroupPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first RegionGroup that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RegionGroupFindFirstOrThrowArgs} args - Arguments to find a RegionGroup
+     * @example
+     * // Get one RegionGroup
+     * const regionGroup = await prisma.regionGroup.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends RegionGroupFindFirstOrThrowArgs>(args?: SelectSubset<T, RegionGroupFindFirstOrThrowArgs<ExtArgs>>): Prisma__RegionGroupClient<$Result.GetResult<Prisma.$RegionGroupPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more RegionGroups that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RegionGroupFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all RegionGroups
+     * const regionGroups = await prisma.regionGroup.findMany()
+     * 
+     * // Get first 10 RegionGroups
+     * const regionGroups = await prisma.regionGroup.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const regionGroupWithIdOnly = await prisma.regionGroup.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends RegionGroupFindManyArgs>(args?: SelectSubset<T, RegionGroupFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegionGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a RegionGroup.
+     * @param {RegionGroupCreateArgs} args - Arguments to create a RegionGroup.
+     * @example
+     * // Create one RegionGroup
+     * const RegionGroup = await prisma.regionGroup.create({
+     *   data: {
+     *     // ... data to create a RegionGroup
+     *   }
+     * })
+     * 
+     */
+    create<T extends RegionGroupCreateArgs>(args: SelectSubset<T, RegionGroupCreateArgs<ExtArgs>>): Prisma__RegionGroupClient<$Result.GetResult<Prisma.$RegionGroupPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many RegionGroups.
+     * @param {RegionGroupCreateManyArgs} args - Arguments to create many RegionGroups.
+     * @example
+     * // Create many RegionGroups
+     * const regionGroup = await prisma.regionGroup.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends RegionGroupCreateManyArgs>(args?: SelectSubset<T, RegionGroupCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a RegionGroup.
+     * @param {RegionGroupDeleteArgs} args - Arguments to delete one RegionGroup.
+     * @example
+     * // Delete one RegionGroup
+     * const RegionGroup = await prisma.regionGroup.delete({
+     *   where: {
+     *     // ... filter to delete one RegionGroup
+     *   }
+     * })
+     * 
+     */
+    delete<T extends RegionGroupDeleteArgs>(args: SelectSubset<T, RegionGroupDeleteArgs<ExtArgs>>): Prisma__RegionGroupClient<$Result.GetResult<Prisma.$RegionGroupPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one RegionGroup.
+     * @param {RegionGroupUpdateArgs} args - Arguments to update one RegionGroup.
+     * @example
+     * // Update one RegionGroup
+     * const regionGroup = await prisma.regionGroup.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends RegionGroupUpdateArgs>(args: SelectSubset<T, RegionGroupUpdateArgs<ExtArgs>>): Prisma__RegionGroupClient<$Result.GetResult<Prisma.$RegionGroupPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more RegionGroups.
+     * @param {RegionGroupDeleteManyArgs} args - Arguments to filter RegionGroups to delete.
+     * @example
+     * // Delete a few RegionGroups
+     * const { count } = await prisma.regionGroup.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends RegionGroupDeleteManyArgs>(args?: SelectSubset<T, RegionGroupDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more RegionGroups.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RegionGroupUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many RegionGroups
+     * const regionGroup = await prisma.regionGroup.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends RegionGroupUpdateManyArgs>(args: SelectSubset<T, RegionGroupUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one RegionGroup.
+     * @param {RegionGroupUpsertArgs} args - Arguments to update or create a RegionGroup.
+     * @example
+     * // Update or create a RegionGroup
+     * const regionGroup = await prisma.regionGroup.upsert({
+     *   create: {
+     *     // ... data to create a RegionGroup
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the RegionGroup we want to update
+     *   }
+     * })
+     */
+    upsert<T extends RegionGroupUpsertArgs>(args: SelectSubset<T, RegionGroupUpsertArgs<ExtArgs>>): Prisma__RegionGroupClient<$Result.GetResult<Prisma.$RegionGroupPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more RegionGroups that matches the filter.
+     * @param {RegionGroupFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const regionGroup = await prisma.regionGroup.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: RegionGroupFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a RegionGroup.
+     * @param {RegionGroupAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const regionGroup = await prisma.regionGroup.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: RegionGroupAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of RegionGroups.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RegionGroupCountArgs} args - Arguments to filter RegionGroups to count.
+     * @example
+     * // Count the number of RegionGroups
+     * const count = await prisma.regionGroup.count({
+     *   where: {
+     *     // ... the filter for the RegionGroups we want to count
+     *   }
+     * })
+    **/
+    count<T extends RegionGroupCountArgs>(
+      args?: Subset<T, RegionGroupCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], RegionGroupCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a RegionGroup.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RegionGroupAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends RegionGroupAggregateArgs>(args: Subset<T, RegionGroupAggregateArgs>): Prisma.PrismaPromise<GetRegionGroupAggregateType<T>>
+
+    /**
+     * Group by RegionGroup.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RegionGroupGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends RegionGroupGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: RegionGroupGroupByArgs['orderBy'] }
+        : { orderBy?: RegionGroupGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, RegionGroupGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetRegionGroupGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the RegionGroup model
+   */
+  readonly fields: RegionGroupFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for RegionGroup.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__RegionGroupClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the RegionGroup model
+   */
+  interface RegionGroupFieldRefs {
+    readonly id: FieldRef<"RegionGroup", 'String'>
+    readonly key: FieldRef<"RegionGroup", 'String'>
+    readonly year: FieldRef<"RegionGroup", 'Int'>
+    readonly abbreviation: FieldRef<"RegionGroup", 'String'>
+    readonly displayName: FieldRef<"RegionGroup", 'String'>
+    readonly eventKeys: FieldRef<"RegionGroup", 'String[]'>
+    readonly updatedAt: FieldRef<"RegionGroup", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * RegionGroup findUnique
+   */
+  export type RegionGroupFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegionGroup
+     */
+    select?: RegionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RegionGroup
+     */
+    omit?: RegionGroupOmit<ExtArgs> | null
+    /**
+     * Filter, which RegionGroup to fetch.
+     */
+    where: RegionGroupWhereUniqueInput
+  }
+
+  /**
+   * RegionGroup findUniqueOrThrow
+   */
+  export type RegionGroupFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegionGroup
+     */
+    select?: RegionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RegionGroup
+     */
+    omit?: RegionGroupOmit<ExtArgs> | null
+    /**
+     * Filter, which RegionGroup to fetch.
+     */
+    where: RegionGroupWhereUniqueInput
+  }
+
+  /**
+   * RegionGroup findFirst
+   */
+  export type RegionGroupFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegionGroup
+     */
+    select?: RegionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RegionGroup
+     */
+    omit?: RegionGroupOmit<ExtArgs> | null
+    /**
+     * Filter, which RegionGroup to fetch.
+     */
+    where?: RegionGroupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RegionGroups to fetch.
+     */
+    orderBy?: RegionGroupOrderByWithRelationInput | RegionGroupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for RegionGroups.
+     */
+    cursor?: RegionGroupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RegionGroups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RegionGroups.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of RegionGroups.
+     */
+    distinct?: RegionGroupScalarFieldEnum | RegionGroupScalarFieldEnum[]
+  }
+
+  /**
+   * RegionGroup findFirstOrThrow
+   */
+  export type RegionGroupFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegionGroup
+     */
+    select?: RegionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RegionGroup
+     */
+    omit?: RegionGroupOmit<ExtArgs> | null
+    /**
+     * Filter, which RegionGroup to fetch.
+     */
+    where?: RegionGroupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RegionGroups to fetch.
+     */
+    orderBy?: RegionGroupOrderByWithRelationInput | RegionGroupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for RegionGroups.
+     */
+    cursor?: RegionGroupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RegionGroups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RegionGroups.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of RegionGroups.
+     */
+    distinct?: RegionGroupScalarFieldEnum | RegionGroupScalarFieldEnum[]
+  }
+
+  /**
+   * RegionGroup findMany
+   */
+  export type RegionGroupFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegionGroup
+     */
+    select?: RegionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RegionGroup
+     */
+    omit?: RegionGroupOmit<ExtArgs> | null
+    /**
+     * Filter, which RegionGroups to fetch.
+     */
+    where?: RegionGroupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RegionGroups to fetch.
+     */
+    orderBy?: RegionGroupOrderByWithRelationInput | RegionGroupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing RegionGroups.
+     */
+    cursor?: RegionGroupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RegionGroups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RegionGroups.
+     */
+    skip?: number
+    distinct?: RegionGroupScalarFieldEnum | RegionGroupScalarFieldEnum[]
+  }
+
+  /**
+   * RegionGroup create
+   */
+  export type RegionGroupCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegionGroup
+     */
+    select?: RegionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RegionGroup
+     */
+    omit?: RegionGroupOmit<ExtArgs> | null
+    /**
+     * The data needed to create a RegionGroup.
+     */
+    data: XOR<RegionGroupCreateInput, RegionGroupUncheckedCreateInput>
+  }
+
+  /**
+   * RegionGroup createMany
+   */
+  export type RegionGroupCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many RegionGroups.
+     */
+    data: RegionGroupCreateManyInput | RegionGroupCreateManyInput[]
+  }
+
+  /**
+   * RegionGroup update
+   */
+  export type RegionGroupUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegionGroup
+     */
+    select?: RegionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RegionGroup
+     */
+    omit?: RegionGroupOmit<ExtArgs> | null
+    /**
+     * The data needed to update a RegionGroup.
+     */
+    data: XOR<RegionGroupUpdateInput, RegionGroupUncheckedUpdateInput>
+    /**
+     * Choose, which RegionGroup to update.
+     */
+    where: RegionGroupWhereUniqueInput
+  }
+
+  /**
+   * RegionGroup updateMany
+   */
+  export type RegionGroupUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update RegionGroups.
+     */
+    data: XOR<RegionGroupUpdateManyMutationInput, RegionGroupUncheckedUpdateManyInput>
+    /**
+     * Filter which RegionGroups to update
+     */
+    where?: RegionGroupWhereInput
+    /**
+     * Limit how many RegionGroups to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * RegionGroup upsert
+   */
+  export type RegionGroupUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegionGroup
+     */
+    select?: RegionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RegionGroup
+     */
+    omit?: RegionGroupOmit<ExtArgs> | null
+    /**
+     * The filter to search for the RegionGroup to update in case it exists.
+     */
+    where: RegionGroupWhereUniqueInput
+    /**
+     * In case the RegionGroup found by the `where` argument doesn't exist, create a new RegionGroup with this data.
+     */
+    create: XOR<RegionGroupCreateInput, RegionGroupUncheckedCreateInput>
+    /**
+     * In case the RegionGroup was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<RegionGroupUpdateInput, RegionGroupUncheckedUpdateInput>
+  }
+
+  /**
+   * RegionGroup delete
+   */
+  export type RegionGroupDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegionGroup
+     */
+    select?: RegionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RegionGroup
+     */
+    omit?: RegionGroupOmit<ExtArgs> | null
+    /**
+     * Filter which RegionGroup to delete.
+     */
+    where: RegionGroupWhereUniqueInput
+  }
+
+  /**
+   * RegionGroup deleteMany
+   */
+  export type RegionGroupDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which RegionGroups to delete
+     */
+    where?: RegionGroupWhereInput
+    /**
+     * Limit how many RegionGroups to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * RegionGroup findRaw
+   */
+  export type RegionGroupFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * RegionGroup aggregateRaw
+   */
+  export type RegionGroupAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * RegionGroup without action
+   */
+  export type RegionGroupDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegionGroup
+     */
+    select?: RegionGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RegionGroup
+     */
+    omit?: RegionGroupOmit<ExtArgs> | null
   }
 
 
@@ -25041,6 +26116,19 @@ export namespace Prisma {
   export type EventTeamScalarFieldEnum = (typeof EventTeamScalarFieldEnum)[keyof typeof EventTeamScalarFieldEnum]
 
 
+  export const RegionGroupScalarFieldEnum: {
+    id: 'id',
+    key: 'key',
+    year: 'year',
+    abbreviation: 'abbreviation',
+    displayName: 'displayName',
+    eventKeys: 'eventKeys',
+    updatedAt: 'updatedAt'
+  };
+
+  export type RegionGroupScalarFieldEnum = (typeof RegionGroupScalarFieldEnum)[keyof typeof RegionGroupScalarFieldEnum]
+
+
   export const DistrictTeamScalarFieldEnum: {
     id: 'id',
     districtKey: 'districtKey',
@@ -25899,6 +26987,70 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"EventTeam"> | string
     eventKey?: StringWithAggregatesFilter<"EventTeam"> | string
     teamNumbers?: IntNullableListFilter<"EventTeam">
+  }
+
+  export type RegionGroupWhereInput = {
+    AND?: RegionGroupWhereInput | RegionGroupWhereInput[]
+    OR?: RegionGroupWhereInput[]
+    NOT?: RegionGroupWhereInput | RegionGroupWhereInput[]
+    id?: StringFilter<"RegionGroup"> | string
+    key?: StringFilter<"RegionGroup"> | string
+    year?: IntFilter<"RegionGroup"> | number
+    abbreviation?: StringFilter<"RegionGroup"> | string
+    displayName?: StringFilter<"RegionGroup"> | string
+    eventKeys?: StringNullableListFilter<"RegionGroup">
+    updatedAt?: DateTimeFilter<"RegionGroup"> | Date | string
+  }
+
+  export type RegionGroupOrderByWithRelationInput = {
+    id?: SortOrder
+    key?: SortOrder
+    year?: SortOrder
+    abbreviation?: SortOrder
+    displayName?: SortOrder
+    eventKeys?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type RegionGroupWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    key?: string
+    AND?: RegionGroupWhereInput | RegionGroupWhereInput[]
+    OR?: RegionGroupWhereInput[]
+    NOT?: RegionGroupWhereInput | RegionGroupWhereInput[]
+    year?: IntFilter<"RegionGroup"> | number
+    abbreviation?: StringFilter<"RegionGroup"> | string
+    displayName?: StringFilter<"RegionGroup"> | string
+    eventKeys?: StringNullableListFilter<"RegionGroup">
+    updatedAt?: DateTimeFilter<"RegionGroup"> | Date | string
+  }, "id" | "key">
+
+  export type RegionGroupOrderByWithAggregationInput = {
+    id?: SortOrder
+    key?: SortOrder
+    year?: SortOrder
+    abbreviation?: SortOrder
+    displayName?: SortOrder
+    eventKeys?: SortOrder
+    updatedAt?: SortOrder
+    _count?: RegionGroupCountOrderByAggregateInput
+    _avg?: RegionGroupAvgOrderByAggregateInput
+    _max?: RegionGroupMaxOrderByAggregateInput
+    _min?: RegionGroupMinOrderByAggregateInput
+    _sum?: RegionGroupSumOrderByAggregateInput
+  }
+
+  export type RegionGroupScalarWhereWithAggregatesInput = {
+    AND?: RegionGroupScalarWhereWithAggregatesInput | RegionGroupScalarWhereWithAggregatesInput[]
+    OR?: RegionGroupScalarWhereWithAggregatesInput[]
+    NOT?: RegionGroupScalarWhereWithAggregatesInput | RegionGroupScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"RegionGroup"> | string
+    key?: StringWithAggregatesFilter<"RegionGroup"> | string
+    year?: IntWithAggregatesFilter<"RegionGroup"> | number
+    abbreviation?: StringWithAggregatesFilter<"RegionGroup"> | string
+    displayName?: StringWithAggregatesFilter<"RegionGroup"> | string
+    eventKeys?: StringNullableListFilter<"RegionGroup">
+    updatedAt?: DateTimeWithAggregatesFilter<"RegionGroup"> | Date | string
   }
 
   export type DistrictTeamWhereInput = {
@@ -27300,6 +28452,72 @@ export namespace Prisma {
   export type EventTeamUncheckedUpdateManyInput = {
     eventKey?: StringFieldUpdateOperationsInput | string
     teamNumbers?: EventTeamUpdateteamNumbersInput | number[]
+  }
+
+  export type RegionGroupCreateInput = {
+    id?: string
+    key: string
+    year: number
+    abbreviation: string
+    displayName: string
+    eventKeys?: RegionGroupCreateeventKeysInput | string[]
+    updatedAt?: Date | string
+  }
+
+  export type RegionGroupUncheckedCreateInput = {
+    id?: string
+    key: string
+    year: number
+    abbreviation: string
+    displayName: string
+    eventKeys?: RegionGroupCreateeventKeysInput | string[]
+    updatedAt?: Date | string
+  }
+
+  export type RegionGroupUpdateInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    year?: IntFieldUpdateOperationsInput | number
+    abbreviation?: StringFieldUpdateOperationsInput | string
+    displayName?: StringFieldUpdateOperationsInput | string
+    eventKeys?: RegionGroupUpdateeventKeysInput | string[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RegionGroupUncheckedUpdateInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    year?: IntFieldUpdateOperationsInput | number
+    abbreviation?: StringFieldUpdateOperationsInput | string
+    displayName?: StringFieldUpdateOperationsInput | string
+    eventKeys?: RegionGroupUpdateeventKeysInput | string[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RegionGroupCreateManyInput = {
+    id?: string
+    key: string
+    year: number
+    abbreviation: string
+    displayName: string
+    eventKeys?: RegionGroupCreateeventKeysInput | string[]
+    updatedAt?: Date | string
+  }
+
+  export type RegionGroupUpdateManyMutationInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    year?: IntFieldUpdateOperationsInput | number
+    abbreviation?: StringFieldUpdateOperationsInput | string
+    displayName?: StringFieldUpdateOperationsInput | string
+    eventKeys?: RegionGroupUpdateeventKeysInput | string[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RegionGroupUncheckedUpdateManyInput = {
+    key?: StringFieldUpdateOperationsInput | string
+    year?: IntFieldUpdateOperationsInput | number
+    abbreviation?: StringFieldUpdateOperationsInput | string
+    displayName?: StringFieldUpdateOperationsInput | string
+    eventKeys?: RegionGroupUpdateeventKeysInput | string[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DistrictTeamCreateInput = {
@@ -28713,6 +29931,50 @@ export namespace Prisma {
     teamNumbers?: SortOrder
   }
 
+  export type StringNullableListFilter<$PrismaModel = never> = {
+    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    has?: string | StringFieldRefInput<$PrismaModel> | null
+    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
+    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
+  export type RegionGroupCountOrderByAggregateInput = {
+    id?: SortOrder
+    key?: SortOrder
+    year?: SortOrder
+    abbreviation?: SortOrder
+    displayName?: SortOrder
+    eventKeys?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type RegionGroupAvgOrderByAggregateInput = {
+    year?: SortOrder
+  }
+
+  export type RegionGroupMaxOrderByAggregateInput = {
+    id?: SortOrder
+    key?: SortOrder
+    year?: SortOrder
+    abbreviation?: SortOrder
+    displayName?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type RegionGroupMinOrderByAggregateInput = {
+    id?: SortOrder
+    key?: SortOrder
+    year?: SortOrder
+    abbreviation?: SortOrder
+    displayName?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type RegionGroupSumOrderByAggregateInput = {
+    year?: SortOrder
+  }
+
   export type DistrictTeamCountOrderByAggregateInput = {
     id?: SortOrder
     districtKey?: SortOrder
@@ -28924,14 +30186,6 @@ export namespace Prisma {
   export type PickSumOrderByAggregateInput = {
     year?: SortOrder
     teamNumber?: SortOrder
-  }
-
-  export type StringNullableListFilter<$PrismaModel = never> = {
-    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    has?: string | StringFieldRefInput<$PrismaModel> | null
-    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
-    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
-    isEmpty?: boolean
   }
 
   export type DraftCountOrderByAggregateInput = {
@@ -29526,6 +30780,15 @@ export namespace Prisma {
   export type EventTeamUpdateteamNumbersInput = {
     set?: number[]
     push?: number | number[]
+  }
+
+  export type RegionGroupCreateeventKeysInput = {
+    set: string[]
+  }
+
+  export type RegionGroupUpdateeventKeysInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type DistrictTeamCreateteamNumbersInput = {

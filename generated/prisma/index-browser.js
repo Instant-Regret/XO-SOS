@@ -208,6 +208,16 @@ exports.Prisma.EventTeamScalarFieldEnum = {
   teamNumbers: 'teamNumbers'
 };
 
+exports.Prisma.RegionGroupScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  year: 'year',
+  abbreviation: 'abbreviation',
+  displayName: 'displayName',
+  eventKeys: 'eventKeys',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.DistrictTeamScalarFieldEnum = {
   id: 'id',
   districtKey: 'districtKey',
@@ -349,6 +359,7 @@ exports.Prisma.ModelName = {
   Team: 'Team',
   TeamEpa: 'TeamEpa',
   EventTeam: 'EventTeam',
+  RegionGroup: 'RegionGroup',
   DistrictTeam: 'DistrictTeam',
   TeamAvatar: 'TeamAvatar',
   Award: 'Award',

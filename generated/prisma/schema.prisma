@@ -135,6 +135,21 @@ model EventTeam {
   teamNumbers Int[]
 }
 
+// SLFF regional grouping for a season (e.g. "2027northeast" = the Northeast
+// regionals). Not a FIRST district, so there's no District row; its team list
+// is rebuilt by the sync into DistrictTeam[key] from the rosters of eventKeys.
+model RegionGroup {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  key          String   @unique // "{year}{abbreviation}", same keyspace as DistrictTeam
+  year         Int
+  abbreviation String // "northeast"
+  displayName  String // "Northeast"
+  eventKeys    String[] // full event keys, e.g. "2027nybu"
+  updatedAt    DateTime @updatedAt
+
+  @@index([year])
+}
+
 model DistrictTeam {
   id          String @id @default(auto()) @map("_id") @db.ObjectId
   districtKey String @unique
