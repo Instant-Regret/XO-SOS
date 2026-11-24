@@ -390,10 +390,20 @@ export const frcRouter = createTRPCRouter({
   // and fall back to parsing the districtKey ("{year}{abbr}") for any
   // DistrictTeam without a matching District row.
   allDistricts: publicProcedure.query(async ({ ctx }) => {
-    const [districts, links] = await Promise.all([
+    const [districts, links, regionGroups] = await Promise.all([
       ctx.db.district.findMany({ orderBy: [{ year: "desc" }] }),
       ctx.db.districtTeam.findMany({ select: { districtKey: true } }),
+      ctx.db.regionGroup.findMany({
+        select: { abbreviation: true, displayName: true },
+        orderBy: { year: "desc" },
+      }),
     ]);
+    // SLFF regional groupings have no District row; name them from their
+    // RegionGroup (newest season wins) instead of the upper-cased abbreviation.
+    const groupNameByAbbr = new Map<string, string>();
+    for (const g of regionGroups) {
+      if (!groupNameByAbbr.has(g.abbreviation)) groupNameByAbbr.set(g.abbreviation, g.displayName);
+    }
 
     type Entry = {
       key: string;
@@ -435,7 +445,7 @@ export const frcRouter = createTRPCRouter({
         cur = {
           key: link.districtKey,
           abbreviation: abbr,
-          displayName: abbr.toUpperCase(),
+          displayName: groupNameByAbbr.get(abbr) ?? abbr.toUpperCase(),
           year,
           years: new Set(),
         };

@@ -10,6 +10,7 @@ import {
   syncChampsEvents,
 } from "~/server/lib/sync";
 import { fitWeights } from "~/server/lib/scoring-fit";
+import { syncRegionGroups } from "~/server/lib/region-groups";
 import { acquireCronLock, runSource } from "~/server/lib/cron-lock";
 
 export const runtime = "nodejs";
@@ -89,6 +90,21 @@ export async function GET(req: NextRequest) {
         );
       }
       result = await syncChampsEvents(years);
+    } else if (task === "regions") {
+      // Rebuild SLFF regional-grouping team lists (after importing regions).
+      const years = (params.get("years") ?? "")
+        .split(",")
+        .map((y) => Number(y.trim()))
+        .filter((y) => Number.isInteger(y) && y > 2000);
+      if (years.length === 0) {
+        return NextResponse.json(
+          { ok: false, error: "regions needs ?years=YYYY,YYYY" },
+          { status: 400 },
+        );
+      }
+      const out = [];
+      for (const y of years) out.push(await syncRegionGroups(y));
+      result = out;
     } else if (task === "fit") {
       result = await fitWeights();
     } else {
