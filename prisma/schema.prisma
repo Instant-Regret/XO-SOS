@@ -145,6 +145,11 @@ model RegionGroup {
     abbreviation String // "northeast"
     displayName  String // "Northeast"
     eventKeys    String[] // full event keys, e.g. "2027nybu"
+    // Official team list from the SLFF region team-list sheet (each team in
+    // exactly one region). When set it replaces the roster-built list; empty
+    // means "build the list from the event rosters".
+    teamNumbers   Int[]     @default([])
+    teamsListedAt DateTime?
     updatedAt    DateTime @updatedAt
 
     @@index([year])

@@ -13091,10 +13091,12 @@ export namespace Prisma {
 
   export type RegionGroupAvgAggregateOutputType = {
     year: number | null
+    teamNumbers: number | null
   }
 
   export type RegionGroupSumAggregateOutputType = {
     year: number | null
+    teamNumbers: number[]
   }
 
   export type RegionGroupMinAggregateOutputType = {
@@ -13103,6 +13105,7 @@ export namespace Prisma {
     year: number | null
     abbreviation: string | null
     displayName: string | null
+    teamsListedAt: Date | null
     updatedAt: Date | null
   }
 
@@ -13112,6 +13115,7 @@ export namespace Prisma {
     year: number | null
     abbreviation: string | null
     displayName: string | null
+    teamsListedAt: Date | null
     updatedAt: Date | null
   }
 
@@ -13122,6 +13126,8 @@ export namespace Prisma {
     abbreviation: number
     displayName: number
     eventKeys: number
+    teamNumbers: number
+    teamsListedAt: number
     updatedAt: number
     _all: number
   }
@@ -13129,10 +13135,12 @@ export namespace Prisma {
 
   export type RegionGroupAvgAggregateInputType = {
     year?: true
+    teamNumbers?: true
   }
 
   export type RegionGroupSumAggregateInputType = {
     year?: true
+    teamNumbers?: true
   }
 
   export type RegionGroupMinAggregateInputType = {
@@ -13141,6 +13149,7 @@ export namespace Prisma {
     year?: true
     abbreviation?: true
     displayName?: true
+    teamsListedAt?: true
     updatedAt?: true
   }
 
@@ -13150,6 +13159,7 @@ export namespace Prisma {
     year?: true
     abbreviation?: true
     displayName?: true
+    teamsListedAt?: true
     updatedAt?: true
   }
 
@@ -13160,6 +13170,8 @@ export namespace Prisma {
     abbreviation?: true
     displayName?: true
     eventKeys?: true
+    teamNumbers?: true
+    teamsListedAt?: true
     updatedAt?: true
     _all?: true
   }
@@ -13257,6 +13269,8 @@ export namespace Prisma {
     abbreviation: string
     displayName: string
     eventKeys: string[]
+    teamNumbers: number[]
+    teamsListedAt: Date | null
     updatedAt: Date
     _count: RegionGroupCountAggregateOutputType | null
     _avg: RegionGroupAvgAggregateOutputType | null
@@ -13286,6 +13300,8 @@ export namespace Prisma {
     abbreviation?: boolean
     displayName?: boolean
     eventKeys?: boolean
+    teamNumbers?: boolean
+    teamsListedAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["regionGroup"]>
 
@@ -13298,10 +13314,12 @@ export namespace Prisma {
     abbreviation?: boolean
     displayName?: boolean
     eventKeys?: boolean
+    teamNumbers?: boolean
+    teamsListedAt?: boolean
     updatedAt?: boolean
   }
 
-  export type RegionGroupOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "key" | "year" | "abbreviation" | "displayName" | "eventKeys" | "updatedAt", ExtArgs["result"]["regionGroup"]>
+  export type RegionGroupOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "key" | "year" | "abbreviation" | "displayName" | "eventKeys" | "teamNumbers" | "teamsListedAt" | "updatedAt", ExtArgs["result"]["regionGroup"]>
 
   export type $RegionGroupPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "RegionGroup"
@@ -13313,6 +13331,8 @@ export namespace Prisma {
       abbreviation: string
       displayName: string
       eventKeys: string[]
+      teamNumbers: number[]
+      teamsListedAt: Date | null
       updatedAt: Date
     }, ExtArgs["result"]["regionGroup"]>
     composites: {}
@@ -13712,6 +13732,8 @@ export namespace Prisma {
     readonly abbreviation: FieldRef<"RegionGroup", 'String'>
     readonly displayName: FieldRef<"RegionGroup", 'String'>
     readonly eventKeys: FieldRef<"RegionGroup", 'String[]'>
+    readonly teamNumbers: FieldRef<"RegionGroup", 'Int[]'>
+    readonly teamsListedAt: FieldRef<"RegionGroup", 'DateTime'>
     readonly updatedAt: FieldRef<"RegionGroup", 'DateTime'>
   }
     
@@ -26123,6 +26145,8 @@ export namespace Prisma {
     abbreviation: 'abbreviation',
     displayName: 'displayName',
     eventKeys: 'eventKeys',
+    teamNumbers: 'teamNumbers',
+    teamsListedAt: 'teamsListedAt',
     updatedAt: 'updatedAt'
   };
 
@@ -26999,6 +27023,8 @@ export namespace Prisma {
     abbreviation?: StringFilter<"RegionGroup"> | string
     displayName?: StringFilter<"RegionGroup"> | string
     eventKeys?: StringNullableListFilter<"RegionGroup">
+    teamNumbers?: IntNullableListFilter<"RegionGroup">
+    teamsListedAt?: DateTimeNullableFilter<"RegionGroup"> | Date | string | null
     updatedAt?: DateTimeFilter<"RegionGroup"> | Date | string
   }
 
@@ -27009,6 +27035,8 @@ export namespace Prisma {
     abbreviation?: SortOrder
     displayName?: SortOrder
     eventKeys?: SortOrder
+    teamNumbers?: SortOrder
+    teamsListedAt?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -27022,6 +27050,8 @@ export namespace Prisma {
     abbreviation?: StringFilter<"RegionGroup"> | string
     displayName?: StringFilter<"RegionGroup"> | string
     eventKeys?: StringNullableListFilter<"RegionGroup">
+    teamNumbers?: IntNullableListFilter<"RegionGroup">
+    teamsListedAt?: DateTimeNullableFilter<"RegionGroup"> | Date | string | null
     updatedAt?: DateTimeFilter<"RegionGroup"> | Date | string
   }, "id" | "key">
 
@@ -27032,6 +27062,8 @@ export namespace Prisma {
     abbreviation?: SortOrder
     displayName?: SortOrder
     eventKeys?: SortOrder
+    teamNumbers?: SortOrder
+    teamsListedAt?: SortOrder
     updatedAt?: SortOrder
     _count?: RegionGroupCountOrderByAggregateInput
     _avg?: RegionGroupAvgOrderByAggregateInput
@@ -27050,6 +27082,8 @@ export namespace Prisma {
     abbreviation?: StringWithAggregatesFilter<"RegionGroup"> | string
     displayName?: StringWithAggregatesFilter<"RegionGroup"> | string
     eventKeys?: StringNullableListFilter<"RegionGroup">
+    teamNumbers?: IntNullableListFilter<"RegionGroup">
+    teamsListedAt?: DateTimeNullableWithAggregatesFilter<"RegionGroup"> | Date | string | null
     updatedAt?: DateTimeWithAggregatesFilter<"RegionGroup"> | Date | string
   }
 
@@ -28461,6 +28495,8 @@ export namespace Prisma {
     abbreviation: string
     displayName: string
     eventKeys?: RegionGroupCreateeventKeysInput | string[]
+    teamNumbers?: RegionGroupCreateteamNumbersInput | number[]
+    teamsListedAt?: Date | string | null
     updatedAt?: Date | string
   }
 
@@ -28471,6 +28507,8 @@ export namespace Prisma {
     abbreviation: string
     displayName: string
     eventKeys?: RegionGroupCreateeventKeysInput | string[]
+    teamNumbers?: RegionGroupCreateteamNumbersInput | number[]
+    teamsListedAt?: Date | string | null
     updatedAt?: Date | string
   }
 
@@ -28480,6 +28518,8 @@ export namespace Prisma {
     abbreviation?: StringFieldUpdateOperationsInput | string
     displayName?: StringFieldUpdateOperationsInput | string
     eventKeys?: RegionGroupUpdateeventKeysInput | string[]
+    teamNumbers?: RegionGroupUpdateteamNumbersInput | number[]
+    teamsListedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -28489,6 +28529,8 @@ export namespace Prisma {
     abbreviation?: StringFieldUpdateOperationsInput | string
     displayName?: StringFieldUpdateOperationsInput | string
     eventKeys?: RegionGroupUpdateeventKeysInput | string[]
+    teamNumbers?: RegionGroupUpdateteamNumbersInput | number[]
+    teamsListedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -28499,6 +28541,8 @@ export namespace Prisma {
     abbreviation: string
     displayName: string
     eventKeys?: RegionGroupCreateeventKeysInput | string[]
+    teamNumbers?: RegionGroupCreateteamNumbersInput | number[]
+    teamsListedAt?: Date | string | null
     updatedAt?: Date | string
   }
 
@@ -28508,6 +28552,8 @@ export namespace Prisma {
     abbreviation?: StringFieldUpdateOperationsInput | string
     displayName?: StringFieldUpdateOperationsInput | string
     eventKeys?: RegionGroupUpdateeventKeysInput | string[]
+    teamNumbers?: RegionGroupUpdateteamNumbersInput | number[]
+    teamsListedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -28517,6 +28563,8 @@ export namespace Prisma {
     abbreviation?: StringFieldUpdateOperationsInput | string
     displayName?: StringFieldUpdateOperationsInput | string
     eventKeys?: RegionGroupUpdateeventKeysInput | string[]
+    teamNumbers?: RegionGroupUpdateteamNumbersInput | number[]
+    teamsListedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -29946,11 +29994,14 @@ export namespace Prisma {
     abbreviation?: SortOrder
     displayName?: SortOrder
     eventKeys?: SortOrder
+    teamNumbers?: SortOrder
+    teamsListedAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type RegionGroupAvgOrderByAggregateInput = {
     year?: SortOrder
+    teamNumbers?: SortOrder
   }
 
   export type RegionGroupMaxOrderByAggregateInput = {
@@ -29959,6 +30010,7 @@ export namespace Prisma {
     year?: SortOrder
     abbreviation?: SortOrder
     displayName?: SortOrder
+    teamsListedAt?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -29968,11 +30020,13 @@ export namespace Prisma {
     year?: SortOrder
     abbreviation?: SortOrder
     displayName?: SortOrder
+    teamsListedAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type RegionGroupSumOrderByAggregateInput = {
     year?: SortOrder
+    teamNumbers?: SortOrder
   }
 
   export type DistrictTeamCountOrderByAggregateInput = {
@@ -30786,9 +30840,18 @@ export namespace Prisma {
     set: string[]
   }
 
+  export type RegionGroupCreateteamNumbersInput = {
+    set: number[]
+  }
+
   export type RegionGroupUpdateeventKeysInput = {
     set?: string[]
     push?: string | string[]
+  }
+
+  export type RegionGroupUpdateteamNumbersInput = {
+    set?: number[]
+    push?: number | number[]
   }
 
   export type DistrictTeamCreateteamNumbersInput = {

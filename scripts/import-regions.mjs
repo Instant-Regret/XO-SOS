@@ -5,7 +5,8 @@
 // CSV: one column per region; header = region name ("West/Pacific"), cells =
 // event codes without the year ("nybu"). Upserts one RegionGroup per column and
 // removes that season's groupings that are no longer in the file. Team lists are
-// then built from the event rosters by the sync — run it right away with
+// then built from the event rosters by the sync (or taken from the official
+// team-list sheet, scripts/import-region-teams.mjs) — run it right away with
 //   GET /api/cron/sync?task=regions&years=2027   (Bearer CRON_SECRET)
 // or wait for the daily cron.
 import { readFileSync } from "node:fs";

@@ -215,6 +215,8 @@ exports.Prisma.RegionGroupScalarFieldEnum = {
   abbreviation: 'abbreviation',
   displayName: 'displayName',
   eventKeys: 'eventKeys',
+  teamNumbers: 'teamNumbers',
+  teamsListedAt: 'teamsListedAt',
   updatedAt: 'updatedAt'
 };
 
