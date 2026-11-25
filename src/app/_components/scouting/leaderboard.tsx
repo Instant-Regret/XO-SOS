@@ -30,6 +30,16 @@ function extraValue(team: TeamView, col: ExtraColumn): string {
   }
 }
 
+// Hover text for the Plays cell: which events count, and that only the first
+// 2 score.
+function playsTitle(t: TeamView): string {
+  if (t.plays === 0) return "Not registered for a scoring event yet";
+  const [first, second, ...rest] = t.playEvents;
+  if (t.plays === 1) return `One-play (×1.6 + 14 projection): ${first}`;
+  const extra = rest.length ? `\nNot scored: ${rest.join(", ")}` : "";
+  return `Two-play: ${first}, ${second}${extra}`;
+}
+
 export function Leaderboard({
   teams,
   allTeams,
@@ -203,6 +213,14 @@ export function Leaderboard({
             <ColHeader
               label="Region"
               sortKey="region"
+              sortState={sort}
+              onSort={toggleSort}
+            />
+          </div>
+          <div className="col-plays">
+            <ColHeader
+              label="Plays"
+              sortKey="plays"
               sortState={sort}
               onSort={toggleSort}
             />
@@ -387,6 +405,17 @@ export function Leaderboard({
               </div>
               <div className="col-region">
                 <span className="region-chip">{t.region}</span>
+              </div>
+              <div className="col-plays" title={playsTitle(t)}>
+                {t.plays === 0 ? (
+                  <span className="owners-empty">—</span>
+                ) : (
+                  <span
+                    className={`plays-chip ${t.plays === 1 ? "plays-one" : "plays-two"}`}
+                  >
+                    {Math.min(t.plays, 2)}
+                  </span>
+                )}
               </div>
               <div
                 className="col-xval"

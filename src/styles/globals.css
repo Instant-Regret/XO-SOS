@@ -542,22 +542,31 @@ body {
   border-radius: 12px;
   background: var(--surface);
 }
+/* Each track's minimum is the measured width of its widest content (header
+   label + sort arrow + filter button, or the widest cell such as the
+   "NORTHEAST" chip), so nothing is clipped or overlaps; extra room is shared
+   by the fr parts. The board's min-width is the sum of those minimums + gaps +
+   padding — narrower viewports scroll the board sideways instead of squeezing. */
 .board {
-  min-width: 1080px;
+  min-width: 1530px;
 }
 .board-head,
 .row {
   display: grid;
   grid-template-columns:
-    34px
-    minmax(140px, 1.7fr)
-    minmax(54px, 0.7fr)
-    minmax(68px, 0.8fr)
-    minmax(50px, 0.7fr)
-    minmax(62px, 0.7fr)
-    minmax(84px, 0.9fr)
-    repeat(8, minmax(46px, 0.8fr))
-    minmax(120px, 1.5fr);
+    34px /* # */
+    minmax(150px, 1.7fr) /* team */
+    minmax(82px, 0.7fr) /* region */
+    minmax(70px, 0.5fr) /* plays */
+    minmax(86px, 0.8fr) /* xVal */
+    minmax(80px, 0.7fr) /* EPA */
+    minmax(102px, 0.7fr) /* rating */
+    minmax(96px, 0.9fr) /* pick */
+    minmax(86px, 0.8fr) /* XROBOT */
+    minmax(98px, 0.8fr) /* XAWARDS */
+    minmax(64px, 0.7fr) /* XSOS */
+    repeat(5, minmax(60px, 0.7fr)) /* per-year XVAL */
+    minmax(172px, 1.5fr); /* awards (4 icons with 2-digit counts) */
   gap: 5px;
   align-items: center;
   padding: 8px 12px;
@@ -801,6 +810,35 @@ body {
   min-width: 48px;
   height: 28px;
   font-size: 12px;
+}
+
+/* One-play / two-play count. One-play teams get the ×1.6 + 14 projection, so
+   they're tinted to stand out. */
+.col-plays {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.plays-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 22px;
+  margin-left: 4px; /* line up under the header label */
+  padding: 0 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.plays-one {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  border-color: color-mix(in oklch, var(--accent) 40%, var(--border));
 }
 
 .col-xval {
