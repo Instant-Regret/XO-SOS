@@ -10,9 +10,11 @@
 //
 // The sheet is a snapshot: re-run this with a fresh export whenever it
 // changes. Between imports the sync keeps the list as-is and only adds teams
-// that register later and aren't on any list (see region-groups.ts). The
-// 1-play / 2-play split isn't stored; the board computes it from the
-// registrations and this script reports where the two disagree.
+// that register later and aren't on any list (see region-groups.ts).
+//
+// Only the region membership is taken from the sheet. The 1-play / 2-play
+// split is NOT stored: the board's Plays column and the scoring always follow
+// the TBA registrations, and this script just reports where the sheet differs.
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 
@@ -129,7 +131,7 @@ try {
       .filter((x) => x.plays !== x.registered);
     for (const x of disagree) {
       console.log(
-        `    ${x.n}: sheet says ${x.plays}-play, registered for ${regionalCount.get(x.n) ?? 0} regional(s)`,
+        `    ${x.n}: sheet says ${x.plays}-play; board follows registrations: ${regionalCount.get(x.n) ?? 0} regional(s)`,
       );
     }
   }
