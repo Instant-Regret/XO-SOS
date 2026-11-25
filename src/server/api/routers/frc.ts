@@ -334,6 +334,57 @@ function mergeXsos(
   }
 }
 
+// One-play / two-play: how many of a season's events count toward the board's
+// scoring window, read from the event rosters (registrations), so it's known
+// before the events are played. SLFF scores only the first 2, and a team with
+// one gets the one-play projection (×1.6 + 14).
+//   std/full → regionals + district events (any district)
+//   reg      → regionals
+//   dct      → district events in the board's own district
+export type Plays = {
+  count: number; // events in the window (may exceed 2; only 2 are scored)
+  events: { key: string; name: string }[]; // in date order
+};
+async function playsByTeam(
+  db: typeof Db,
+  numbers: number[],
+  year: number,
+  window: ScoreWindow,
+  districtKey: string | null,
+): Promise<Map<number, Plays>> {
+  const events = await db.event.findMany({
+    where: {
+      year,
+      ...(window === "reg"
+        ? { eventType: 0 }
+        : window === "dct"
+          ? { eventType: 1, districtKey: districtKey ?? "__none__" }
+          : { eventType: { in: [0, 1] } }),
+    },
+    select: { key: true, name: true, startDate: true },
+    orderBy: { startDate: "asc" },
+  });
+  const rosters = await db.eventTeam.findMany({
+    where: { eventKey: { in: events.map((e) => e.key) } },
+    select: { eventKey: true, teamNumbers: true },
+  });
+  const rosterByEvent = new Map(rosters.map((r) => [r.eventKey, new Set(r.teamNumbers)]));
+  const wanted = new Set(numbers);
+  const out = new Map<number, Plays>();
+  for (const e of events) {
+    const roster = rosterByEvent.get(e.key);
+    if (!roster) continue;
+    for (const n of roster) {
+      if (!wanted.has(n)) continue;
+      const p = out.get(n) ?? { count: 0, events: [] };
+      p.count++;
+      p.events.push({ key: e.key, name: e.name });
+      out.set(n, p);
+    }
+  }
+  return out;
+}
+
 // Attach each award's event start date (for chronological ordering in the
 // awards tooltip). Awards only store the event key, so we look the dates up.
 type AwardRow = { eventKey: string; awardType: number; name: string; year: number };
@@ -663,6 +714,13 @@ export const frcRouter = createTRPCRouter({
       );
       mergeXsos(scoreByTeam, yearResults, fieldStrength);
       const pickByTeam = buildPickMap(resultRows);
+      const plays = await playsByTeam(
+        ctx.db,
+        numbers,
+        year,
+        window,
+        window === "dct" ? input.districtKey : null,
+      );
 
       return {
         year,
@@ -681,6 +739,7 @@ export const frcRouter = createTRPCRouter({
           awards: attachAwardDates(awardsByTeam.get(t.number) ?? [], dateByEvent),
           score: scoreByTeam.get(t.number) ?? null,
           picks: pickByTeam.get(t.number) ?? {},
+          plays: plays.get(t.number) ?? null,
         })),
       };
     }),
@@ -819,6 +878,7 @@ export const frcRouter = createTRPCRouter({
       );
       mergeXsos(scoreByTeam, yearResults, fieldStrength);
       const pickByTeam = buildPickMap(resultRows);
+      const plays = await playsByTeam(ctx.db, numbers, input.year, "std", null);
 
       return {
         year: input.year,
@@ -839,6 +899,7 @@ export const frcRouter = createTRPCRouter({
             awards: attachAwardDates(awardsByTeam.get(r.teamNumber) ?? [], dateByEvent),
             score: scoreByTeam.get(r.teamNumber) ?? null,
             picks: pickByTeam.get(r.teamNumber) ?? {},
+            plays: plays.get(r.teamNumber) ?? null,
           };
         }),
       };
@@ -1003,6 +1064,14 @@ export const frcRouter = createTRPCRouter({
       );
       mergeXsos(scoreByTeam, yearResults, fieldStrength);
       const pickByTeam = buildPickMap(resultRows);
+      // Champs pages ("full") count plays like the global board.
+      const plays = await playsByTeam(
+        ctx.db,
+        numbers,
+        year,
+        window === "full" ? "std" : window,
+        window === "dct" ? event?.districtKey ?? null : null,
+      );
 
       return {
         year,
@@ -1021,6 +1090,7 @@ export const frcRouter = createTRPCRouter({
           awards: attachAwardDates(awardsByTeam.get(t.number) ?? [], dateByEvent),
           score: scoreByTeam.get(t.number) ?? null,
           picks: pickByTeam.get(t.number) ?? {},
+          plays: plays.get(t.number) ?? null,
         })),
       };
     }),

@@ -37,6 +37,11 @@ export type TeamView = {
   number: number;
   name: string; // nickname for the small "tag" line
   region: string; // district abbreviation shown in the row chip
+  // Events this season that count toward the board's scoring window, from the
+  // registrations: 1 = one-play (×1.6 + 14 projection), 2+ = two-play (only
+  // the first 2 score). 0 = not registered for any yet.
+  plays: number;
+  playEvents: string[]; // event names, in date order
   avatarUrl: string;
   xVal: number; // XVAL (pred on std boards, full-season value on champs), 0 if none
   xRobot: number; // XROBOT column

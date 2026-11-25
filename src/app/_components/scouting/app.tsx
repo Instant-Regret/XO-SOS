@@ -420,6 +420,14 @@ function ScoutingBoard() {
       debug: score?.debug,
     });
 
+    // One-play / two-play count from the board query (registrations).
+    const playsFields = (
+      plays: { count: number; events: { name: string }[] } | null | undefined,
+    ) => ({
+      plays: plays?.count ?? 0,
+      playEvents: plays?.events.map((e) => e.name) ?? [],
+    });
+
     // Pick fields for a row: editable single pick on a region board, else a
     // read-only aggregate of all owners across boards.
     const pickFor = (number: number) => {
@@ -452,6 +460,7 @@ function ScoutingBoard() {
           region: eventChip,
           avatarUrl: buildAvatarUrl(data.year, t.number, t.avatarB64),
           ...scoreFields(t.score),
+          ...playsFields(t.plays),
           epa: t.epa ?? 0,
           stars: ratingsByTeam.get(t.number) ?? 0,
           ...pickFor(t.number),
@@ -472,6 +481,7 @@ function ScoutingBoard() {
           region: districtChip,
           avatarUrl: buildAvatarUrl(data.year, t.number, t.avatarB64),
           ...scoreFields(t.score),
+          ...playsFields(t.plays),
           epa: t.epa ?? 0,
           stars: ratingsByTeam.get(t.number) ?? 0,
           ...pickFor(t.number),
@@ -489,6 +499,7 @@ function ScoutingBoard() {
         region: t.districtAbbr ? t.districtAbbr.toUpperCase() : "—",
         avatarUrl: buildAvatarUrl(data.year, t.number, t.avatarB64),
         ...scoreFields(t.score),
+        ...playsFields(t.plays),
         epa: t.epa ?? 0,
         stars: ratingsByTeam.get(t.number) ?? 0,
         ...pickFor(t.number),
